@@ -13,11 +13,9 @@ public static class DataHolder
     public static int Money { get; set; } = -1;
     public static string KeyID { get; set; } = "123";
     public static int thisGameID { get; set; }
-    public static bool inGame { get; set; } = false;
+    public static bool needToReconnect { get; set; } = false;
     public static bool canMove { get; set; } = false;
     public static int WinFlag { get; set; } = 0;
-    public static GameObject NotificationPanel { get; set; }
-    public static GameObject Shield { get; set; }
     public static GameObject timerT { get; set; }
     public static TcpConnect ClientTCP { get; set; }
     public static UDPConnect ClientUDP { get; set; }
@@ -116,7 +114,7 @@ public static class DataHolder
     {
         try
         {
-            IPStatus  status = new System.Net.NetworkInformation.Ping().Send("google.com").Status;
+            IPStatus status = new System.Net.NetworkInformation.Ping().Send("google.com").Status;
 
             if (status == IPStatus.Success)
                 return true;

@@ -14,8 +14,7 @@ public class MainMenuScr : MonoBehaviour
 
     void Start()
     {
-        DataHolder.NotificationPanel = notifPanel;
-        DataHolder.Shield = shield;
+
     }
 
     void Update()
@@ -43,7 +42,15 @@ public class MainMenuScr : MonoBehaviour
             }
             //TODO: Отправить на сервер что-то про отмену игры? Или игроку уведомление, что соединение потеряно
         }
-        
+
+
+        // Если Read поймёт, что сеть прервалось, сработает это и начнётся востановление сети.
+        if (DataHolder.needToReconnect)
+        {
+            DataHolder.needToReconnect = false;
+            StartReconnect();
+        }
+
     }
 
     public void SelectSingleGame()
@@ -162,24 +169,24 @@ public class MainMenuScr : MonoBehaviour
         Debug.Log("Send");
     }
 
-    //public void asdasdaa()
-    //{
-    //    DataHolder.Connected = false;
-    //    shield.SetActive(true);
-    //    DataHolder.ShowNotif(notifPanel, 1);
-    //    InvokeRepeating("TryReconnect", 0.0f, 1.0f);
-    //}
+    public void StartReconnect()
+    {
+        DataHolder.Connected = false;
+        shield.SetActive(true);
+        DataHolder.ShowNotif(notifPanel, 1);
+        InvokeRepeating("TryReconnect", 0.0f, 1.0f);
+    }
 
-    //public void TryReconnect()
-    //{
-    //    DataHolder.ClientTCP.Reconnect(notifPanel);
-    //    if (DataHolder.Connected == true)
-    //    {
-    //        CancelInvoke("TryReconnect");
-    //        shield.SetActive(false);
-    //        notifPanel.SetActive(false);
-    //    }           
-    //}
+    public void TryReconnect()
+    {
+        DataHolder.ClientTCP.Reconnect(notifPanel);
+        if (DataHolder.Connected == true)
+        {
+            CancelInvoke("TryReconnect");
+            shield.SetActive(false);
+            notifPanel.SetActive(false);
+        }
+    }
 
 
 

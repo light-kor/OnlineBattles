@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -87,9 +88,8 @@ public class TcpConnect
         catch
         {
             DataHolder.Connected = false;
+            DataHolder.needToReconnect = true;
         }
-
-
     }
 
     private void Reader()
@@ -115,7 +115,7 @@ public class TcpConnect
                 //TODO: До сюда не всегда доходит
                 Debug.Log("Close thread");
                 DataHolder.Connected = false;
-                StartReconnect();
+                DataHolder.needToReconnect = true;
                 break;
             }            
             
@@ -140,72 +140,20 @@ public class TcpConnect
         }
     }
 
-    //public void asdasdaa()
-    //{
-    //    DataHolder.Connected = false;
-    //    shield.SetActive(true);
-    //    DataHolder.ShowNotif(notifPanel, 1);
-    //    InvokeRepeating("TryReconnect", 0.0f, 1.0f);
-    //}
-
-    //public void TryResdconnect()
-    //{
-    //    DataHolder.ClientTCP.Reconnect(notifPanel);
-    //    if (DataHolder.Connected == true)
-    //    {
-    //        CancelInvoke("TryReconnect");
-    //        shield.SetActive(false);
-    //        notifPanel.SetActive(false);
-    //    }
-    //}
-
-    public void StartReconnect()
-    {
-        DataHolder.Shield.SetActive(true);
-        DataHolder.ShowNotif(DataHolder.NotificationPanel, 1);
-
-        TimerCallback tm = new TimerCallback(TryReconnect);
-        myTimer = new Timer(tm, null, 0, 2000);
-    }
-
-    public void TryReconnect(object obj)
+    public void Reconnect(GameObject notifPanel)
     {
         Debug.Log("Start Reconnect");
 
         if (!DataHolder.CheckConnection())
         {
-            DataHolder.ShowNotif(DataHolder.NotificationPanel, 3);
+            DataHolder.ShowNotif(notifPanel, 3);
             return;
         }
-        else DataHolder.ShowNotif(DataHolder.NotificationPanel, 4);
+        else DataHolder.ShowNotif(notifPanel, 4);
 
         CloseClient();
         TryConnect();
-
-        if (DataHolder.Connected == true)
-        {
-            myTimer.Dispose();
-            DataHolder.Shield.SetActive(false);
-            DataHolder.NotificationPanel.SetActive(false);
-        }
     }
-
-
-
-    //public void Reconnect(GameObject notifPanel)
-    //{
-    //    Debug.Log("Start Reconnect");
-
-    //    if (!DataHolder.CheckConnection())
-    //    {
-    //        DataHolder.ShowNotif(notifPanel, 3);
-    //        return;
-    //    }
-    //    else DataHolder.ShowNotif(notifPanel, 4);
-
-    //    CloseClient();
-    //    TryConnect();
-    //}
 
 
     private void CloseClient()
