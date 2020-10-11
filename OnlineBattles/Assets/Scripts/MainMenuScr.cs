@@ -9,8 +9,7 @@ public class MainMenuScr : MonoBehaviour
 {
     public Text money, id;
     public GameObject mainPanel, lvlPanel, notifPanel;
-    private Text[] notifText;
-    private Button[] mainBut, lvlBut;
+    public GameObject shield; // Блокирует нажатия на все кнопки, кроме notifPanel
 
     private bool makelvlChoice = false;
     private string lvlName = "";
@@ -19,41 +18,10 @@ public class MainMenuScr : MonoBehaviour
     void Start()
     {
         Application.runInBackground = true;
-        notifText = notifPanel.GetComponentsInChildren<Text>();
-        mainBut = mainPanel.GetComponentsInChildren<Button>();
-        lvlBut = mainPanel.GetComponentsInChildren<Button>();
     }
 
     void Update()
     {
-        // Если нажали мултиплеер в первый раз
-        if (DataHolder.ButtonMainMenu)
-        {
-            //Если всё норм, то переходим на другую сцену
-            if (DataHolder.Connected) //TODO: Сделать это на событиях, чтоб в DataHolder сработало событие перехода на MoveMenuPanels для этого скрипта
-            {
-                DataHolder.GameType = 3;
-                MoveMenuPanels();
-                GetMoney();
-                // Включаем кнопки главного экрана
-                OnOffButtonsOnPanel(mainBut, true);
-            }
-            else
-            {                
-                notifText[0].text = "Ошибка сети. Попробуйте позже";
-                notifPanel.SetActive(true);                
-            }
-            DataHolder.ButtonMainMenu = false;
-        }
-
-        // Показать уведомление (разрыв соединения, ...)
-        if (DataHolder.showNotif)
-        {
-            notifText[0].text = notifText + "";
-            notifPanel.SetActive(true);
-            DataHolder.showNotif = false;
-        }
-
         // Принимаем сообщение о старте игры
         while (DataHolder.messageTCP.Count > 0)
         {
@@ -72,8 +40,7 @@ public class MainMenuScr : MonoBehaviour
         {
             if ((DateTime.UtcNow - timeOfChoice).TotalSeconds > 3f)
             {
-                // Включаем кнопки обратно, если не присоединился к игре
-                OnOffButtonsOnPanel(lvlBut, false);
+                shield.SetActive(false);
                 makelvlChoice = false;
             }
             //TODO: Отправить на сервер что-то про отмену игры? Или игроку уведомление, что соединение потеряно
@@ -81,10 +48,6 @@ public class MainMenuScr : MonoBehaviour
         
     }
 
-    public void aaaa()
-    {
-        Debug.Log(DataHolder.CheckConnection());
-    }
     public void SelectSingleGame()
     {
         DataHolder.GameType = 1;
@@ -97,33 +60,34 @@ public class MainMenuScr : MonoBehaviour
         MoveMenuPanels();
     }
 
-    /// <summary>
-    /// В зависимости от нажатой кнопки определяем тип игры (single, multi, wifi)
-    /// </summary>
-    /// <param name="button">Имя кнопки</param>
     public void SelectMultiplayerGame()
     {
         //TODO: Что делать если ты уже подключался, но сервер тебя удалил или пр, ну то есть у тебя connected, но сервер больше не отвечает
         // Если нет подключения, то коннектим 
         if (!DataHolder.Connected)
         {
-            //TODO: Мб как-то выделить нажатую кнопку или добавить анимацию загрузки, что было понятно, что надо подождать
-            // Выключаем кнопки главного экрана, пока устанавливаем соединение
-            OnOffButtonsOnPanel(mainBut, false);
+            //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
+            shield.SetActive(true);
 
-            // Запускаем tcp соединение
+            if (!DataHolder.CheckConnection())
+            {
+                DataHolder.ShowNotif(notifPanel, 2);
+                return;
+            }
+           
             DataHolder.CreateTCP();
         }
 
         //Если всё норм, то переходим на другую сцену
-        if (DataHolder.Connected) //TODO: Сделать это на событиях, чтоб в DataHolder сработало событие перехода на MoveMenuPanels для этого скрипта
+        if (DataHolder.Connected) //TODO: При каждом нажатии проверять связь с сервером, а не коннект переменную
         {
             DataHolder.GameType = 3;
             GetMoney();
             MoveMenuPanels();
+            shield.SetActive(false);
         }
-        // else // Ошибка
-        
+        else DataHolder.ShowNotif(notifPanel, 0);
+
     }
 
     public void GetMoney()
@@ -153,7 +117,7 @@ public class MainMenuScr : MonoBehaviour
                 lvlName = "lvl1";
                 DataHolder.ClientTCP.SendMassage("1");
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
-                OnOffButtonsOnPanel(lvlBut, false);
+                shield.SetActive(true);
                 timeOfChoice = DateTime.UtcNow;
                 makelvlChoice = true;
             }
@@ -174,20 +138,11 @@ public class MainMenuScr : MonoBehaviour
                 lvlName = "UdpLVL";
                 DataHolder.ClientTCP.SendMassage("2");
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
-                OnOffButtonsOnPanel(lvlBut, false);
+                shield.SetActive(true);
                 timeOfChoice = DateTime.UtcNow;
                 makelvlChoice = true;
             }
         }        
-    }
-
-    private void OnOffButtonsOnPanel(Button[] but, bool turn)
-    {
-        // Выключаем и включаем кнопки главного экрана
-        for (int i = 0; i < but.Length; i++)
-        {
-            but[i].enabled = turn;
-        }
     }
 
     public void MoveMenuPanels()
@@ -200,9 +155,10 @@ public class MainMenuScr : MonoBehaviour
     public void ExitNotif()
     {
         notifPanel.SetActive(false);
-        // Включаем все кнопки главного меню обратно
-        OnOffButtonsOnPanel(mainBut, true);
+        shield.SetActive(false);
     }
+
+
 
 
 
@@ -210,6 +166,8 @@ public class MainMenuScr : MonoBehaviour
     // таки сделать общий лист всех игроков, чтоб чекать есть ли уже такой игрок и если есть то делать реконнект и возвращать в игру
     // ЕСли выкинуло во время игры, то шлёшь номер игры с подписью реконект, и тогда сервер чекнет именно в списке нужной игры и вернёт тебя, или же
     // если там пусто, то вы не успели, досвидания
+
+    //TODO: добавить к notif panel езё одну родительску панель, которая перекроет все кнопки, и их не нужно будет ограничиваь кодом
 
     //TODO: Корректно завершать соединение и поток, когда выходишь из игры, или хочешь заново подключиться или при постоянном вкл и выкл udp
 

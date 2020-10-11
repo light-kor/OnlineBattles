@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class OnlineGameController : MonoBehaviour
 {
-    public GameObject endPanel, fastExitPanel;
+    public GameObject endPanel, fastExitPanel, notifPanel;
     public Text endText;
     
 
@@ -93,8 +93,7 @@ public class OnlineGameController : MonoBehaviour
 
         if (!DataHolder.Connected)
         {
-            DataHolder.notifText = "Разрыв соединения.";
-            DataHolder.showNotif = true;
+            DataHolder.ShowNotif(notifPanel, 1);
         }
         
     }

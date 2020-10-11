@@ -62,19 +62,6 @@ public class UDPGame : MonoBehaviour
         }
     }
 
-    //private void OnMouseDown()
-    //{
-    //    OnMouseDrag();
-    //}
-
-    //void OnMouseDrag()
-    //{
-    //    // 10 равно 0 по z
-    //    Vector3 mousePosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1); // переменной записываются координаты мыши по иксу и игрику
-    //    Vector3 objPosition = Camera.main.ScreenToWorldPoint(mousePosition); // переменной - объекту присваивается переменная с координатами мыши
-    //    transform.position = objPosition; // и собственно объекту записываются координаты
-    //}
-
 
     public void GoToMainMenu()
     {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.UI;
 
 public static class DataHolder
 {
@@ -12,14 +13,10 @@ public static class DataHolder
     public static int Money { get; set; } = -1;
     public static string KeyID { get; set; } = "123";
     public static int thisGameID { get; set; }
-    public static string notifText { get; set; } = "";
     public static bool inGame { get; set; } = false;
-    public static bool showNotif { get; set; } = false;
     public static bool ButtonMainMenu { get; set; } = false;
     public static bool canMove { get; set; } = false;
     public static int WinFlag { get; set; } = 0;
-    public static int thisGameId { get; set; } = 0;
-
     public static GameObject timerT { get; set; }
     public static TcpConnect ClientTCP { get; set; }
     public static UDPConnect ClientUDP { get; set; }
@@ -33,6 +30,16 @@ public static class DataHolder
     public static int Port = 13130; // локальный порт для прослушивания входящих подключений
     public static int remotePort = 55555; // порт для отправки данных
 
+    // Все варианты оповещений игрока для NotifPanel
+    //TODO: Сделать NotifPanel переходящей из сцены в сцену
+    public static string[] notifOptions = new string[4] { 
+        "Ошибка сети. Попробуйте позже",
+        "Разрыв соединения.",
+        "Отсутствует подключение к интернету",
+        "sdfsdf"   
+    };
+
+
     // Надо ли делать это в отдельном потоке?
     // потом акрыть поток
     /// <summary>
@@ -40,6 +47,8 @@ public static class DataHolder
     /// </summary>
     public static void CreateTCP()
     {
+        
+
         // Если это не первая попытка (Это нельзя удалять!)
         if (ClientTCP != null)
             ClientTCP = null;
@@ -95,7 +104,6 @@ public static class DataHolder
 
     public static bool CheckConnection()
     {
-        //TODO: проверить работу, когда вифи работает, но провод не вставлен
         try
         {
             IPStatus  status = new System.Net.NetworkInformation.Ping().Send("google.com").Status;
@@ -107,4 +115,16 @@ public static class DataHolder
         catch { return false; }
         
     }
+
+    /// <summary>
+    /// Выводит на экран уведомление об ошибке и тд.
+    /// </summary>
+    /// <param name="notifPanel">Ссылка на панель уведомлений</param>
+    /// <param name="num">Номер уведомления в notifOptions</param>
+    public static void ShowNotif(GameObject notifPanel, int num)
+    {
+        notifPanel.transform.Find("Text").GetComponent<Text>().text = notifOptions[num];
+        notifPanel.SetActive(true);
+    }
+
 }
