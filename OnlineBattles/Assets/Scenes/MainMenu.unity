@@ -789,7 +789,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1632653834}
         m_TargetAssemblyTypeName: MainMenuScr, Assembly-CSharp
-        m_MethodName: aaaa
+        m_MethodName: asda
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2790,6 +2790,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1559723547}
     m_Modifications:
+    - target: {fileID: 2438391116976181176, guid: 8b6b3ee17169cd541899d6365aab9e95,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2438391116976181182, guid: 8b6b3ee17169cd541899d6365aab9e95,
         type: 3}
       propertyPath: m_Name

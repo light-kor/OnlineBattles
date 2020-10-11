@@ -8,25 +8,30 @@ using UnityEngine;
 
 public class TcpConnect
 {
-    public static TcpClient client;
-    Thread clientListener;
-    public static IEnumerable<IPAddress> GetLocalIPAddress()
+    public TcpClient client;
+    private Thread clientListener;
+    private NetworkStream NS;
+    Timer myTimer;
+
+    //"127.0.0.1" - локальный; "192.168.0.1" ; "5.18.204.242" - общий ip сети; "192.168.0.107" - второй ноут; "192.168.137.1" - этот ноут
+    private string connectIp = "127.0.0.1";
+    //192.168.0.106
+
+    private static IEnumerable<IPAddress> GetLocalIPAddress()
     {
         return Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(f => f.AddressFamily == AddressFamily.InterNetwork);
     }
 
     public TcpConnect()
     {
-        //"127.0.0.1" - локальный; "192.168.0.1" ; "5.18.204.242" - общий ip сети; "192.168.0.107" - второй ноут; "192.168.137.1" - этот ноут
-        string connectIp = "127.0.0.1";
-        //192.168.0.106
+        
         // Нет разницы First или Last
-        string ip = GetLocalIPAddress().First().ToString();
-        IPAddress localIP = GetLocalIPAddress().Last();
-        IPEndPoint localSocket = new IPEndPoint(localIP, DataHolder.Port);
+        //string ip = GetLocalIPAddress().First().ToString();
+        //IPAddress localIP = GetLocalIPAddress().Last();
+        //IPEndPoint localSocket = new IPEndPoint(localIP, DataHolder.Port);
         //client.Client.Bind(localIP);
 
-        client = new TcpClient();
+        //client = new TcpClient();
 
         // Включть вместо верхнего, если тестишь на разных устройствах
         //client = new TcpClient(localSocket);
@@ -39,6 +44,19 @@ public class TcpConnect
 
         //client.Connect(IPAddress.Parse(connectIp), Port);
 
+        TryConnect();
+
+
+        //TODO: Что делать, если соединение обрубится во время игры? Надо как-то обработать
+
+        //Debug.Log("My local IpAddress is : " + IPAddress.Parse(((IPEndPoint)client.Client.LocalEndPoint).Address.ToString()) + " | I am connected on port number " + ((IPEndPoint)client.Client.LocalEndPoint).Port.ToString());
+        //mappings.Remove(port, "TCP");
+    }
+
+    private void TryConnect()
+    {
+        client = new TcpClient();
+
         var result = client.BeginConnect(connectIp, DataHolder.remotePort, null, null);
         if (result.AsyncWaitHandle.WaitOne(2000, true))
         {
@@ -46,21 +64,14 @@ public class TcpConnect
             clientListener = new Thread(Reader);
             clientListener.Start();
             clientListener.IsBackground = true;
+            DataHolder.Connected = true;
         }
         else
-        {           
+        {
             client.Dispose();
             client.Close();
-            Debug.Log("fwef");
-            // Вся обработка этого момента в DataHolder
-            //TODO: Сообщить в DataHolder, что создать не удалось
+            DataHolder.Connected = false;
         }
-
-
-        //TODO: Что делать, если соединение обрубится во время игры? Надо как-то обработать
-
-        //Debug.Log("My local IpAddress is : " + IPAddress.Parse(((IPEndPoint)client.Client.LocalEndPoint).Address.ToString()) + " | I am connected on port number " + ((IPEndPoint)client.Client.LocalEndPoint).Port.ToString());
-        //mappings.Remove(port, "TCP");
     }
 
     public void SendMassage(string message)
@@ -76,19 +87,19 @@ public class TcpConnect
         catch
         {
             DataHolder.Connected = false;
-            //TODO: И что дальше?
         }
+
 
     }
 
-    static void Reader()
+    private void Reader()
     {
-        NetworkStream NS;
+        Debug.Log("Start thread");
         while (true)
-        {            
+        {           
             List<byte> Buffer = new List<byte>();
             try
-            {
+            {               
                 NS = client.GetStream();
                 while (NS.DataAvailable)
                 {
@@ -101,7 +112,10 @@ public class TcpConnect
             }
             catch 
             {
+                //TODO: До сюда не всегда доходит
                 Debug.Log("Close thread");
+                DataHolder.Connected = false;
+                StartReconnect();
                 break;
             }            
             
@@ -118,7 +132,87 @@ public class TcpConnect
                     DataHolder.messageTCP.Add(messList[i]);
                 }               
             }
+
+            if (client == null)
+            {
+                break;
+            }
         }
+    }
+
+    //public void asdasdaa()
+    //{
+    //    DataHolder.Connected = false;
+    //    shield.SetActive(true);
+    //    DataHolder.ShowNotif(notifPanel, 1);
+    //    InvokeRepeating("TryReconnect", 0.0f, 1.0f);
+    //}
+
+    //public void TryResdconnect()
+    //{
+    //    DataHolder.ClientTCP.Reconnect(notifPanel);
+    //    if (DataHolder.Connected == true)
+    //    {
+    //        CancelInvoke("TryReconnect");
+    //        shield.SetActive(false);
+    //        notifPanel.SetActive(false);
+    //    }
+    //}
+
+    public void StartReconnect()
+    {
+        DataHolder.Shield.SetActive(true);
+        DataHolder.ShowNotif(DataHolder.NotificationPanel, 1);
+
+        TimerCallback tm = new TimerCallback(TryReconnect);
+        myTimer = new Timer(tm, null, 0, 2000);
+    }
+
+    public void TryReconnect(object obj)
+    {
+        Debug.Log("Start Reconnect");
+
+        if (!DataHolder.CheckConnection())
+        {
+            DataHolder.ShowNotif(DataHolder.NotificationPanel, 3);
+            return;
+        }
+        else DataHolder.ShowNotif(DataHolder.NotificationPanel, 4);
+
+        CloseClient();
+        TryConnect();
+
+        if (DataHolder.Connected == true)
+        {
+            myTimer.Dispose();
+            DataHolder.Shield.SetActive(false);
+            DataHolder.NotificationPanel.SetActive(false);
+        }
+    }
+
+
+
+    //public void Reconnect(GameObject notifPanel)
+    //{
+    //    Debug.Log("Start Reconnect");
+
+    //    if (!DataHolder.CheckConnection())
+    //    {
+    //        DataHolder.ShowNotif(notifPanel, 3);
+    //        return;
+    //    }
+    //    else DataHolder.ShowNotif(notifPanel, 4);
+
+    //    CloseClient();
+    //    TryConnect();
+    //}
+
+
+    private void CloseClient()
+    {
+        client.Dispose();
+        client.Close();
+        client = null;
     }
 
     ~TcpConnect()
@@ -126,9 +220,8 @@ public class TcpConnect
         if (client != null)
         {
             //TODO: Завершается ли при этом поток?
-            client.Dispose();
-            client.Close();
-            Debug.Log("closee");
+            CloseClient();
+            Debug.Log("Destroy TcpConnect");
         }
     }
 }

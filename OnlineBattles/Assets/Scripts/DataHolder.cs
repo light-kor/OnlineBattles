@@ -14,9 +14,10 @@ public static class DataHolder
     public static string KeyID { get; set; } = "123";
     public static int thisGameID { get; set; }
     public static bool inGame { get; set; } = false;
-    public static bool ButtonMainMenu { get; set; } = false;
     public static bool canMove { get; set; } = false;
     public static int WinFlag { get; set; } = 0;
+    public static GameObject NotificationPanel { get; set; }
+    public static GameObject Shield { get; set; }
     public static GameObject timerT { get; set; }
     public static TcpConnect ClientTCP { get; set; }
     public static UDPConnect ClientUDP { get; set; }
@@ -32,12 +33,15 @@ public static class DataHolder
 
     // Все варианты оповещений игрока для NotifPanel
     //TODO: Сделать NotifPanel переходящей из сцены в сцену
-    public static string[] notifOptions = new string[4] { 
-        "Ошибка сети. Попробуйте позже",
-        "Разрыв соединения.",
-        "Отсутствует подключение к интернету",
-        "sdfsdf"   
+    public static string[] notifOptions = new string[6] { 
+        "Сервер не доступен. Попробуйте позже.",
+        "Разрыв соединения.\r\nПереподключение...",
+        "Отсутствует подключение к интернету.",
+        "Отсутствует подключение к интернету.\r\nОжидание...",
+        "Переподключение к серверу...",
+        "Ожидание сети..."
     };
+
 
 
     // Надо ли делать это в отдельном потоке?
@@ -47,13 +51,19 @@ public static class DataHolder
     /// </summary>
     public static void CreateTCP()
     {
-        
-
         // Если это не первая попытка (Это нельзя удалять!)
         if (ClientTCP != null)
             ClientTCP = null;
 
         ClientTCP = new TcpConnect();
+
+        if (Connected == false)
+        {
+            ClientTCP = null;
+            return;
+        }
+            
+
         ClientTCP.SendMassage("0 1 " + KeyID);
 
         DateTime d = DateTime.Now;
@@ -76,13 +86,13 @@ public static class DataHolder
                             Money = Convert.ToInt32(mes[2]);
 
                             messageTCP.RemoveAt(0);
-                            Connected = true;
-                            ButtonMainMenu = true;
                             break;
                         }
                         else
                         {
                             //TODO: Ошибка базы данных
+                            ClientTCP = null;
+                            Connected = false;
                             break;
                         }
                     }
@@ -91,7 +101,7 @@ public static class DataHolder
             else
             {
                 ClientTCP = null;
-                ButtonMainMenu = true;
+                Connected = false;
                 break;
             }
         }

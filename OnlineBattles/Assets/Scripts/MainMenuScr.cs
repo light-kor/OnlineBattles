@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,7 +14,8 @@ public class MainMenuScr : MonoBehaviour
 
     void Start()
     {
-        Application.runInBackground = true;
+        DataHolder.NotificationPanel = notifPanel;
+        DataHolder.Shield = shield;
     }
 
     void Update()
@@ -158,6 +156,30 @@ public class MainMenuScr : MonoBehaviour
         shield.SetActive(false);
     }
 
+    public void asda()
+    {
+        DataHolder.ClientTCP.SendMassage("sdfsdfsdg");
+        Debug.Log("Send");
+    }
+
+    //public void asdasdaa()
+    //{
+    //    DataHolder.Connected = false;
+    //    shield.SetActive(true);
+    //    DataHolder.ShowNotif(notifPanel, 1);
+    //    InvokeRepeating("TryReconnect", 0.0f, 1.0f);
+    //}
+
+    //public void TryReconnect()
+    //{
+    //    DataHolder.ClientTCP.Reconnect(notifPanel);
+    //    if (DataHolder.Connected == true)
+    //    {
+    //        CancelInvoke("TryReconnect");
+    //        shield.SetActive(false);
+    //        notifPanel.SetActive(false);
+    //    }           
+    //}
 
 
 
@@ -168,6 +190,8 @@ public class MainMenuScr : MonoBehaviour
     // если там пусто, то вы не успели, досвидания
 
     //TODO: добавить к notif panel езё одну родительску панель, которая перекроет все кнопки, и их не нужно будет ограничиваь кодом
+
+    //TODO: Человек мжет отменить процесс переподключения, но должна появиться кнопка с возможностью заново начать переподключаться
 
     //TODO: Корректно завершать соединение и поток, когда выходишь из игры, или хочешь заново подключиться или при постоянном вкл и выкл udp
 
