@@ -18,7 +18,7 @@ public class UDPConnect
         GameOn = true;
         //TODO: Принимать только с ip нашего сервера
         sender = new UdpClient(ip, DataHolder.remotePort); // создаем UdpClient для отправки сообщений
-        receiver = new UdpClient(DataHolder.Port); // UdpClient для получения данных
+        receiver = new UdpClient(DataHolder.localPort); // UdpClient для получения данных
         //udpClient = new UdpClient();
         //udpClient.Connect(ip, DataHolder.Port);
 
@@ -64,7 +64,7 @@ public class UDPConnect
             catch
             {
                 receiver.Close();
-                receiver = new UdpClient(DataHolder.Port);
+                receiver = new UdpClient(DataHolder.localPort);
             }
         }
     }

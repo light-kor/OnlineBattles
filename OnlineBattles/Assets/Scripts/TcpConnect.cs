@@ -26,52 +26,54 @@ public class TcpConnect
     public TcpConnect()
     {
         
-        // Нет разницы First или Last
-        //string ip = GetLocalIPAddress().First().ToString();
-        //IPAddress localIP = GetLocalIPAddress().Last();
-        //IPEndPoint localSocket = new IPEndPoint(localIP, DataHolder.Port);
-        //client.Client.Bind(localIP);
+        if (Application.internetReachability.ToString() == "ReachableViaLocalAreaNetwork")
+        {
+            //ReachableViaCarrierDataNetwork  4G
+            //ReachableViaLocalAreaNetwork wifi
+            // NotReachable nihuya
+        }
 
-        //client = new TcpClient();
+#if UNITY_ANDROID
 
-        // Включть вместо верхнего, если тестишь на разных устройствах
-        //client = new TcpClient(localSocket);
 
-        //Пробрасывать First или Last ip, но для сокета точно последний
+#endif
+        IPEndPoint ipLocalEndPoint = new IPEndPoint(IPAddress.Any, DataHolder.localPort);
+        client = new TcpClient(ipLocalEndPoint);
 
         //NATUPNPLib.UPnPNAT upnpnat = new NATUPNPLib.UPnPNAT();
         //NATUPNPLib.IStaticPortMappingCollection mappings = upnpnat.StaticPortMappingCollection;
-        //mappings.Add(localPort, "TCP", localPort, ip, true, "BattlesPort"); //если требуется пробрасываем порт
+        //mappings.Add(DataHolder.localPort, "TCP", DataHolder.localPort, ((IPEndPoint)client.Client.LocalEndPoint).Address.ToString(), true, "BattlesPort");
 
-        //client.Connect(IPAddress.Parse(connectIp), Port);
-
+        //Open Nat - какая-то другая библиотека
         TryConnect();
 
-
-        //TODO: Что делать, если соединение обрубится во время игры? Надо как-то обработать
-
         //Debug.Log("My local IpAddress is : " + IPAddress.Parse(((IPEndPoint)client.Client.LocalEndPoint).Address.ToString()) + " | I am connected on port number " + ((IPEndPoint)client.Client.LocalEndPoint).Port.ToString());
-        //mappings.Remove(port, "TCP");
+        //mappings.Remove(DataHolder.Port, "TCP");
     }
 
     private void TryConnect()
     {
-        client = new TcpClient();
-
-        var result = client.BeginConnect(connectIp, DataHolder.remotePort, null, null);
-        if (result.AsyncWaitHandle.WaitOne(2000, true))
+        //client = new TcpClient();
+        try
         {
-            client.EndConnect(result);
-            clientListener = new Thread(Reader);
-            clientListener.Start();
-            clientListener.IsBackground = true;
-            DataHolder.Connected = true;
-        }
-        else
+            var result = client.BeginConnect(connectIp, DataHolder.remotePort, null, null);
+            if (result.AsyncWaitHandle.WaitOne(2000, true))
+            {
+                client.EndConnect(result);
+                clientListener = new Thread(Reader);
+                clientListener.Start();
+                clientListener.IsBackground = true;
+                DataHolder.Connected = true;
+            }
+            else
+            {
+                client.Dispose();
+                client.Close();
+                DataHolder.Connected = false;
+            }
+        } catch (Exception ex)
         {
-            client.Dispose();
-            client.Close();
-            DataHolder.Connected = false;
+            Debug.Log(ex);
         }
     }
 

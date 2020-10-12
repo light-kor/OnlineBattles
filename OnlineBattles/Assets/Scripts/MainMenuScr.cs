@@ -164,9 +164,8 @@ public class MainMenuScr : MonoBehaviour
     }
 
     public void asda()
-    {
-        DataHolder.ClientTCP.SendMassage("sdfsdfsdg");
-        Debug.Log("Send");
+    {        
+        Debug.Log(Application.internetReachability.ToString());
     }
 
     public void StartReconnect()

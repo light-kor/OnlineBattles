@@ -26,7 +26,7 @@ public static class DataHolder
     public static List<string> messageUDPget = new List<string>();
 
     //Временные переменные
-    public static int Port = 13130; // локальный порт для прослушивания входящих подключений
+    public static int localPort = 13130; // локальный порт для прослушивания входящих подключений
     public static int remotePort = 55555; // порт для отправки данных
 
     // Все варианты оповещений игрока для NotifPanel
