@@ -13,7 +13,7 @@ public class OnlineGameController : MonoBehaviour
     private void Start()
     {
         Application.runInBackground = true;
-        DataHolder.timerT = GameObject.FindGameObjectWithTag("Timer");
+        
     }
 
 

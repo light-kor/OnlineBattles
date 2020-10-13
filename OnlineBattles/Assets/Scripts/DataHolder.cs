@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.NetworkInformation;
 using UnityEngine;
 using UnityEngine.UI;
@@ -109,18 +110,18 @@ public static class DataHolder
         ClientUDP = new UDPConnect();
     }
 
-    public static bool CheckConnection()
+    public static bool CheckForInternetConnection()
     {
         try
         {
-            IPStatus status = new System.Net.NetworkInformation.Ping().Send("google.com").Status;
-
-            if (status == IPStatus.Success)
+            using (var client = new WebClient())
+            using (client.OpenRead("http://google.com/generate_204"))
                 return true;
-            else return false;
         }
-        catch { return false; }
-        
+        catch
+        {
+            return false;
+        }
     }
 
 

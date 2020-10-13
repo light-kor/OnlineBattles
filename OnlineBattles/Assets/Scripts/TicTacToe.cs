@@ -20,6 +20,7 @@ public class TicTacToe : MonoBehaviour
 
         // Начинаем
         DataHolder.canMove = true;
+        DataHolder.timerT = GameObject.FindGameObjectWithTag("Timer");
         DataHolder.timerT.GetComponent<timer>().StartTimer();
         
     }

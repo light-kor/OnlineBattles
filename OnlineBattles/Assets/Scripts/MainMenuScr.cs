@@ -68,25 +68,23 @@ public class MainMenuScr : MonoBehaviour
 
     public void SelectMultiplayerGame()
     {
-        //TODO: Что делать если ты уже подключался, но сервер тебя удалил или пр, ну то есть у тебя connected, но сервер больше не отвечает
-        // Если нет подключения, то коннектим 
         if (!DataHolder.Connected)
         {
             //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
             shield.SetActive(true);
 
-            //TODO: Не работает на андроиде
-            //if (!DataHolder.CheckConnection())
-            //{
-            //    DataHolder.ShowNotif(notifPanel, 2);
-            //    return;
-            //}
+            if (!DataHolder.CheckForInternetConnection())
+            {
+                DataHolder.ShowNotif(notifPanel, 2);
+                return;
+            }
 
             DataHolder.CreateTCP();
         }
 
-        //Если всё норм, то переходим на другую сцену
-        if (DataHolder.Connected) //TODO: При каждом нажатии проверять связь с сервером, а не коннект переменную
+        DataHolder.ClientTCP.SendMassage("Check");
+
+        if (DataHolder.Connected)
         {
             DataHolder.GameType = 3;
             GetMoney();
@@ -94,7 +92,6 @@ public class MainMenuScr : MonoBehaviour
             shield.SetActive(false);
         }
         else DataHolder.ShowNotif(notifPanel, 0);
-
     }
 
     public void GetMoney()

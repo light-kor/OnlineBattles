@@ -10,7 +10,7 @@ public class timer : MonoBehaviour
     private float timeLeft;
 
     void Start()
-    {
+    {      
         timerT = GetComponent<Text>();
         timeLeft = time;
     }
