@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Open.Nat;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -12,7 +13,6 @@ public class TcpConnect
     public TcpClient client;
     private Thread clientListener;
     private NetworkStream NS;
-    Timer myTimer;
 
     //"127.0.0.1" - локальный; "192.168.0.1" ; "5.18.204.242" - общий ip сети; "192.168.0.107" - второй ноут; "192.168.137.1" - этот ноут
     private string connectIp = "127.0.0.1";
@@ -33,17 +33,22 @@ public class TcpConnect
             // NotReachable nihuya
         }
 
+
+
+
 #if UNITY_ANDROID
 
 
 #endif
-        IPEndPoint ipLocalEndPoint = new IPEndPoint(IPAddress.Any, DataHolder.localPort);
-        client = new TcpClient(ipLocalEndPoint);
+        //IPEndPoint ipLocalEndPoint = new IPEndPoint(IPAddress.Any, DataHolder.localPort);
+        //client = new TcpClient(ipLocalEndPoint);
 
         //NATUPNPLib.UPnPNAT upnpnat = new NATUPNPLib.UPnPNAT();
         //NATUPNPLib.IStaticPortMappingCollection mappings = upnpnat.StaticPortMappingCollection;
         //mappings.Add(DataHolder.localPort, "TCP", DataHolder.localPort, ((IPEndPoint)client.Client.LocalEndPoint).Address.ToString(), true, "BattlesPort");
 
+        //OpenPort(DataHolder.localPort);
+        OpenPort();
         //Open Nat - какая-то другая библиотека
         TryConnect();
 
@@ -51,9 +56,35 @@ public class TcpConnect
         //mappings.Remove(DataHolder.Port, "TCP");
     }
 
+    private static async void OpenPort()
+    {
+        int port = DataHolder.localPort;
+        try
+        {
+            var discoverer = new NatDiscoverer();
+            var device = await discoverer.DiscoverDeviceAsync(PortMapper.Upnp, new CancellationTokenSource(3000));
+            await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, port, port, "OnlineBattlesTCP"));
+            await device.CreatePortMapAsync(new Mapping(Protocol.Udp, port, port, "OnlineBattlesUDP"));
+        }
+        catch (MappingException me)
+        {
+            Debug.Log("asdas");
+            switch (me.ErrorCode)
+            {
+                case 718:
+                    Debug.Log("The external port already in use.");
+                    break;
+                case 728:
+                    Debug.Log("The router's mapping table is full.");
+                    break;
+            }
+        }
+
+    }
+
     private void TryConnect()
     {
-        //client = new TcpClient();
+        client = new TcpClient();
         try
         {
             var result = client.BeginConnect(connectIp, DataHolder.remotePort, null, null);

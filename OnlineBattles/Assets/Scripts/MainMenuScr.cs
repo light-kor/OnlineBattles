@@ -8,6 +8,7 @@ public class MainMenuScr : MonoBehaviour
     public GameObject mainPanel, lvlPanel, notifPanel;
     public GameObject shield; // Блокирует нажатия на все кнопки, кроме notifPanel
 
+
     private bool makelvlChoice = false;
     private string lvlName = "";
     private DateTime timeOfChoice = DateTime.UtcNow;
@@ -74,12 +75,13 @@ public class MainMenuScr : MonoBehaviour
             //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
             shield.SetActive(true);
 
-            if (!DataHolder.CheckConnection())
-            {
-                DataHolder.ShowNotif(notifPanel, 2);
-                return;
-            }
-           
+            //TODO: Не работает на андроиде
+            //if (!DataHolder.CheckConnection())
+            //{
+            //    DataHolder.ShowNotif(notifPanel, 2);
+            //    return;
+            //}
+
             DataHolder.CreateTCP();
         }
 
@@ -164,8 +166,8 @@ public class MainMenuScr : MonoBehaviour
     }
 
     public void asda()
-    {        
-        Debug.Log(Application.internetReachability.ToString());
+    {
+        
     }
 
     public void StartReconnect()

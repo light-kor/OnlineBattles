@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -123,6 +122,7 @@ public static class DataHolder
         catch { return false; }
         
     }
+
 
     /// <summary>
     /// Выводит на экран уведомление об ошибке и тд.
