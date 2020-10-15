@@ -11,6 +11,7 @@ public static class DataHolder
     public static bool Connected { get; set; } = false;
     public static int MyID { get; set; }  = -1;
     public static int Money { get; set; } = -1;
+    public static int GameId { get; set; } = -1;
     public static string KeyID { get; set; } = "123";
     public static int thisGameID { get; set; }
     public static bool needToReconnect { get; set; } = false;
@@ -24,6 +25,9 @@ public static class DataHolder
     public static List<string> messageTCPforGame = new List<string>();
 
     public static List<string> messageUDPget = new List<string>();
+
+    //"127.0.0.1" - локальный; 188.134.87.78 - общий дом
+    public static string connectIp { get; set; } = "188.134.87.78";
 
     //Временные переменные
     public static int localPort = 13130; // локальный порт для прослушивания входящих подключений
@@ -110,6 +114,7 @@ public static class DataHolder
         ClientUDP = new UDPConnect();
     }
 
+    //TODO: Один раз игра тупо зависла, когда не было интернета. Опоещение даже не показала
     public static bool CheckForInternetConnection()
     {
         try

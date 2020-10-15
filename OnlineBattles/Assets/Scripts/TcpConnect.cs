@@ -13,9 +13,6 @@ public class TcpConnect
     private Thread clientListener;
     private NetworkStream NS;
 
-    //"127.0.0.1" - локальный; 188.134.87.78 - общий дом
-    private string connectIp = "188.134.87.78";
-
     private static IEnumerable<IPAddress> GetLocalIPAddress()
     {
         return Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(f => f.AddressFamily == AddressFamily.InterNetwork);
@@ -38,7 +35,7 @@ public class TcpConnect
         client = new TcpClient();
         try
         {
-            var result = client.BeginConnect(connectIp, DataHolder.remotePort, null, null);
+            var result = client.BeginConnect(DataHolder.connectIp, DataHolder.remotePort, null, null);
             if (result.AsyncWaitHandle.WaitOne(2000, true))
             {
                 client.EndConnect(result);

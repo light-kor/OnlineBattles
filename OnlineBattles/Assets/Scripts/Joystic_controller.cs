@@ -8,35 +8,24 @@ public class Joystic_controller : MonoBehaviour
 {
     public Joystick joystick;
     public GameObject me, enemy;
-
-
-    private bool startGame = false;
-    private int myNum, enNum;
+    private float X = -1.5f, Y = 0.2f;
+    public float repTime = 0.034f;
+    float buffX = 0, buffY = 0;
 
     private void Start()
     {
         DataHolder.CreateUDP();
-        if (DataHolder.thisGameID == 1)
-        {
-            myNum = 0;
-            enNum = 2;
-        }            
-        else
-        {
-            myNum = 2;
-            enNum = 0;
-        }
-        TimerCallback SendUdp = new TimerCallback(SendJoy);
-        Timer timer = new Timer(SendUdp, null, 0, 33);
+        
+        InvokeRepeating("SendJoy", 1.0f, repTime);
     }
 
-    //private void FixedUpdate()
-    //{
-    //    X += joystick.Horizontal / 10;
-    //    Y += joystick.Vertical / 10;
-    //    transform.position = new Vector2(X, Y);
+    private void FixedUpdate()
+    {
 
-    //}
+        X += joystick.Horizontal / 20;
+        Y += joystick.Vertical / 20;
+        me.transform.position = new Vector2(X, Y);
+    }
 
     private void Update()
     {
@@ -44,26 +33,34 @@ public class Joystic_controller : MonoBehaviour
         {
             //TODO: А если накопилось уже больше одного, то мб стоит удалить несколько или обработать несколько с плавным переходом
             string[] mes = DataHolder.messageUDPget[0].Split(' ');
+            //transform.position = new Vector2(float.Parse(mes[0]), float.Parse(mes[1]));
+            X = float.Parse(mes[0]); //TODO: Смотри, чтоб потом это не помешало
+            Y = float.Parse(mes[1]);
+            enemy.transform.position = new Vector3(float.Parse(mes[2]), float.Parse(mes[3]), 0);
 
-            transform.position = new Vector2(float.Parse(mes[myNum]), float.Parse(mes[myNum + 1]));
-            enemy.transform.position = new Vector2(float.Parse(mes[enNum]), float.Parse(mes[enNum + 1]));
-            
             DataHolder.messageUDPget.RemoveAt(0);
         }
 
     }
 
-    void SendJoy(object ey)
+    void SendJoy()
     {
-        if (startGame)
-        {           
-            DataHolder.ClientUDP.SendMessage(Math.Round(joystick.Horizontal, 2) + " " + Math.Round(joystick.Vertical, 2));
+        buffX = joystick.Horizontal;
+        buffY = joystick.Vertical;
+        if (buffX != 0 && buffY != 0)
+        {
+            //DataHolder.ClientUDP.SendMessage(Math.Round(joystick.Horizontal, 2) + " " + Math.Round(joystick.Vertical, 2));
+            DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.thisGameID} {buffX} {buffY}");
         }
     }
 
     public void ExitGame()
     {
         // Нормально завершить поток, а потом очистить экземпляр класса
+        CancelInvoke("SendJoy");
         DataHolder.ClientUDP.GameOn = false;
+        DataHolder.ClientUDP.CloseClient();
+        DataHolder.ClientUDP = null;       
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 }

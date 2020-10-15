@@ -12,6 +12,6 @@ public class pre : MonoBehaviour
     {
         DataHolder.KeyID = "321";
         SceneManager.LoadScene("mainMenu");
-        DataHolder.localPort = 13131; // локальный порт для прослушивания входящих подключений
+        //DataHolder.localPort = 13131; // локальный порт для прослушивания входящих подключений
     }
 }

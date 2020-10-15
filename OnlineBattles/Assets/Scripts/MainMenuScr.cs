@@ -28,11 +28,13 @@ public class MainMenuScr : MonoBehaviour
             if (mes[0] == "S")
             {
                 DataHolder.thisGameID = Convert.ToInt32(mes[1]);
+                DataHolder.GameId = Convert.ToInt32(mes[2]);
                 UnityEngine.SceneManagement.SceneManager.LoadScene(lvlName);
             }
             DataHolder.messageTCP.RemoveAt(0);
         }
 
+        //TODO: Удалить это нахуй?
         // Есть 3 секунды ожидания, пока сервер не скажет начинать игру
         if (makelvlChoice)
         {

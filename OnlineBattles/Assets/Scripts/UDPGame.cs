@@ -7,7 +7,6 @@ public class UDPGame : MonoBehaviour
 {
     public GameObject enemy;
 
-    private Vector2 startPos;
     bool startGame = false;
 
     public float repTime = 0.04f;
@@ -57,7 +56,8 @@ public class UDPGame : MonoBehaviour
             {
                 xpos = (float)Math.Round((transform.position.x), 2) + "";
                 ypos = (float)Math.Round(0 - transform.position.y, 2) + "";
-                DataHolder.ClientUDP.SendMessage(xpos + " " + ypos);
+                //TODO: Пока отправляем pos, но потом надо будет поменять на значения джостика и сделать на сервере проверку, что значение меньшн 1
+                DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.thisGameID} {xpos} {ypos}");
             }           
         }
     }
