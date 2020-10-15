@@ -84,10 +84,11 @@ public class MainMenuScr : MonoBehaviour
             DataHolder.CreateTCP();
         }
 
-        DataHolder.ClientTCP.SendMassage("Check");
+        
 
         if (DataHolder.Connected)
         {
+            DataHolder.ClientTCP.SendMassage("Check");
             DataHolder.GameType = 3;
             GetMoney();
             MoveMenuPanels();
@@ -189,6 +190,7 @@ public class MainMenuScr : MonoBehaviour
     }
 
 
+    //TODO: Тут куча инфы про разные типы роутеров, и что где-то моё udp соединение может не срабоать - https://gamedev.ru/code/forum/?id=231916
 
 
     //TODO: При обрыве соединения, посылать клиент в отдыльный поток, где он несколько секунд будет висеть в ожидании соединения. Или же 

@@ -10,15 +10,17 @@ public class UDPConnect
     private IPEndPoint remoteIp = null; // адрес входящего подключения  
     public bool GameOn = false;
 
-    static UdpClient sender;
-    static UdpClient receiver;
+    //static UdpClient sender;
+    //static UdpClient receiver;
+    public static UdpClient client;
 
     public UDPConnect()
     {        
         GameOn = true;
         //TODO: Принимать только с ip нашего сервера
-        sender = new UdpClient(DataHolder.connectIp, DataHolder.remotePort); // создаем UdpClient для отправки сообщений
-        receiver = new UdpClient(DataHolder.localPort); // UdpClient для получения данных
+        client = new UdpClient(DataHolder.connectIp, DataHolder.remotePort); // создаем UdpClient для отправки сообщений
+        //receiver = new UdpClient(DataHolder.localPort); // UdpClient для получения данных
+        //receiver = new UdpClient(0);
 
         Thread receiveThread = new Thread(ReceiveMessage);
         receiveThread.Start();
@@ -32,15 +34,16 @@ public class UDPConnect
             //mes += "|";
             //mes.Trim();
             byte[] data = Encoding.UTF8.GetBytes(mes);
-            sender.Send(data, data.Length); // отправка
+            client.Send(data, data.Length); // отправка
         }
         catch
         {
+            Debug.Log("Send error");
             if (GameOn)
             {
-                if (receiver != null)
-                    sender.Close();
-                sender = new UdpClient(DataHolder.connectIp, DataHolder.remotePort);
+                if (client != null)
+                    client.Close();
+                client = new UdpClient(DataHolder.connectIp, DataHolder.remotePort);
             }           
             // Сделать перезагрузку tcp
             // Или как-то здесь словить ошибку и что-то сделать
@@ -53,7 +56,7 @@ public class UDPConnect
         {
             try
             {
-                byte[] data = receiver.Receive(ref remoteIp); // получаем данные
+                byte[] data = client.Receive(ref remoteIp); // получаем данные
                 //string[] words = Encoding.UTF8.GetString(data).Split(new char[] { '|' });
                 //// Удаляем последний пустой элемент
                 //List<string> messList = new List<string>(words);
@@ -69,11 +72,13 @@ public class UDPConnect
             }
             catch
             {
+                Debug.Log("Res error");
                 if (GameOn)
                 {
-                    if (receiver != null)
-                        receiver.Close();
-                    receiver = new UdpClient(DataHolder.localPort);
+                    if (client != null)
+                        client.Close();
+                    //receiver = new UdpClient(DataHolder.localPort);
+                    client = new UdpClient(0);
                 }
             }
         }
@@ -81,20 +86,20 @@ public class UDPConnect
 
     public void CloseClient()
     {
-        if (sender != null)
+        if (client != null)
         {
-            sender.Dispose();
-            sender.Close();
-            sender = null;
+            client.Dispose();
+            client.Close();
+            client = null;
             Debug.Log("Destroy sender");
         }
 
-        if (receiver != null)
+        if (client != null)
         {
             GameOn = false;
-            receiver.Dispose();
-            receiver.Close();
-            receiver = null;
+            client.Dispose();
+            client.Close();
+            client = null;
             Debug.Log("Destroy receiver");
         }
     }

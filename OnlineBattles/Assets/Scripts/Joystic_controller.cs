@@ -8,35 +8,35 @@ public class Joystic_controller : MonoBehaviour
 {
     public Joystick joystick;
     public GameObject me, enemy;
-    private float X = -1.5f, Y = 0.2f;
+    //private float X = -1.5f, Y = 0.2f;
     public float repTime = 0.034f;
     float buffX = 0, buffY = 0;
 
     private void Start()
     {
-        DataHolder.CreateUDP();
-        
+        DataHolder.CreateUDP();       
         InvokeRepeating("SendJoy", 1.0f, repTime);
+        DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.thisGameID} {buffX} {buffY}");
     }
 
-    private void FixedUpdate()
-    {
+    //private void FixedUpdate()
+    //{
 
-        X += joystick.Horizontal / 20;
-        Y += joystick.Vertical / 20;
-        me.transform.position = new Vector2(X, Y);
-    }
+    //    X += joystick.Horizontal / 20;
+    //    Y += joystick.Vertical / 20;
+    //    me.transform.position = new Vector2(X, Y);
+    //}
 
     private void Update()
     {
-        while (DataHolder.messageUDPget.Count > 0)
+        if (DataHolder.messageUDPget.Count > 0)
         {
             //TODO: А если накопилось уже больше одного, то мб стоит удалить несколько или обработать несколько с плавным переходом
             string[] mes = DataHolder.messageUDPget[0].Split(' ');
-            //transform.position = new Vector2(float.Parse(mes[0]), float.Parse(mes[1]));
-            X = float.Parse(mes[0]); //TODO: Смотри, чтоб потом это не помешало
-            Y = float.Parse(mes[1]);
-            enemy.transform.position = new Vector3(float.Parse(mes[2]), float.Parse(mes[3]), 0);
+            //X = float.Parse(mes[0]); //TODO: Смотри, чтоб потом это не помешало
+            //Y = float.Parse(mes[1]);
+            me.transform.position = new Vector2(float.Parse(mes[0]), float.Parse(mes[1]));
+            enemy.transform.position = new Vector2(float.Parse(mes[2]), float.Parse(mes[3]));
 
             DataHolder.messageUDPget.RemoveAt(0);
         }
