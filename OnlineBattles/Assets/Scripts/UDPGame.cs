@@ -6,14 +6,15 @@ using UnityEngine;
 public class UDPGame : MonoBehaviour
 {
     public GameObject enemy;
-
+    private Network NetworkScript;
     bool startGame = false;
 
     public float repTime = 0.04f;
 
     private void Start()
     {
-        DataHolder.CreateUDP();
+        NetworkScript = GetComponent<Network>();
+        NetworkScript.CreateUDP();
         InvokeRepeating("SendAndGetPos", 1.0f, repTime);
     }
 
@@ -33,16 +34,16 @@ public class UDPGame : MonoBehaviour
             }
         }
 
-        if (DataHolder.messageUDPget.Count > 0)
+        if (DataHolder.MessageUDPget.Count > 0)
         {
             //TODO: А если накопилось уже больше одного, то мб стоит удалить несколько или обработать несколько с плавным переходом
-            string[] mes = DataHolder.messageUDPget[0].Split(' ');
+            string[] mes = DataHolder.MessageUDPget[0].Split(' ');
             if (mes[0] != "" && mes[1] != "")
             {
                 enemy.transform.position = new Vector3(float.Parse(mes[0]), float.Parse(mes[1]), 0);
             }
 
-            DataHolder.messageUDPget.RemoveAt(0);
+            DataHolder.MessageUDPget.RemoveAt(0);
         }
 
     }
@@ -57,7 +58,7 @@ public class UDPGame : MonoBehaviour
                 xpos = (float)Math.Round((transform.position.x), 2) + "";
                 ypos = (float)Math.Round(0 - transform.position.y, 2) + "";
                 //TODO: Пока отправляем pos, но потом надо будет поменять на значения джостика и сделать на сервере проверку, что значение меньшн 1
-                DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.thisGameID} {xpos} {ypos}");
+                DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.ThisGameID} {xpos} {ypos}");
             }           
         }
     }

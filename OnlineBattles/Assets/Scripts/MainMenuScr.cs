@@ -4,56 +4,33 @@ using UnityEngine.UI;
 
 public class MainMenuScr : MonoBehaviour
 {
-    public Text money, id;
-    public GameObject mainPanel, lvlPanel, notifPanel;
-    public GameObject shield; // Блокирует нажатия на все кнопки, кроме notifPanel
+    public Text Money, ID;
+    public GameObject MainPanel, LvlPanel, NotifPanel, CancelGamePanel;
+    public GameObject Shield; // Блокирует нажатия на все кнопки, кроме notifPanel
 
-
-    private bool makelvlChoice = false;
     private string lvlName = "";
-    private DateTime timeOfChoice = DateTime.UtcNow;
+    private Network NetworkScript;
 
     void Start()
     {
-
+        NetworkScript = GetComponent<Network>();
     }
 
     void Update()
     {
         // Принимаем сообщение о старте игры
-        while (DataHolder.messageTCP.Count > 0)
+        while (DataHolder.MessageTCP.Count > 0)
         {
-            string[] mes = DataHolder.messageTCP[0].Split(' ');
+            string[] mes = DataHolder.MessageTCP[0].Split(' ');
 
             if (mes[0] == "S")
             {
-                DataHolder.thisGameID = Convert.ToInt32(mes[1]);
+                DataHolder.ThisGameID = Convert.ToInt32(mes[1]);
                 DataHolder.GameId = Convert.ToInt32(mes[2]);
                 UnityEngine.SceneManagement.SceneManager.LoadScene(lvlName);
             }
-            DataHolder.messageTCP.RemoveAt(0);
+            DataHolder.MessageTCP.RemoveAt(0);
         }
-
-        //TODO: Удалить это нахуй?
-        // Есть 3 секунды ожидания, пока сервер не скажет начинать игру
-        if (makelvlChoice)
-        {
-            if ((DateTime.UtcNow - timeOfChoice).TotalSeconds > 3f)
-            {
-                shield.SetActive(false);
-                makelvlChoice = false;
-            }
-            //TODO: Отправить на сервер что-то про отмену игры? Или игроку уведомление, что соединение потеряно
-        }
-
-
-        // Если Read поймёт, что сеть прервалось, сработает это и начнётся востановление сети.
-        if (DataHolder.needToReconnect)
-        {
-            DataHolder.needToReconnect = false;
-            StartReconnect();
-        }
-
     }
 
     public void SelectSingleGame()
@@ -71,38 +48,25 @@ public class MainMenuScr : MonoBehaviour
     public void SelectMultiplayerGame()
     {
         if (!DataHolder.Connected)
-        {
-            //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
-            shield.SetActive(true);
-
-            if (!DataHolder.CheckForInternetConnection())
-            {
-                DataHolder.ShowNotif(notifPanel, 2);
-                return;
-            }
-
-            DataHolder.CreateTCP();
-        }
-
-        
+            NetworkScript.CreateTCP();              
+        else 
+            DataHolder.ClientTCP.SendMassage("Check"); // Если соединение уже было создано, то надо затестить    
 
         if (DataHolder.Connected)
         {
-            DataHolder.ClientTCP.SendMassage("Check");
             DataHolder.GameType = 3;
             GetMoney();
-            MoveMenuPanels();
-            shield.SetActive(false);
+            MoveMenuPanels();           
         }
-        else DataHolder.ShowNotif(notifPanel, 0);
+        else DataHolder.ShowNotif(NotifPanel, 0);
     }
 
     public void GetMoney()
     {
         if (DataHolder.Connected)
         {
-            money.text = DataHolder.Money.ToString();
-            id.text = DataHolder.MyID.ToString();
+            Money.text = DataHolder.Money.ToString();
+            ID.text = DataHolder.MyID.ToString();
         }
     }
 
@@ -124,9 +88,8 @@ public class MainMenuScr : MonoBehaviour
                 lvlName = "lvl1";
                 DataHolder.ClientTCP.SendMassage("1");
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
-                shield.SetActive(true);
-                timeOfChoice = DateTime.UtcNow;
-                makelvlChoice = true;
+                Shield.SetActive(true);
+                CancelGamePanel.SetActive(true);
             }
 
         }
@@ -145,53 +108,33 @@ public class MainMenuScr : MonoBehaviour
                 lvlName = "UdpLVL";
                 DataHolder.ClientTCP.SendMassage("2");
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
-                shield.SetActive(true);
-                timeOfChoice = DateTime.UtcNow;
-                makelvlChoice = true;
+                Shield.SetActive(true);
+                //TODO: Добавить анимацию ожидания
+                CancelGamePanel.SetActive(true);
             }
         }        
     }
 
     public void MoveMenuPanels()
     {
-        mainPanel.SetActive(!mainPanel.activeSelf);
-        lvlPanel.SetActive(!lvlPanel.activeSelf);
+        MainPanel.SetActive(!MainPanel.activeSelf);
+        LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
-
 
     public void ExitNotif()
     {
-        notifPanel.SetActive(false);
-        shield.SetActive(false);
-    }
-
-    public void asda()
-    {
-        
-    }
-
-    public void StartReconnect()
-    {
-        DataHolder.Connected = false;
-        shield.SetActive(true);
-        DataHolder.ShowNotif(notifPanel, 1);
-        InvokeRepeating("TryReconnect", 0.0f, 1.0f);
-    }
-
-    public void TryReconnect()
-    {
-        DataHolder.ClientTCP.Reconnect(notifPanel);
-        if (DataHolder.Connected == true)
-        {
-            CancelInvoke("TryReconnect");
-            shield.SetActive(false);
-            notifPanel.SetActive(false);
-        }
+        NotifPanel.SetActive(false);
+        Shield.SetActive(false);
     }
 
 
     //TODO: Тут куча инфы про разные типы роутеров, и что где-то моё udp соединение может не срабоать - https://gamedev.ru/code/forum/?id=231916
 
+    //TODO: Модно одновременно прислать S и Cancel, тогданадо как-то это обрабоать
+
+    //TODO: Не пускать пользователя в игры, пока он в главном меню не пришлёт сообщение для логина
+
+    //TODO: в udp не нужны |, но всё же на приёме нужен трай тк может не полностью сообщение прийти
 
     //TODO: При обрыве соединения, посылать клиент в отдыльный поток, где он несколько секунд будет висеть в ожидании соединения. Или же 
     // таки сделать общий лист всех игроков, чтоб чекать есть ли уже такой игрок и если есть то делать реконнект и возвращать в игру
@@ -207,10 +150,6 @@ public class MainMenuScr : MonoBehaviour
     //TODO: Ещё перед созданием лобби чекнуть, не прислал ли что-то игрок тк мб он хочет выйти из игры и отменить поиск
 
     //TODO: Отмена игры, если человек не хочет ждать, когда ему подберут противника, когд сервера пустые
-
-    //TODO: Что-то сделать если связь оборвалась, видимо нужно заново создать  tcpconnect
-
-    //TODO: Может всё-таки добавить реконнект
 
     //TODO: Обработать сообщение 404 от сервера, да и вообзе провкетить, чтоб все сообщения были учтены и обрабатывались
 
@@ -232,22 +171,11 @@ public class MainMenuScr : MonoBehaviour
 
     //TODO: После обновления данных о деньгах надо как-то грамотно передать их пользователю, но не в функции UpdateDBMoney
 
-    //TODO: Если на сервере произошла критическая ошибка, то отловить её и перезапустить сервер автоматически
-
     //TODO: Похоже в крестиках можно продолжить шевелиться после окончания матча
-
-    //TODO: При отмене игры тебя должно вернуть в главное меню
-
-    //TODO: Сначала дождаться сообщения о том, что игру можно начинать, а только потом открыть нужную сцену
 
     //TODO: Что делать, если пользователь меняет моб инет на wifi или ещё что-то подобное
 
     //TODO: Настроить камеру и вообще узнать, зачем все кнопки
-
-    //TODO: Сделать название игры картинкой и поставить за персонажей
-
-    //TODO: Все служебные команды считывать в DataHolder, а остальные уже потом в других скриптах
-    // Так, когда сервер остановится, он всем пошлёт, что на сервере технические работ. И он должен мочь менять сцены и тд, если нужно закончить игру например
 
     //TODO: Как сделать автонастройку объектов под разрешение
 
@@ -255,9 +183,7 @@ public class MainMenuScr : MonoBehaviour
 
     //TODO: Интересные переходы(прокрутки) между меню, когда всё на одной сцене
 
-    //TODO: Может нужны не отдельные потоки, а пулл потоков?
-
-    //TODO: Раз в какае-то время можно получать деньги за рекламу, но пересылать их другим можно только с определённой суммы. Как-то защититься от взлома
+    //TODO: Раз в какае-то время можно получать монеты за рекламу, но пересылать их другим можно только с определённой суммы. Как-то защититься от взлома
 
     //TODO: Лого и название компании
 
@@ -278,7 +204,7 @@ public class MainMenuScr : MonoBehaviour
     //TODO: Можно для каждого игрока сохранять его победы, время победы, длительность игры и тд, а так же указывать противника. 
     //Записывать все его пополнения денег и просмотр спец рекламы, чтоб полностью контролить количество денег
 
-    //TODO: Как убрать калю или чёлку на телефонах
+    //TODO: Как убрать каплю или чёлку на телефонах
 
     //TODO: Как запрашивать разрешения для приложения при установке
 
@@ -289,10 +215,6 @@ public class MainMenuScr : MonoBehaviour
     //TODO: Удалить все лишние пакеты Юнити (2д свет и прочая фигня в проекте)
 
     //TODO: Стресс-тест серверу, проверить его возможности, ну и устроить тест хотя-бы 100 человек единовременно
-
-    //TODO: Везде ли включён UPnP? Если роутер клиента так не умеет
-
-    //TODO: Иногда порты могут быть заняты, нужны варианты портов для проброса
 
     //TODO: Страничка с инфой о конфиденциальности
 
@@ -317,23 +239,11 @@ public class MainMenuScr : MonoBehaviour
 
     //TODO: Продумать подключение игроков к системе( логин и пароль, рандомные ключи, почта и пароль и тд)
 
-    //TODO: Как пробросить порты, если клиент находится за несколькими NAT, как в матрёшке (надо ли вообще пробрасывать клиентам)
-
-    //TODO: Если не удалось установить соединение, то поверх кнопки мультиплеера будет кнопка релоуда соединения (ну и деньги обновятся)
-
     //TODO: Установить на сервер защиту от DDoS
 
     //TODO: Регистрация пользователей Андроид через Гугл, Что для ios? Ну и сделать обычную через логин и пароль для всех
 
     //TODO: Проверить, загрузилась ли сцена, только потом принимать и обрабатывать сообщения
-
-    //TODO: Что делать, если сообщения с сервера не отправляются, не просто оповестить об ошибке, а обработать
-
-    //TODO: Что делать клиенту, если вылетит сервер
-
-    //TODO: Если sql запрос будет выполнен криво, то сервер пришлёт пустоту, надо фиксить
-
-    //TODO: Сервер крашится при поступлении двух клиентов с одним сокетом, что делать?
 
     //TODO: Пуш-уведомления, чтоб завлечь игрока в игру
 
@@ -347,32 +257,15 @@ public class MainMenuScr : MonoBehaviour
 
     //TODO: Сделать подключение к бд многопоточным, чтоб она не крашилать от этого
 
-    //TODO: При входе загружаются деньги и устанавливается общий коннект, елси была ошибка, то просто забить до момента подключения к игре
-    //Там проверить деньги ещё раз, и только после этого отсылать инфу про выбор игры, те у игрока перед всеми действиями проверять коннект, елси нет, то просить деньги 
-
     //TODO: Добавить возможность настройки ставки для игры
 
     //TODO: Клиенты перед игрой снимают у игроков по N кредитов, но на сервере происходят изменения только после окончасния игры. Хранить деньги в классе клиента, чтоб смотреть, можно линачинать игу игроку, хэватает ли денег
 
-    //TODO: Сделать внешний сервер с белым айпи, который будет переадресовывать всё к тебе
-
-    //TODO: Не давать зайти в игру, если недостатчно денег, при чём проверять сначала на клиенте, потом и на сервере
+    //TODO: Не давать зайти в онлайн игру, если недостатчно денег, при чём проверять сначала на клиенте, потом и на сервере
 
     //TODO: Как искать другие устройства в в игре в LAN
 
-    //TODO: если wifi соединение, то надо пробрасывать и тд, а если нет, то просто коннект
-
-    //TODO: нужна логика закрытия портов, если они будт разные на кажом устройстве в одной lan
-
-    //TODO: если сообщения от сервера идут через роутер и порт, а у двух клиентов он одинаковый, то данные запутаются 
-    //TODO: путь порт на каждом устройстве выдаётся рандомно, если несколько устройств подключено от одного wifi
-    //TODO: клиент сначала ищет незанятый порт, а потом шлёт его на сервер, чтоб подключиться через udp
-
-    //TODO: Нужно пробросить порты как на сервере, так и на клиенте
-
-    //TODO: Если собрал не 4 в ряд, а больше в крестиках-ноликах, то можно накидывать сверху бонусных денег.
-
-    //TODO: при подключении запрашивать версию игры и не запускать онлайн без обновления
+    //TODO: при подключении запрашивать версию игры и не запускать онлайн и не давать играть по локальной сети без обновления
 
     //TODO: Что делать, если оба прислали код завершения игры, но он не совпал
 
@@ -384,21 +277,13 @@ public class MainMenuScr : MonoBehaviour
 
     //TODO: Обновление денег у игроков, когда они зашли в игру, и когда они вышли из матча
 
-    //TODO: Как часто нужно обновлять данные в быстрых играх на udp
-
     //TODO: При игре с друзьями в локалке можно использовать широковещательную рассылку
-
-    //TODO: видимо нужно пробрасывать порты для подключённых по wifi
 
     //TODO: Хранить на сервере файлы со всеми записями игр, а в бд хранить имена/ссылки итд, чтоб переходить к файлам
 
     //TODO: Сколько запросов одновременно обрабатывает mySQL, нужен ли мьютекс
 
     //TODO: Не раздавать первую 1000 id, оставить на всякий случай
-
-    //TODO: Сделвть проверку подключения к серверу, если у сервера проблемы, то не пускать в онлайн игру
-
-    //TODO: Не давать играть по локальной сети, если не совпаддают версии, нужно при коннекте запрашивать версию игры
 
     //TODO: (для турниров преимущ) если кто-то долго ждёт и вышел из приложения в меню, нужнно отследить и прислать ему пуш, когда надо будет начать
 

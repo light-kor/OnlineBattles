@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -13,13 +11,9 @@ public class TcpConnect
     private Thread clientListener;
     private NetworkStream NS;
 
-    private static IEnumerable<IPAddress> GetLocalIPAddress()
-    {
-        return Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(f => f.AddressFamily == AddressFamily.InterNetwork);
-    }
-
     public TcpConnect()
     {       
+        //TODO: Нужно ли это где-то?
         //if (Application.internetReachability.ToString() == "ReachableViaLocalAreaNetwork")
         //{
             //ReachableViaCarrierDataNetwork  4G
@@ -30,12 +24,16 @@ public class TcpConnect
         TryConnect();
     }
 
-    private void TryConnect()
+    /// <summary>
+    /// Попытка подключения к серверу
+    /// </summary>
+    public void TryConnect()
     {
+        CloseClient();
         client = new TcpClient();
         try
         {
-            var result = client.BeginConnect(DataHolder.connectIp, DataHolder.remotePort, null, null);
+            var result = client.BeginConnect(DataHolder.ConnectIp, DataHolder.RemotePort, null, null);
             if (result.AsyncWaitHandle.WaitOne(2000, true))
             {
                 client.EndConnect(result);
@@ -50,15 +48,19 @@ public class TcpConnect
                 client.Close();
                 DataHolder.Connected = false;
             }
-        } catch (Exception ex)
+        } 
+        catch (Exception ex)
         {
             Debug.Log(ex);
         }
     }
 
+    /// <summary>
+    /// Отправка TCP-сообщения на сервер с добавлением разделительного знака "|"
+    /// </summary>
+    /// <param name="message">Текст сообщения</param>
     public void SendMassage(string message)
     {
-        //TODO: Добавить здесь try/catch и выключать соединение в случае ошибки. Если ошибка, то заново создать tcpConnect. ЛОГИКА РЕКОННЕКТА
         try
         {
             message += "|";
@@ -69,13 +71,16 @@ public class TcpConnect
         catch
         {
             DataHolder.Connected = false;
-            DataHolder.needToReconnect = true;
+            DataHolder.NeedToReconnect = true;
         }
     }
 
+    /// <summary>
+    /// Приём TCP-сообщений с сревера с разделением их на отдельные, если склеились. 
+    /// Отлавливание ошибок соединения, контроль флага NeedToReconnect для начала реконнекта.
+    /// </summary>
     private void Reader()
     {
-        Debug.Log("Start thread");
         while (true)
         {           
             List<byte> Buffer = new List<byte>();
@@ -93,14 +98,12 @@ public class TcpConnect
             }
             catch 
             {
-                //TODO: До сюда не всегда доходит
-                Debug.Log("Close thread");
+                // В Network начнётся процесс реконнекта
                 DataHolder.Connected = false;
-                DataHolder.needToReconnect = true;
+                DataHolder.NeedToReconnect = true;
                 break;
             }            
             
-
             if (Buffer.Count > 0)
             {
                 string[] words = Encoding.UTF8.GetString(Buffer.ToArray()).Split(new char[] { '|' });
@@ -110,47 +113,25 @@ public class TcpConnect
 
                 for (int i = 0; i < messList.Count; i++)
                 {
-                    DataHolder.messageTCP.Add(messList[i]);
+                    DataHolder.MessageTCP.Add(messList[i]);
                 }               
             }
-
-            if (client == null)
-            {
-                break;
-            }
         }
     }
-
-    public void Reconnect(GameObject notifPanel)
-    {
-        Debug.Log("Start Reconnect");
-
-        if (!DataHolder.CheckForInternetConnection())
-        {
-            DataHolder.ShowNotif(notifPanel, 3);
-            return;
-        }
-        else DataHolder.ShowNotif(notifPanel, 4);
-
-        CloseClient();
-        TryConnect();
-    }
-
 
     private void CloseClient()
-    {
-        client.Dispose();
-        client.Close();
-        client = null;
-    }
-
-    ~TcpConnect()
     {
         if (client != null)
         {
             //TODO: Завершается ли при этом поток?
-            CloseClient();
-            Debug.Log("Destroy TcpConnect");
+            client.Dispose();
+            client.Close();
+            client = null;
         }
+    }
+
+    ~TcpConnect()
+    {
+        CloseClient();
     }
 }

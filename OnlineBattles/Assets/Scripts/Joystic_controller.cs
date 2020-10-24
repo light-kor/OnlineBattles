@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Joystic_controller : MonoBehaviour
 {
@@ -11,12 +7,14 @@ public class Joystic_controller : MonoBehaviour
     //private float X = -1.5f, Y = 0.2f;
     public float repTime = 0.034f;
     float buffX = 0, buffY = 0;
+    private Network NetworkScript;
 
     private void Start()
     {
-        DataHolder.CreateUDP();       
+        NetworkScript = GetComponent<Network>();
+        NetworkScript.CreateUDP();       
         InvokeRepeating("SendJoy", 1.0f, repTime);
-        DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.thisGameID} {buffX} {buffY}");
+        DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.ThisGameID} {buffX} {buffY}");
     }
 
     //private void FixedUpdate()
@@ -29,16 +27,16 @@ public class Joystic_controller : MonoBehaviour
 
     private void Update()
     {
-        if (DataHolder.messageUDPget.Count > 0)
+        if (DataHolder.MessageUDPget.Count > 0)
         {
             //TODO: А если накопилось уже больше одного, то мб стоит удалить несколько или обработать несколько с плавным переходом
-            string[] mes = DataHolder.messageUDPget[0].Split(' ');
+            string[] mes = DataHolder.MessageUDPget[0].Split(' ');
             //X = float.Parse(mes[0]); //TODO: Смотри, чтоб потом это не помешало
             //Y = float.Parse(mes[1]);
             me.transform.position = new Vector2(float.Parse(mes[0]), float.Parse(mes[1]));
             enemy.transform.position = new Vector2(float.Parse(mes[2]), float.Parse(mes[3]));
 
-            DataHolder.messageUDPget.RemoveAt(0);
+            DataHolder.MessageUDPget.RemoveAt(0);
         }
 
     }
@@ -50,7 +48,7 @@ public class Joystic_controller : MonoBehaviour
         if (buffX != 0 && buffY != 0)
         {
             //DataHolder.ClientUDP.SendMessage(Math.Round(joystick.Horizontal, 2) + " " + Math.Round(joystick.Vertical, 2));
-            DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.thisGameID} {buffX} {buffY}");
+            DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.ThisGameID} {buffX} {buffY}");
         }
     }
 

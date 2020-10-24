@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Tilemaps;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class OnlineGameController : MonoBehaviour
@@ -12,26 +9,25 @@ public class OnlineGameController : MonoBehaviour
 
     private void Start()
     {
-        Application.runInBackground = true;
         
     }
 
 
     private void Update()
     {
-        while (DataHolder.messageTCP.Count > 0)
+        while (DataHolder.MessageTCP.Count > 0)
         {
             // Обработка полученных от сервера сообщений
-            string[] mes = DataHolder.messageTCP[0].Split(' ');
+            string[] mes = DataHolder.MessageTCP[0].Split(' ');
             switch (mes[0])
             {
                 //TODO: Добавить кейсы всех игр
                 case "1":
-                    DataHolder.messageTCPforGame.Add(DataHolder.messageTCP[0]);
+                    DataHolder.MessageTCPforGame.Add(DataHolder.MessageTCP[0]);
                     break;
 
                 case "N":
-                    DataHolder.messageTCPforGame.Add(DataHolder.messageTCP[0]);                   
+                    DataHolder.MessageTCPforGame.Add(DataHolder.MessageTCP[0]);                   
                     break;
 
                 //case "S":
@@ -40,33 +36,33 @@ public class OnlineGameController : MonoBehaviour
                 //    break;
 
                 case "E":
-                    DataHolder.canMove = false;
-                    DataHolder.timerT.GetComponent<timer>().StopGameTimer();
+                    DataHolder.CanMove = false;
+                    DataHolder.TimerT.GetComponent<timer>().StopGameTimer();
                     endPanel.SetActive(true);
                     break;
 
                 case "A":
-                    DataHolder.canMove = false;
+                    DataHolder.CanMove = false;
                     endText.text = "Победа, соперник вышел";
-                    DataHolder.timerT.GetComponent<timer>().StopGameTimer();
+                    DataHolder.TimerT.GetComponent<timer>().StopGameTimer();
                     endPanel.SetActive(true);
                     break;
 
                 case "V":
-                    DataHolder.canMove = false;
+                    DataHolder.CanMove = false;
                     endText.text = "Техническое поражение";
-                    DataHolder.timerT.GetComponent<timer>().StopGameTimer();
+                    DataHolder.TimerT.GetComponent<timer>().StopGameTimer();
                     endPanel.SetActive(true);
                     break;
 
                 case "C":
-                    DataHolder.canMove = false;
+                    DataHolder.CanMove = false;
                     endText.text = "Игра не началась";
-                    DataHolder.timerT.GetComponent<timer>().StopGameTimer();
+                    DataHolder.TimerT.GetComponent<timer>().StopGameTimer();
                     endPanel.SetActive(true);
                     break;
             }
-            DataHolder.messageTCP.RemoveAt(0);
+            DataHolder.MessageTCP.RemoveAt(0);
         }
 
 
@@ -108,7 +104,7 @@ public class OnlineGameController : MonoBehaviour
         fastExitPanel.SetActive(!fastExitPanel.activeSelf);
         //if (game1)
         //{
-            DataHolder.canMove = !DataHolder.canMove;
+            DataHolder.CanMove = !DataHolder.CanMove;
         //}
     }
 

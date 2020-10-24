@@ -19,15 +19,15 @@ public class TicTacToe : MonoBehaviour
         mainCam = Camera.main;
 
         // Начинаем
-        DataHolder.canMove = true;
-        DataHolder.timerT = GameObject.FindGameObjectWithTag("Timer");
-        DataHolder.timerT.GetComponent<timer>().StartTimer();
+        DataHolder.CanMove = true;
+        DataHolder.TimerT = GameObject.FindGameObjectWithTag("Timer");
+        DataHolder.TimerT.GetComponent<timer>().StartTimer();
         
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0) && (DataHolder.canMove == true) && DataHolder.timerT.GetComponent<timer>().TimeLeftCheck())
+        if (Input.GetMouseButtonDown(0) && (DataHolder.CanMove == true) && DataHolder.TimerT.GetComponent<timer>().TimeLeftCheck())
         {
             Vector3 clickWorldPosition = mainCam.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int clickCellPosition = map.WorldToCell(clickWorldPosition);
@@ -46,16 +46,16 @@ public class TicTacToe : MonoBehaviour
                     string mes = $"1 {x1} {y1} {clickCellPosition.x} {clickCellPosition.y}";
                     DataHolder.ClientTCP.SendMassage(mes);
                     firstMove = true;
-                    DataHolder.canMove = false;
-                    DataHolder.timerT.GetComponent<timer>().StopTimer();
+                    DataHolder.CanMove = false;
+                    DataHolder.TimerT.GetComponent<timer>().StopTimer();
                 }
             }
         }
 
-        while (DataHolder.messageTCPforGame.Count > 0)
+        while (DataHolder.MessageTCPforGame.Count > 0)
         {
             // Обработка полученных от сервера сообщений
-            string[] mes = DataHolder.messageTCPforGame[0].Split(' ');
+            string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
             switch (mes[0])
             {
                 case "1":                    
@@ -73,12 +73,12 @@ public class TicTacToe : MonoBehaviour
                     DataHolder.WinFlag = CheckWin(4, 6, -3, -3);
                     if (DataHolder.WinFlag == 0)
                     {
-                        DataHolder.canMove = true;
-                        DataHolder.timerT.GetComponent<timer>().StartTimer();
+                        DataHolder.CanMove = true;
+                        DataHolder.TimerT.GetComponent<timer>().StartTimer();
                     }                    
                     break;
             }
-            DataHolder.messageTCPforGame.RemoveAt(0);
+            DataHolder.MessageTCPforGame.RemoveAt(0);
         }
     }
 
