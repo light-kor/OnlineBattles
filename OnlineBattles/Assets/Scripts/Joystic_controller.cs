@@ -55,6 +55,7 @@ public class Joystic_controller : MonoBehaviour
     public void ExitGame()
     {
         // Нормально завершить поток, а потом очистить экземпляр класса
+        //TODO: Отправить что-то о завершении
         CancelInvoke("SendJoy");
         DataHolder.ClientUDP.GameOn = false;
         DataHolder.ClientUDP.CloseClient();

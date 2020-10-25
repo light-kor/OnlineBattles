@@ -277,6 +277,7 @@ GameObject:
   m_Component:
   - component: {fileID: 457828340}
   - component: {fileID: 457828339}
+  - component: {fileID: 457828341}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -299,6 +300,7 @@ MonoBehaviour:
   joystick: {fileID: 355289334}
   me: {fileID: 478700618}
   enemy: {fileID: 1071588454}
+  repTime: 0.034
 --- !u!4 &457828340
 Transform:
   m_ObjectHideFlags: 0
@@ -313,6 +315,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &457828341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 457828338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebff971ec38435547b5cc3b55c088f5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NotifPanel: {fileID: 0}
+  Shield: {fileID: 0}
 --- !u!1 &478700618
 GameObject:
   m_ObjectHideFlags: 0
@@ -687,7 +703,7 @@ PrefabInstance:
     - target: {fileID: 2929252283123773938, guid: aaa2c939c0359ac4dbce3f49e8b90252,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2929252283123773938, guid: aaa2c939c0359ac4dbce3f49e8b90252,
         type: 3}

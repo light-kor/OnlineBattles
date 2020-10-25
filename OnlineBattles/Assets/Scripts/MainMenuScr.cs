@@ -86,7 +86,7 @@ public class MainMenuScr : MonoBehaviour
             {
                 // Выключить все кнопки перед этим, чтоб игрок никуда не мог нажать 3 секунды
                 lvlName = "lvl1";
-                DataHolder.ClientTCP.SendMassage("1");
+                DataHolder.ClientTCP.SendMassage("game1");
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
                 Shield.SetActive(true);
                 CancelGamePanel.SetActive(true);
@@ -106,7 +106,7 @@ public class MainMenuScr : MonoBehaviour
             else if (DataHolder.GameType == 3)
             {
                 lvlName = "UdpLVL";
-                DataHolder.ClientTCP.SendMassage("2");
+                DataHolder.ClientTCP.SendMassage("game2");
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
                 Shield.SetActive(true);
                 //TODO: Добавить анимацию ожидания
@@ -127,6 +127,8 @@ public class MainMenuScr : MonoBehaviour
         Shield.SetActive(false);
     }
 
+
+    //TODO: Учксть, чтоб постоянно убирать вышедших из AllLoginClients на сервере. Если человек вышел сразу после игры, это обработается?
 
     //TODO: Тут куча инфы про разные типы роутеров, и что где-то моё udp соединение может не срабоать - https://gamedev.ru/code/forum/?id=231916
 

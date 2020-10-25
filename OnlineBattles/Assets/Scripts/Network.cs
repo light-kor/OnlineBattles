@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Network : MonoBehaviour
 {
-    const float TimeForWaitAnswer = 2f;
+    const float TimeForWaitAnswer = 3f;
 
     public GameObject NotifPanel, Shield;
 
