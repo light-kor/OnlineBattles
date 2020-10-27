@@ -29,6 +29,13 @@ public class MainMenuScr : MonoBehaviour
                 DataHolder.GameId = Convert.ToInt32(mes[2]);
                 UnityEngine.SceneManagement.SceneManager.LoadScene(lvlName);
             }
+
+            if (mes[0] == "goto")
+            {
+                if (mes[1] == "2")
+                    UnityEngine.SceneManagement.SceneManager.LoadScene("UdpLVL");
+            }
+
             DataHolder.MessageTCP.RemoveAt(0);
         }
     }
@@ -58,7 +65,7 @@ public class MainMenuScr : MonoBehaviour
             GetMoney();
             MoveMenuPanels();           
         }
-        else DataHolder.ShowNotif(NotifPanel, 0);
+        else DataHolder.ShowNotif(NotifPanel, "Сервер не доступен. Попробуйте позже.");
     }
 
     public void GetMoney()
@@ -127,6 +134,7 @@ public class MainMenuScr : MonoBehaviour
         Shield.SetActive(false);
     }
 
+    //TODO: Если сервер упал и заново включлся и ты нажимаешь мультиплеер, то приходится нажимать два раза
 
     //TODO: Учксть, чтоб постоянно убирать вышедших из AllLoginClients на сервере. Если человек вышел сразу после игры, это обработается?
 

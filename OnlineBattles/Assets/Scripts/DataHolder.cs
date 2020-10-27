@@ -21,10 +21,10 @@ public static class DataHolder
     public static TcpConnect ClientTCP { get; set; }
     public static UDPConnect ClientUDP { get; set; }
 
-    public static List<string> MessageTCP = new List<string>();
-    public static List<string> MessageTCPforGame = new List<string>();
+    public static List<string> MessageTCP { get; set; } = new List<string>();
+    public static List<string> MessageTCPforGame { get; set; } = new List<string>();
 
-    public static List<string> MessageUDPget = new List<string>();
+    public static List<string> MessageUDPget { get; set; } = new List<string>();
 
     //"127.0.0.1" - локальный; 188.134.87.78 - общий дом
     public static string ConnectIp { get; set; } = "188.134.87.78";
@@ -49,9 +49,9 @@ public static class DataHolder
     /// </summary>
     /// <param name="notifPanel">Ссылка на панель уведомлений</param>
     /// <param name="num">Номер уведомления в notifOptions</param>
-    public static void ShowNotif(GameObject notifPanel, int num)
+    public static void ShowNotif(GameObject notifPanel, string notif)
     {
-        notifPanel.transform.Find("Text").GetComponent<Text>().text = NotifOptions[num];
+        notifPanel.transform.Find("Text").GetComponent<Text>().text = notif;
         notifPanel.SetActive(true);
     }
 }

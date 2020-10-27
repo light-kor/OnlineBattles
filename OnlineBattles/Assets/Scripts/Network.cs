@@ -21,6 +21,8 @@ public class Network : MonoBehaviour
             DataHolder.NeedToReconnect = false;
             StartReconnect();
         }
+
+        //TODO: Добавить стандартные команды от сервера типо закончить и тд
     }
 
     public void StopTryConnectToServer()
@@ -48,7 +50,7 @@ public class Network : MonoBehaviour
 
         if (!CheckForInternetConnection())
         {
-            DataHolder.ShowNotif(NotifPanel, 2);
+            DataHolder.ShowNotif(NotifPanel, "Отсутствует подключение к интернету.");
             Shield.SetActive(false);
             return;
         }
@@ -116,15 +118,7 @@ public class Network : MonoBehaviour
     private void StartReconnect()
     {
         Shield.SetActive(true);
-        DataHolder.ShowNotif(NotifPanel, 1);
-
-        // Сначала ченем инет
-        if (!CheckForInternetConnection())
-        {
-            DataHolder.ShowNotif(NotifPanel, 3);
-            return;
-        }
-        else DataHolder.ShowNotif(NotifPanel, 4); // Тут нужна новая панель ожидания подключения
+        DataHolder.ShowNotif(NotifPanel, "Разрыв соединения.\r\nПереподключение..."); //TODO: Тут везде нужна новая панель ожидания подключения
 
         // потом уже налаживаем соединение с сервером
         InvokeRepeating("TryReconnect", 0.0f, 1.0f);
@@ -135,6 +129,14 @@ public class Network : MonoBehaviour
     /// </summary>
     private void TryReconnect()
     {
+        // Сначала ченем инет
+        if (!CheckForInternetConnection())
+        {
+            DataHolder.ShowNotif(NotifPanel, "Отсутствует подключение к интернету.\r\nОжидание..."); //TODO: Тут везде нужна новая панель ожидания подключения
+            return;
+        }
+        else DataHolder.ShowNotif(NotifPanel, "Подключение к серверу..."); //TODO: Тут везде нужна новая панель ожидания подключения
+
         DataHolder.ClientTCP.TryConnect();       
 
         if (DataHolder.Connected == true)

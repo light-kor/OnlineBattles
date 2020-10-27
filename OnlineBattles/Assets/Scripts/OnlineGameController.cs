@@ -89,7 +89,7 @@ public class OnlineGameController : MonoBehaviour
 
         if (!DataHolder.Connected)
         {
-            DataHolder.ShowNotif(notifPanel, 1);
+            DataHolder.ShowNotif(notifPanel, "Разрыв соединения.\r\nПереподключение...");
         }
         
     }

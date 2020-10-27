@@ -15,6 +15,17 @@ public class Joystic_controller : MonoBehaviour
         NetworkScript.CreateUDP();       
         InvokeRepeating("SendJoy", 1.0f, repTime);
         DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.ThisGameID} {buffX} {buffY}");
+
+        if (DataHolder.MessageTCP.Count > 0)
+        {
+            string[] mes = DataHolder.MessageUDPget[0].Split(' ');
+            if (mes[0] == "info")
+            {
+                me.transform.position = new Vector2(float.Parse(mes[0]), float.Parse(mes[1]));
+                enemy.transform.position = new Vector2(float.Parse(mes[2]), float.Parse(mes[3]));
+            }
+            DataHolder.MessageTCP.RemoveAt(0);
+        }
     }
 
     //private void FixedUpdate()
