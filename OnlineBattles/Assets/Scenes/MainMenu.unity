@@ -1733,6 +1733,12 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 8551085286011339823}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1414199428 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7513810972697045465, guid: b6e4caf061445534bbdf7e6401303352,
+    type: 3}
+  m_PrefabInstance: {fileID: 8551085286011339823}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1418426385
 GameObject:
   m_ObjectHideFlags: 0
@@ -2247,7 +2253,6 @@ MonoBehaviour:
   ID: {fileID: 2039085417}
   MainPanel: {fileID: 1533738532}
   LvlPanel: {fileID: 1052502716}
-  CancelGamePanel: {fileID: 0}
 --- !u!4 &1632653835
 Transform:
   m_ObjectHideFlags: 0
@@ -2277,6 +2282,7 @@ MonoBehaviour:
   NotifPanel: {fileID: 26039321}
   NotifButton: {fileID: 1302340415}
   StopReconnectButton: {fileID: 2030561434}
+  CancelSearchButton: {fileID: 1414199428}
   Shield: {fileID: 303355418}
 --- !u!1 &1729373139
 GameObject:
@@ -2966,6 +2972,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1632653836}
+    - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CancelGameSearch
       objectReference: {fileID: 0}
     - target: {fileID: 7513740709670206042, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}

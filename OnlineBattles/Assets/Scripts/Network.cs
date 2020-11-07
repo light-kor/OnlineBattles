@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Net;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Network : MonoBehaviour
 {
     private const float TimeForWaitAnswer = 3f;
     private bool TryRecconect = true;
 
-    public GameObject NotifPanel, NotifButton, StopReconnectButton;
+    public GameObject NotifPanel, NotifButton, StopReconnectButton, CancelSearchButton;
     public GameObject Shield; // Блокирует нажатия на все кнопки, кроме notifPanel
 
     private void Start()
@@ -29,10 +29,7 @@ public class Network : MonoBehaviour
         //TODO: Добавить стандартные команды от сервера типо закончить и тд
     }
 
-    public void StopWaitingAcceptForGameFromServer()
-    {
-
-    }
+    
 
     public void CreateUDP()
     {
@@ -42,25 +39,23 @@ public class Network : MonoBehaviour
     /// <summary>
     /// Проверка интернета, создание экземпляра TcpConnect и авторизация в системе сесрвера
     /// </summary>
-    public async void CreateTCP() //TODO: Может следует вызвать асинхронно, чтоб всё не зависло. А то пока всё не обработается, фрейм не пройдёт
+    public async void CreateTCP()
     {
         //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
-        DataHolder.ShowNotif(NotifPanel, Shield, "Ожидание подключения");
+        ShowNotif("Ожидание подключения", 0);
 
         if (!CheckForInternetConnection())
         {
-            DataHolder.ShowNotif(NotifPanel, Shield, "Отсутствует подключение к интернету.");
-            NotifButton.SetActive(true);
+            ShowNotif("Отсутствует подключение к интернету.", 1);           
             return;
         }
 
-        // Это нужно чтоб сначала показать уведомление о начале подключения, а потом уже подключать. 
+        // Асинхронность нужна чтоб сначала показать уведомление о начале подключения, а потом уже подключать. 
         await Task.Run(() => DataHolder.ClientTCP = new TcpConnect());
 
         if (DataHolder.Connected == false)
         {
-            DataHolder.ShowNotif(NotifPanel, Shield, "Сервер не доступен. Попробуйте позже.");
-            NotifButton.SetActive(true);
+            ShowNotif("Сервер не доступен. Попробуйте позже.", 1);
             return;
         }
 
@@ -68,8 +63,7 @@ public class Network : MonoBehaviour
 
         if (DataHolder.Connected == false)
         {
-            DataHolder.ShowNotif(NotifPanel, Shield, "Ошибка доступа к серверу.");
-            NotifButton.SetActive(true);
+            ShowNotif("Ошибка доступа к серверу.", 1);
             return;
         }
         else GetComponent<MainMenuScr>().GoToMulty();
@@ -125,24 +119,23 @@ public class Network : MonoBehaviour
     /// </summary>
     private async void StartReconnect()
     {
-        DataHolder.ShowNotif(NotifPanel, Shield, "Разрыв соединения.\r\nПереподключение...");
-        StopReconnectButton.SetActive(true);
+        ShowNotif("Разрыв соединения.\r\nПереподключение...", 2);
 
         while (TryRecconect)
         {
             // Сначала ченем инет
             if (!await Task.Run(() => CheckForInternetConnection()))
             {
-                DataHolder.ShowNotif(NotifPanel, Shield, "Разрыв соединения.\r\nОтсутствует подключение к интернету.\r\nОжидание..."); //TODO: Тут везде нужна новая панель ожидания подключения
+                ShowNotif("Разрыв соединения.\r\nОтсутствует подключение к интернету.\r\nОжидание...", 2);
                 continue;
             }
-            else DataHolder.ShowNotif(NotifPanel, Shield, "Разрыв соединения.\r\nПодключение к серверу..."); //TODO: Тут везде нужна новая панель ожидания подключения
+            else ShowNotif("Разрыв соединения.\r\nПодключение к серверу...", 2);
 
             await Task.Run(() => DataHolder.ClientTCP.TryConnect());    
 
             if (DataHolder.Connected == true)
             {
-                DataHolder.ShowNotif(NotifPanel, Shield, "Разрыв соединения.\r\nОжидание ответа сервера");
+                ShowNotif("Разрыв соединения.\r\nОжидание ответа сервера", 2);
                 await Task.Run(() => LoginInServerSystem()); //TODO: А если не получится?
                 StopReconnect();
             }
@@ -165,7 +158,14 @@ public class Network : MonoBehaviour
         Shield.SetActive(false);
     }
 
-    //TODO: Один раз игра тупо зависла, когда не было интернета. Опоещение даже не показала
+    public void CancelGameSearch() //TODO: Не забудь обработать отмену на сервере
+    {
+        DataHolder.ClientTCP.SendMassage("CancelSearch");
+        NotifPanel.SetActive(false);
+        CancelSearchButton.SetActive(false);
+        Shield.SetActive(false);
+    }
+
     private static bool CheckForInternetConnection()
     {
         try
@@ -175,6 +175,26 @@ public class Network : MonoBehaviour
                 return true;
         }
         catch { return false; }
+    }
+
+    /// <summary>
+    /// Выводит на экран уведомление и отключает все остальные кнопки.
+    /// </summary>
+    /// <param name="num">Текст ведомления</param>
+    /// <param name="caseNotif">Выбор типа и кнопки на окне уведомления</param>
+    public void ShowNotif(string notif, int caseNotif)
+    {
+        Shield.SetActive(true);
+        NotifPanel.transform.Find("Text").GetComponent<Text>().text = notif;
+        NotifPanel.SetActive(true);
+
+        if (caseNotif == 1)
+            NotifButton.SetActive(true);
+        else if (caseNotif == 2)
+            StopReconnectButton.SetActive(true);
+        else if (caseNotif == 3)
+            CancelSearchButton.SetActive(true);
+
     }
 
 }

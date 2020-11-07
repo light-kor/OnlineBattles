@@ -18,11 +18,11 @@ public class Joystic_controller : MonoBehaviour
 
         if (DataHolder.MessageTCP.Count > 0)
         {
-            string[] mes = DataHolder.MessageUDPget[0].Split(' ');
+            string[] mes = DataHolder.MessageTCP[0].Split(' ');
             if (mes[0] == "info")
-            {
-                me.transform.position = new Vector2(float.Parse(mes[0]), float.Parse(mes[1]));
-                enemy.transform.position = new Vector2(float.Parse(mes[2]), float.Parse(mes[3]));
+            {             
+                me.transform.position = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
+                enemy.transform.position = new Vector2(float.Parse(mes[3]), float.Parse(mes[4]));
             }
             DataHolder.MessageTCP.RemoveAt(0);
         }

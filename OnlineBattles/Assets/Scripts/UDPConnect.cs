@@ -29,7 +29,6 @@ public class UDPConnect
         }
         catch
         {
-            Debug.Log("Send error");
             if (GameOn)
             {
                 if (client != null)
@@ -52,7 +51,6 @@ public class UDPConnect
             }
             catch
             {
-                Debug.Log("Res error");
                 if (GameOn)
                 {
                     if (client != null)
@@ -72,7 +70,6 @@ public class UDPConnect
             client.Dispose();
             client.Close();
             client = null;
-            Debug.Log("Destroy udp client");
         }
     }
 

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class MainMenuScr : MonoBehaviour
 {
     public Text Money, ID;
-    public GameObject MainPanel, LvlPanel, CancelGamePanel;
+    public GameObject MainPanel, LvlPanel;
 
     private string lvlName = "";
     private Network NetworkScript;
@@ -18,7 +18,7 @@ public class MainMenuScr : MonoBehaviour
     void Update()
     {         
         // Принимаем сообщение о старте игры
-        while (DataHolder.MessageTCP.Count > 0)
+        if (DataHolder.MessageTCP.Count > 0)
         {
             string[] mes = DataHolder.MessageTCP[0].Split(' ');
 
@@ -27,11 +27,15 @@ public class MainMenuScr : MonoBehaviour
                 DataHolder.ThisGameID = Convert.ToInt32(mes[1]);
                 DataHolder.GameId = Convert.ToInt32(mes[2]);
                 UnityEngine.SceneManagement.SceneManager.LoadScene(lvlName);
+
+                //NetworkScript.CancelGameSearch(); //TODO: Надо ли? Всё равно загружается новая сцена и всё сбросится. Если включишь, то надо убрть в функции строку с отправкой сообщения об отмене.
             }
 
             // Значит до этого игрок вылетел, и сейчас может востановиться в игре
             if (mes[0] == "goto")
             {
+                DataHolder.ThisGameID = Convert.ToInt32(mes[2]);
+                DataHolder.GameId = Convert.ToInt32(mes[3]);
                 if (mes[1] == "2")
                     UnityEngine.SceneManagement.SceneManager.LoadScene("UdpLVL");
             }
@@ -100,9 +104,9 @@ public class MainMenuScr : MonoBehaviour
                 // Выключить все кнопки перед этим, чтоб игрок никуда не мог нажать 3 секунды
                 lvlName = "lvl1";
                 DataHolder.ClientTCP.SendMassage("game1");
+
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
-                NetworkScript.Shield.SetActive(true);
-                CancelGamePanel.SetActive(true);
+                NetworkScript.ShowNotif("Поиск игры", 3);
             }
 
         }
@@ -120,10 +124,10 @@ public class MainMenuScr : MonoBehaviour
             {
                 lvlName = "UdpLVL";
                 DataHolder.ClientTCP.SendMassage("game2");
+
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
-                NetworkScript.Shield.SetActive(true);
                 //TODO: Добавить анимацию ожидания
-                CancelGamePanel.SetActive(true);
+                NetworkScript.ShowNotif("Поиск игры", 3);
             }
         }        
     }
@@ -134,6 +138,9 @@ public class MainMenuScr : MonoBehaviour
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
 
+    //TODO: Обработать досрочный выход из игры в главное меню, если не хочешь играть
+
+    //TODO: Как сервер поймёт, если кто-то вылетел из udp игры
 
     //TODO: Перед стартом игры нужно ставить NotifPanel, NotifPanel, Shield на false. Тк игрок мог некорректно завершить прошлую игру, и в ной он начнёт с включёной этой хуйнёй
 

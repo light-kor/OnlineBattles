@@ -86,11 +86,6 @@ public class OnlineGameController : MonoBehaviour
             }
             DataHolder.WinFlag = 0;
         }
-
-        if (!DataHolder.Connected)
-        {
-            DataHolder.ShowNotif(notifPanel, Shield, "Разрыв соединения.\r\nПереподключение...");
-        }
         
     }
 

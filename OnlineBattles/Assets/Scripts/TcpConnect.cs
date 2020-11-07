@@ -36,6 +36,7 @@ public class TcpConnect
             if (result.AsyncWaitHandle.WaitOne(2000, true))
             {
                 client.EndConnect(result);
+
                 clientListener = new Thread(Reader);
                 clientListener.Start();
                 clientListener.IsBackground = true;
