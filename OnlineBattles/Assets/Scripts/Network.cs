@@ -7,10 +7,8 @@ using UnityEngine;
 public class Network : MonoBehaviour
 {
     private const float TimeForWaitAnswer = 3f;
+    private bool TryRecconect = true;
 
-    private Coroutine RecCoroutine;
-
-    public bool GoToMultyplayer = false;
     public GameObject NotifPanel, NotifButton, StopReconnectButton;
     public GameObject Shield; // Блокирует нажатия на все кнопки, кроме notifPanel
 
@@ -74,9 +72,8 @@ public class Network : MonoBehaviour
             NotifButton.SetActive(true);
             return;
         }
-        else GoToMultyplayer = true;
+        else GetComponent<MainMenuScr>().GoToMulty();
     }
-
 
     /// <summary>
     /// Отправка запроса на авторизацию и ожидание подтверждения, id и money
@@ -126,43 +123,31 @@ public class Network : MonoBehaviour
     /// <summary>
     /// Начало реконнекта, показ всех нужных уведомлений, проверка сети и запуск цикла запросов повторное на соединение
     /// </summary>
-    private void StartReconnect()
+    private async void StartReconnect()
     {
         DataHolder.ShowNotif(NotifPanel, Shield, "Разрыв соединения.\r\nПереподключение...");
         StopReconnectButton.SetActive(true);
-        RecCoroutine = StartCoroutine(TryReconnect());
-    }
 
-    /// <summary>
-    /// Повторяющаяся функция попыток успешного соединения
-    /// </summary>
-    IEnumerator TryReconnect()
-    {
-        while (true)
+        while (TryRecconect)
         {
-            yield return null; // Чтоб прогрузилась новое уведомление
-            Debug.Log("ssad");
             // Сначала ченем инет
-            if (!CheckForInternetConnection())
+            if (!await Task.Run(() => CheckForInternetConnection()))
             {
-                DataHolder.ShowNotif(NotifPanel, Shield, "Отсутствует подключение к интернету.\r\nОжидание..."); //TODO: Тут везде нужна новая панель ожидания подключения
-                yield return null;
+                DataHolder.ShowNotif(NotifPanel, Shield, "Разрыв соединения.\r\nОтсутствует подключение к интернету.\r\nОжидание..."); //TODO: Тут везде нужна новая панель ожидания подключения
                 continue;
             }
-            else DataHolder.ShowNotif(NotifPanel, Shield, "Подключение к серверу..."); //TODO: Тут везде нужна новая панель ожидания подключения
+            else DataHolder.ShowNotif(NotifPanel, Shield, "Разрыв соединения.\r\nПодключение к серверу..."); //TODO: Тут везде нужна новая панель ожидания подключения
 
-            DataHolder.ClientTCP.TryConnect();
-
-            yield return null;
+            await Task.Run(() => DataHolder.ClientTCP.TryConnect());    
 
             if (DataHolder.Connected == true)
             {
-                DataHolder.ShowNotif(NotifPanel, Shield, "Ожидание ответа сервера");
-                LoginInServerSystem(); //TODO: А если не получится?
-                yield return null;
-                StopTryingReconnect();
+                DataHolder.ShowNotif(NotifPanel, Shield, "Разрыв соединения.\r\nОжидание ответа сервера");
+                await Task.Run(() => LoginInServerSystem()); //TODO: А если не получится?
+                StopReconnect();
             }
         }
+        TryRecconect = true; // Возвращаем true в переменную 
     }
 
     public void ExitNotif()
@@ -172,9 +157,9 @@ public class Network : MonoBehaviour
         Shield.SetActive(false);
     }
 
-    public void StopTryingReconnect()
+    public void StopReconnect()
     {
-        StopCoroutine(RecCoroutine);
+        TryRecconect = false;
         NotifPanel.SetActive(false);
         StopReconnectButton.SetActive(false);
         Shield.SetActive(false);

@@ -2274,7 +2274,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebff971ec38435547b5cc3b55c088f5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GoToMultyplayer: 0
   NotifPanel: {fileID: 26039321}
   NotifButton: {fileID: 1302340415}
   StopReconnectButton: {fileID: 2030561434}
@@ -2968,6 +2967,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7513740709670206042, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_Text
+      value: "\u041E\u0442\u043C\u0435\u043D\u0430"
+      objectReference: {fileID: 0}
     - target: {fileID: 7825454323598363675, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -2976,7 +2980,7 @@ PrefabInstance:
     - target: {fileID: 7825454323598363675, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: StopTryingReconnect
+      value: StopReconnect
       objectReference: {fileID: 0}
     - target: {fileID: 8551085286020075573, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}

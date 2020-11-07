@@ -16,14 +16,7 @@ public class MainMenuScr : MonoBehaviour
     }
 
     void Update()
-    {
-        if (NetworkScript.GoToMultyplayer)
-        {
-            GoToMulty();
-            NetworkScript.GoToMultyplayer = false;
-        }
-            
-
+    {         
         // Принимаем сообщение о старте игры
         while (DataHolder.MessageTCP.Count > 0)
         {
@@ -70,7 +63,7 @@ public class MainMenuScr : MonoBehaviour
         GoToMulty();
     }
 
-    void GoToMulty()
+    public void GoToMulty()
     {
         if (DataHolder.Connected)
         {
@@ -141,7 +134,8 @@ public class MainMenuScr : MonoBehaviour
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
 
-    
+
+    //TODO: Перед стартом игры нужно ставить NotifPanel, NotifPanel, Shield на false. Тк игрок мог некорректно завершить прошлую игру, и в ной он начнёт с включёной этой хуйнёй
 
     //TODO: Если сервер упал и заново включлся и ты нажимаешь мультиплеер, то приходится нажимать два раза
 
