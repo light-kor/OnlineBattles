@@ -49,9 +49,10 @@ public static class DataHolder
     /// </summary>
     /// <param name="notifPanel">Ссылка на панель уведомлений</param>
     /// <param name="num">Номер уведомления в notifOptions</param>
-    public static void ShowNotif(GameObject notifPanel, string notif)
+    public static void ShowNotif(GameObject notifPanel, GameObject shield, string notif)
     {
+        shield.SetActive(true);
         notifPanel.transform.Find("Text").GetComponent<Text>().text = notif;
-        notifPanel.SetActive(true);
+        notifPanel.SetActive(true);       
     }
 }

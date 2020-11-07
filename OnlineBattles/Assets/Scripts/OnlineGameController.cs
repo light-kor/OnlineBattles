@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class OnlineGameController : MonoBehaviour
 {
-    public GameObject endPanel, fastExitPanel, notifPanel;
+    public GameObject endPanel, fastExitPanel, notifPanel, Shield;
     public Text endText;
     
 
@@ -89,7 +89,7 @@ public class OnlineGameController : MonoBehaviour
 
         if (!DataHolder.Connected)
         {
-            DataHolder.ShowNotif(notifPanel, "Разрыв соединения.\r\nПереподключение...");
+            DataHolder.ShowNotif(notifPanel, Shield, "Разрыв соединения.\r\nПереподключение...");
         }
         
     }

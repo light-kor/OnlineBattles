@@ -5,8 +5,7 @@ using UnityEngine.UI;
 public class MainMenuScr : MonoBehaviour
 {
     public Text Money, ID;
-    public GameObject MainPanel, LvlPanel, NotifPanel, CancelGamePanel;
-    public GameObject Shield; // Блокирует нажатия на все кнопки, кроме notifPanel
+    public GameObject MainPanel, LvlPanel, CancelGamePanel;
 
     private string lvlName = "";
     private Network NetworkScript;
@@ -18,6 +17,13 @@ public class MainMenuScr : MonoBehaviour
 
     void Update()
     {
+        if (NetworkScript.GoToMultyplayer)
+        {
+            GoToMulty();
+            NetworkScript.GoToMultyplayer = false;
+        }
+            
+
         // Принимаем сообщение о старте игры
         while (DataHolder.MessageTCP.Count > 0)
         {
@@ -30,6 +36,7 @@ public class MainMenuScr : MonoBehaviour
                 UnityEngine.SceneManagement.SceneManager.LoadScene(lvlName);
             }
 
+            // Значит до этого игрок вылетел, и сейчас может востановиться в игре
             if (mes[0] == "goto")
             {
                 if (mes[1] == "2")
@@ -54,18 +61,24 @@ public class MainMenuScr : MonoBehaviour
 
     public void SelectMultiplayerGame()
     {
-        if (!DataHolder.Connected)
-            NetworkScript.CreateTCP();              
+        if (!DataHolder.Connected)          
+            NetworkScript.CreateTCP();                
         else 
             DataHolder.ClientTCP.SendMassage("Check"); // Если соединение уже было создано, то надо затестить    
 
+        // Если сеть была, но отлетела, то после Check Connected станет false
+        GoToMulty();
+    }
+
+    void GoToMulty()
+    {
         if (DataHolder.Connected)
         {
             DataHolder.GameType = 3;
+            NetworkScript.ExitNotif();
+            MoveMenuPanels();
             GetMoney();
-            MoveMenuPanels();           
         }
-        else DataHolder.ShowNotif(NotifPanel, "Сервер не доступен. Попробуйте позже.");
     }
 
     public void GetMoney()
@@ -95,7 +108,7 @@ public class MainMenuScr : MonoBehaviour
                 lvlName = "lvl1";
                 DataHolder.ClientTCP.SendMassage("game1");
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
-                Shield.SetActive(true);
+                NetworkScript.Shield.SetActive(true);
                 CancelGamePanel.SetActive(true);
             }
 
@@ -115,7 +128,7 @@ public class MainMenuScr : MonoBehaviour
                 lvlName = "UdpLVL";
                 DataHolder.ClientTCP.SendMassage("game2");
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
-                Shield.SetActive(true);
+                NetworkScript.Shield.SetActive(true);
                 //TODO: Добавить анимацию ожидания
                 CancelGamePanel.SetActive(true);
             }
@@ -128,11 +141,7 @@ public class MainMenuScr : MonoBehaviour
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
 
-    public void ExitNotif()
-    {
-        NotifPanel.SetActive(false);
-        Shield.SetActive(false);
-    }
+    
 
     //TODO: Если сервер упал и заново включлся и ты нажимаешь мультиплеер, то приходится нажимать два раза
 

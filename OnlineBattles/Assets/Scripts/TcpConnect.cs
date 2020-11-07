@@ -20,7 +20,6 @@ public class TcpConnect
             //ReachableViaLocalAreaNetwork wifi
             // NotReachable nihuya
         //}
-
         TryConnect();
     }
 
@@ -44,8 +43,7 @@ public class TcpConnect
             }
             else
             {
-                client.Dispose();
-                client.Close();
+                CloseClient();
                 DataHolder.Connected = false;
             }
         } 

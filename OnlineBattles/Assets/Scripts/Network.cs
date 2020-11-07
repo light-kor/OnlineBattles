@@ -1,21 +1,27 @@
 ﻿using System;
+using System.Collections;
 using System.Net;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class Network : MonoBehaviour
 {
-    const float TimeForWaitAnswer = 3f;
+    private const float TimeForWaitAnswer = 3f;
 
-    public GameObject NotifPanel, Shield;
+    private Coroutine RecCoroutine;
 
-    void Start()
+    public bool GoToMultyplayer = false;
+    public GameObject NotifPanel, NotifButton, StopReconnectButton;
+    public GameObject Shield; // Блокирует нажатия на все кнопки, кроме notifPanel
+
+    private void Start()
     {
         
     }
 
-    void Update()
+    private void Update()
     {
-        // Если Read поймёт, что сеть прервалось, сработает это и начнётся востановление сети.
+        // Если Reader в TcpConnect поймёт, что сеть прервалась, то сработает это и начнётся востановление сети.
         if (DataHolder.NeedToReconnect)
         {
             DataHolder.NeedToReconnect = false;
@@ -23,11 +29,6 @@ public class Network : MonoBehaviour
         }
 
         //TODO: Добавить стандартные команды от сервера типо закончить и тд
-    }
-
-    public void StopTryConnectToServer()
-    {
-
     }
 
     public void StopWaitingAcceptForGameFromServer()
@@ -43,29 +44,39 @@ public class Network : MonoBehaviour
     /// <summary>
     /// Проверка интернета, создание экземпляра TcpConnect и авторизация в системе сесрвера
     /// </summary>
-    public void CreateTCP()
+    public async void CreateTCP() //TODO: Может следует вызвать асинхронно, чтоб всё не зависло. А то пока всё не обработается, фрейм не пройдёт
     {
         //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
-        Shield.SetActive(true);
+        DataHolder.ShowNotif(NotifPanel, Shield, "Ожидание подключения");
 
         if (!CheckForInternetConnection())
         {
-            DataHolder.ShowNotif(NotifPanel, "Отсутствует подключение к интернету.");
-            Shield.SetActive(false);
+            DataHolder.ShowNotif(NotifPanel, Shield, "Отсутствует подключение к интернету.");
+            NotifButton.SetActive(true);
             return;
         }
 
-        DataHolder.ClientTCP = new TcpConnect();
+        // Это нужно чтоб сначала показать уведомление о начале подключения, а потом уже подключать. 
+        await Task.Run(() => DataHolder.ClientTCP = new TcpConnect());
 
         if (DataHolder.Connected == false)
         {
-            Shield.SetActive(false);
+            DataHolder.ShowNotif(NotifPanel, Shield, "Сервер не доступен. Попробуйте позже.");
+            NotifButton.SetActive(true);
             return;
         }
-            
+
         LoginInServerSystem();
-        Shield.SetActive(false);
+
+        if (DataHolder.Connected == false)
+        {
+            DataHolder.ShowNotif(NotifPanel, Shield, "Ошибка доступа к серверу.");
+            NotifButton.SetActive(true);
+            return;
+        }
+        else GoToMultyplayer = true;
     }
+
 
     /// <summary>
     /// Отправка запроса на авторизацию и ожидание подтверждения, id и money
@@ -117,38 +128,56 @@ public class Network : MonoBehaviour
     /// </summary>
     private void StartReconnect()
     {
-        Shield.SetActive(true);
-        DataHolder.ShowNotif(NotifPanel, "Разрыв соединения.\r\nПереподключение..."); //TODO: Тут везде нужна новая панель ожидания подключения
-
-        // потом уже налаживаем соединение с сервером
-        InvokeRepeating("TryReconnect", 0.0f, 1.0f);
+        DataHolder.ShowNotif(NotifPanel, Shield, "Разрыв соединения.\r\nПереподключение...");
+        StopReconnectButton.SetActive(true);
+        RecCoroutine = StartCoroutine(TryReconnect());
     }
 
     /// <summary>
     /// Повторяющаяся функция попыток успешного соединения
     /// </summary>
-    private void TryReconnect()
+    IEnumerator TryReconnect()
     {
-        // Сначала ченем инет
-        if (!CheckForInternetConnection())
+        while (true)
         {
-            DataHolder.ShowNotif(NotifPanel, "Отсутствует подключение к интернету.\r\nОжидание..."); //TODO: Тут везде нужна новая панель ожидания подключения
-            return;
+            yield return null; // Чтоб прогрузилась новое уведомление
+            Debug.Log("ssad");
+            // Сначала ченем инет
+            if (!CheckForInternetConnection())
+            {
+                DataHolder.ShowNotif(NotifPanel, Shield, "Отсутствует подключение к интернету.\r\nОжидание..."); //TODO: Тут везде нужна новая панель ожидания подключения
+                yield return null;
+                continue;
+            }
+            else DataHolder.ShowNotif(NotifPanel, Shield, "Подключение к серверу..."); //TODO: Тут везде нужна новая панель ожидания подключения
+
+            DataHolder.ClientTCP.TryConnect();
+
+            yield return null;
+
+            if (DataHolder.Connected == true)
+            {
+                DataHolder.ShowNotif(NotifPanel, Shield, "Ожидание ответа сервера");
+                LoginInServerSystem(); //TODO: А если не получится?
+                yield return null;
+                StopTryingReconnect();
+            }
         }
-        else DataHolder.ShowNotif(NotifPanel, "Подключение к серверу..."); //TODO: Тут везде нужна новая панель ожидания подключения
+    }
 
-        DataHolder.ClientTCP.TryConnect();       
+    public void ExitNotif()
+    {
+        NotifPanel.SetActive(false);
+        NotifButton.SetActive(false);
+        Shield.SetActive(false);
+    }
 
-        if (DataHolder.Connected == true)
-        {
-            CancelInvoke("TryReconnect");
-
-            //DataHolder.ShowNotif(NotifPanel, ?); Написать типо: "Ожидание ответа от сервера"
-            LoginInServerSystem();
-
-            Shield.SetActive(false);
-            NotifPanel.SetActive(false);
-        }
+    public void StopTryingReconnect()
+    {
+        StopCoroutine(RecCoroutine);
+        NotifPanel.SetActive(false);
+        StopReconnectButton.SetActive(false);
+        Shield.SetActive(false);
     }
 
     //TODO: Один раз игра тупо зависла, когда не было интернета. Опоещение даже не показала
