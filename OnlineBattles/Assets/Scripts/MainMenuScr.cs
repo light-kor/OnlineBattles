@@ -17,7 +17,6 @@ public class MainMenuScr : MonoBehaviour
 
     void Update()
     {         
-        // Принимаем сообщение о старте игры
         if (DataHolder.MessageTCP.Count > 0)
         {
             string[] mes = DataHolder.MessageTCP[0].Split(' ');
@@ -137,6 +136,14 @@ public class MainMenuScr : MonoBehaviour
         MainPanel.SetActive(!MainPanel.activeSelf);
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
+
+    //TODO: Лобби почему-то не удаляется после завершения матча
+
+    //TODO: Отмена поиска игры обработать на сервере
+
+    //TODO: Написать чек-лист для каждого нового уровня
+
+    //TODO: Нужно не автоматически перезагружать, а спрашивать, хочетли игрок вернуться
 
     //TODO: Обработать досрочный выход из игры в главное меню, если не хочешь играть
 

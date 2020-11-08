@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Network : MonoBehaviour
@@ -9,7 +10,7 @@ public class Network : MonoBehaviour
     private const float TimeForWaitAnswer = 3f;
     private bool TryRecconect = true;
 
-    public GameObject NotifPanel, NotifButton, StopReconnectButton, CancelSearchButton;
+    public GameObject NotifPanel, NotifButton, StopReconnectButton, CancelSearchButton, CloseEndGameButton;
     public GameObject Shield; // Блокирует нажатия на все кнопки, кроме notifPanel
 
     private void Start()
@@ -24,6 +25,26 @@ public class Network : MonoBehaviour
         {
             DataHolder.NeedToReconnect = false;
             StartReconnect();
+        }
+
+        if (DataHolder.MessageTCP.Count > 0)
+        {
+            string[] mes = DataHolder.MessageTCP[0].Split(' ');
+
+            switch (mes[0])
+            {
+                case "win":
+                case "lose":
+                case "drawn":
+                    //TODO: Нужен какой-то мультивыбор скрипта ниже, а не только этот
+                    GetComponent<Joystic_controller>().CloseAll();
+                    ShowNotif("Игра завершена\r\n" + mes[0], 4);
+                    break;
+            }
+
+
+
+            DataHolder.MessageTCP.RemoveAt(0);
         }
 
         //TODO: Добавить стандартные команды от сервера типо закончить и тд
@@ -120,6 +141,7 @@ public class Network : MonoBehaviour
     private async void StartReconnect()
     {
         ShowNotif("Разрыв соединения.\r\nПереподключение...", 2);
+        //TODO: Перед каждой новой попыткой очистетить все старые соединения
 
         while (TryRecconect)
         {
@@ -148,6 +170,14 @@ public class Network : MonoBehaviour
         NotifPanel.SetActive(false);
         NotifButton.SetActive(false);
         Shield.SetActive(false);
+    }
+
+    public void ExitGame()
+    {
+        NotifPanel.SetActive(false);
+        CloseEndGameButton.SetActive(false);
+        Shield.SetActive(false);
+        SceneManager.LoadScene("mainMenu");
     }
 
     public void StopReconnect()
@@ -194,6 +224,8 @@ public class Network : MonoBehaviour
             StopReconnectButton.SetActive(true);
         else if (caseNotif == 3)
             CancelSearchButton.SetActive(true);
+        else if (caseNotif == 4)
+            CloseEndGameButton.SetActive(true);
 
     }
 

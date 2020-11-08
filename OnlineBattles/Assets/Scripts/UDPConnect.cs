@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class UDPConnect
 {
-    private IPEndPoint remoteIp = null; // адрес входящего подключения  
+    private IPEndPoint remoteIp = null; 
     public bool GameOn = false;
     public static UdpClient client;
 
@@ -27,16 +27,7 @@ public class UDPConnect
             byte[] data = Encoding.UTF8.GetBytes(mes);
             client.Send(data, data.Length);
         }
-        catch
-        {
-            if (GameOn)
-            {
-                if (client != null)
-                    client.Close();
-                client = new UdpClient(DataHolder.ConnectIp, DataHolder.RemotePort);
-            }
-            //TODO: Сделать перезагрузку tcp. Или как-то здесь словить ошибку и что-то сделать
-        }
+        catch { Reconnect(); }
     }
 
     private void ReceiveMessage()
@@ -49,17 +40,24 @@ public class UDPConnect
                 string messList = Encoding.UTF8.GetString(data);
                 DataHolder.MessageUDPget.Add(messList);
             }
-            catch
-            {
-                if (GameOn)
-                {
-                    if (client != null)
-                        client.Close();
-
-                    client = new UdpClient(DataHolder.ConnectIp, DataHolder.RemotePort);
-                }
-            }
+            catch { Reconnect(); }
         }
+    }
+
+    private void Reconnect()
+    {
+        if (GameOn)
+        {
+            if (client != null)
+                client.Close();
+
+            client = new UdpClient(DataHolder.ConnectIp, DataHolder.RemotePort);
+
+            // Тестим tcp на всякий случай, вдруг надо всё перезапустить.
+            //TODO: Игрок может отменить реконнект и игру, тогда надо будет обнулить и удалить все udp соединения
+            DataHolder.ClientTCP.SendMassage("Check");
+        }
+        else CloseClient();
     }
 
     public void CloseClient()

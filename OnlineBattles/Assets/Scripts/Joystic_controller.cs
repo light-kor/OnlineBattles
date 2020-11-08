@@ -4,9 +4,8 @@ public class Joystic_controller : MonoBehaviour
 {
     public Joystick joystick;
     public GameObject me, enemy;
-    //private float X = -1.5f, Y = 0.2f;
     public float repTime = 0.034f;
-    float buffX = 0, buffY = 0;
+    private float buffX = 0, buffY = 0;
     private Network NetworkScript;
 
     private void Start()
@@ -28,28 +27,17 @@ public class Joystic_controller : MonoBehaviour
         }
     }
 
-    //private void FixedUpdate()
-    //{
-
-    //    X += joystick.Horizontal / 20;
-    //    Y += joystick.Vertical / 20;
-    //    me.transform.position = new Vector2(X, Y);
-    //}
-
-    private void Update()
+    private void FixedUpdate()
     {
         if (DataHolder.MessageUDPget.Count > 0)
         {
             //TODO: А если накопилось уже больше одного, то мб стоит удалить несколько или обработать несколько с плавным переходом
             string[] mes = DataHolder.MessageUDPget[0].Split(' ');
-            //X = float.Parse(mes[0]); //TODO: Смотри, чтоб потом это не помешало
-            //Y = float.Parse(mes[1]);
             me.transform.position = new Vector2(float.Parse(mes[0]), float.Parse(mes[1]));
             enemy.transform.position = new Vector2(float.Parse(mes[2]), float.Parse(mes[3]));
 
             DataHolder.MessageUDPget.RemoveAt(0);
         }
-
     }
 
     void SendJoy()
@@ -63,14 +51,18 @@ public class Joystic_controller : MonoBehaviour
         }
     }
 
-    public void ExitGame()
+    public void CloseAll()
     {
-        // Нормально завершить поток, а потом очистить экземпляр класса
-        //TODO: Отправить что-то о завершении
         CancelInvoke("SendJoy");
         DataHolder.ClientUDP.GameOn = false;
         DataHolder.ClientUDP.CloseClient();
-        DataHolder.ClientUDP = null;       
+        DataHolder.ClientUDP = null;
+    }
+
+    public void ExitGame()
+    {
+        //TODO: Отправить что-то при досрочном завершении    
+        CloseAll();
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 }

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using UnityEngine;
 
 public class TcpConnect
 {
@@ -20,6 +18,7 @@ public class TcpConnect
             //ReachableViaLocalAreaNetwork wifi
             // NotReachable nihuya
         //}
+
         TryConnect();
     }
 
@@ -28,10 +27,10 @@ public class TcpConnect
     /// </summary>
     public void TryConnect()
     {
-        CloseClient();
-        client = new TcpClient();
+        CloseClient();       
         try
         {
+            client = new TcpClient();
             var result = client.BeginConnect(DataHolder.ConnectIp, DataHolder.RemotePort, null, null);
             if (result.AsyncWaitHandle.WaitOne(2000, true))
             {
@@ -48,9 +47,9 @@ public class TcpConnect
                 DataHolder.Connected = false;
             }
         } 
-        catch (Exception ex)
+        catch
         {
-            Debug.Log(ex);
+            DataHolder.Connected = false;
         }
     }
 
@@ -98,14 +97,15 @@ public class TcpConnect
             catch 
             {
                 // В Network начнётся процесс реконнекта
-                DataHolder.Connected = false;
                 DataHolder.NeedToReconnect = true;
+                DataHolder.Connected = false;               
                 break;
             }            
             
             if (Buffer.Count > 0)
             {
                 string[] words = Encoding.UTF8.GetString(Buffer.ToArray()).Split(new char[] { '|' });
+
                 // Удаляем последний пустой элемент
                 List<string> messList = new List<string>(words);
                 messList.Remove("");
@@ -118,11 +118,10 @@ public class TcpConnect
         }
     }
 
-    private void CloseClient()
+    private void CloseClient() //TODO: Добавить этот вызов на кнопку выхода из приложения
     {
         if (client != null)
         {
-            //TODO: Завершается ли при этом поток?
             client.Dispose();
             client.Close();
             client = null;
