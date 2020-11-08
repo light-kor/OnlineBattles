@@ -54,15 +54,20 @@ public class Joystic_controller : MonoBehaviour
     public void CloseAll()
     {
         CancelInvoke("SendJoy");
-        DataHolder.ClientUDP.GameOn = false;
-        DataHolder.ClientUDP.CloseClient();
-        DataHolder.ClientUDP = null;
+        // Там автоматически после GameOn = false вызовется CloseClient()
+        if (DataHolder.ClientUDP != null)
+        {
+            DataHolder.ClientUDP.GameOn = false;
+            DataHolder.ClientUDP = null;
+        }
     }
 
     public void ExitGame()
     {
-        //TODO: Отправить что-то при досрочном завершении    
-        CloseAll();
+        //TODO: Отправить что-то при досрочном завершении 
+        if (DataHolder.ClientUDP != null)
+            CloseAll();
+
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class UDPConnect
 {
-    private IPEndPoint remoteIp = null; 
+    private IPEndPoint remoteIp = null;
     public bool GameOn = false;
     public static UdpClient client;
 
