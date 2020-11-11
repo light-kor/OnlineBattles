@@ -38,7 +38,8 @@ public class UDPConnect
             {
                 byte[] data = client.Receive(ref remoteIp);
                 string messList = Encoding.UTF8.GetString(data);
-                DataHolder.MessageUDPget.Add(messList);
+                DataHolder.MessageUDPget.Insert(0, messList); // TODO: Не забудь, что они тут собираются в обратную сторону
+
             }
             catch { Reconnect(); }
         }

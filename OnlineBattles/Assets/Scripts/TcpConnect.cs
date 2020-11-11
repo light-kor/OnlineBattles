@@ -61,7 +61,7 @@ public class TcpConnect
     {
         try
         {
-            //message += "|";
+            message += "|";
             //message.Trim();
             byte[] Buffer = Encoding.UTF8.GetBytes((message).ToCharArray());
             client.GetStream().Write(Buffer, 0, Buffer.Length);
@@ -104,18 +104,16 @@ public class TcpConnect
             
             if (Buffer.Count > 0)
             {
-                DataHolder.MessageTCP.Add(Encoding.UTF8.GetString(Buffer.ToArray()));
+                string[] words = Encoding.UTF8.GetString(Buffer.ToArray()).Split(new char[] { '|' });
 
-                //string[] words = Encoding.UTF8.GetString(Buffer.ToArray()).Split(new char[] { '|' });
+                // Удаляем последний пустой элемент
+                List<string> messList = new List<string>(words);
+                messList.Remove("");
 
-                //// Удаляем последний пустой элемент
-                //List<string> messList = new List<string>(words);
-                //messList.Remove("");
-
-                //for (int i = 0; i < messList.Count; i++)
-                //{
-                //    DataHolder.MessageTCP.Add(messList[i]);
-                //}               
+                for (int i = 0; i < messList.Count; i++)
+                {
+                    DataHolder.MessageTCP.Add(messList[i]);
+                }
             }
         }
     }

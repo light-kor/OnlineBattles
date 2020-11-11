@@ -139,7 +139,6 @@ public class MainMenuScr : MonoBehaviour
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
 
-    //TODO: Везде убрал | с конца, возможно придётся вернуть
 
     //TODO: Сейчас награда добавляется в SplitByLobby, но это надо куда-то переместить и добавить выбор
 
