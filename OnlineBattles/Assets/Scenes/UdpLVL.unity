@@ -1010,7 +1010,57 @@ PrefabInstance:
     - target: {fileID: 4918756428584926444, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: ExitGame
+      value: NotificatonMultyButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918756428584926444, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918756428584926444, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 457828341}
+    - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: NotificatonMultyButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7825454323598363675, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 457828341}
+    - target: {fileID: 7825454323598363675, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: NotificatonMultyButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 7825454323598363675, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7825454323598363675, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8551085286020075573, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
@@ -1126,6 +1176,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8551085287162685294, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 457828341}
+    - target: {fileID: 8551085287162685294, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: NotificatonMultyButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 8551085287162685294, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8551085287162685294, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b6e4caf061445534bbdf7e6401303352, type: 3}

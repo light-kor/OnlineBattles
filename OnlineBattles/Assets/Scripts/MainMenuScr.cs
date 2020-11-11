@@ -39,7 +39,9 @@ public class MainMenuScr : MonoBehaviour
                     UnityEngine.SceneManagement.SceneManager.LoadScene("UdpLVL");
             }
 
-            DataHolder.MessageTCP.RemoveAt(0);
+
+            if (mes[0] != "0")
+                DataHolder.MessageTCP.RemoveAt(0);
         }
     }
 
@@ -71,7 +73,7 @@ public class MainMenuScr : MonoBehaviour
         if (DataHolder.Connected)
         {
             DataHolder.GameType = 3;
-            NetworkScript.ExitNotif();
+            NetworkScript.NotificatonMultyButton(1);
             MoveMenuPanels();
             GetMoney();
         }
@@ -136,6 +138,18 @@ public class MainMenuScr : MonoBehaviour
         MainPanel.SetActive(!MainPanel.activeSelf);
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
+
+    //TODO: Везде убрал | с конца, возможно придётся вернуть
+
+    //TODO: Сейчас награда добавляется в SplitByLobby, но это надо куда-то переместить и добавить выбор
+
+    //TODO: DataHolder.ClientUDP.SendMessage("Y"); - это я так сообщаю серверу, что я живой
+
+    //TODO: Возможно вынести коннект с сервером ещё до главного меню
+
+    //TODO: Всё ещё не сразу появляется уведомление, если всё хорошо подключается, получаетя секундная заминка
+
+    //TODO: Обработать отмену поиска игры на сервере
 
     //TODO: Досрочный выход из udp игры и отслеживание вылетов и автоматическая победа второго с таймером и тд
 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class Joystic_controller : MonoBehaviour
 {
@@ -7,13 +8,15 @@ public class Joystic_controller : MonoBehaviour
     public float repTime = 0.034f;
     private float buffX = 0, buffY = 0;
     private Network NetworkScript;
+    DateTime LastSend;
 
     private void Start()
     {
         NetworkScript = GetComponent<Network>();
         NetworkScript.CreateUDP();       
-        InvokeRepeating("SendJoy", 1.0f, repTime);
+        InvokeRepeating("SendJoy", 1.0f, repTime);       
         DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.ThisGameID} {buffX} {buffY}");
+        LastSend = DateTime.UtcNow;
 
         if (DataHolder.MessageTCP.Count > 0)
         {
@@ -27,7 +30,7 @@ public class Joystic_controller : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (DataHolder.MessageUDPget.Count > 0)
         {
@@ -48,7 +51,15 @@ public class Joystic_controller : MonoBehaviour
         {
             //DataHolder.ClientUDP.SendMessage(Math.Round(joystick.Horizontal, 2) + " " + Math.Round(joystick.Vertical, 2));
             DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.ThisGameID} {buffX} {buffY}");
+            LastSend = DateTime.UtcNow;
         }
+
+        if ((DateTime.UtcNow - LastSend).TotalMilliseconds > 500)
+        {
+            DataHolder.ClientUDP.SendMessage("Y");
+            LastSend = DateTime.UtcNow;
+        }
+            
     }
 
     public void CloseAll()

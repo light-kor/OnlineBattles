@@ -787,14 +787,14 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1632653834}
-        m_TargetAssemblyTypeName: MainMenuScr, Assembly-CSharp
-        m_MethodName: 
-        m_Mode: 1
+      - m_Target: {fileID: 1632653836}
+        m_TargetAssemblyTypeName: Network, Assembly-CSharp
+        m_MethodName: NotificatonMultyButton
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -1661,6 +1661,12 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1052502716}
   m_CullTransparentMesh: 0
+--- !u!1 &1130925508 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6578295018914937902, guid: b6e4caf061445534bbdf7e6401303352,
+    type: 3}
+  m_PrefabInstance: {fileID: 8551085286011339823}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1237047645
 GameObject:
   m_ObjectHideFlags: 0
@@ -2283,6 +2289,7 @@ MonoBehaviour:
   NotifButton: {fileID: 1302340415}
   StopReconnectButton: {fileID: 2030561434}
   CancelSearchButton: {fileID: 1414199428}
+  CloseEndGameButton: {fileID: 1130925508}
   Shield: {fileID: 303355418}
 --- !u!1 &1729373139
 GameObject:
@@ -2973,6 +2980,26 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4918756428584926444, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1632653836}
+    - target: {fileID: 4918756428584926444, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: NotificatonMultyButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918756428584926444, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4918756428584926444, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -2981,7 +3008,17 @@ PrefabInstance:
     - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: CancelGameSearch
+      value: NotificatonMultyButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7513740709670206042, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
@@ -2996,7 +3033,17 @@ PrefabInstance:
     - target: {fileID: 7825454323598363675, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: StopReconnect
+      value: NotificatonMultyButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 7825454323598363675, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7825454323598363675, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8551085286020075573, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
@@ -3123,5 +3170,20 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1632653836}
+    - target: {fileID: 8551085287162685294, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: NotificatonMultyButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 8551085287162685294, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8551085287162685294, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b6e4caf061445534bbdf7e6401303352, type: 3}

@@ -43,15 +43,12 @@ public class Network : MonoBehaviour
             }
 
 
-
             DataHolder.MessageTCP.RemoveAt(0);
         }
-
         //TODO: Добавить стандартные команды от сервера типо закончить и тд
     }
 
     
-
     public void CreateUDP()
     {
         DataHolder.ClientUDP = new UDPConnect();
@@ -65,7 +62,7 @@ public class Network : MonoBehaviour
         //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
         ShowNotif("Ожидание подключения", 0);
 
-        if (!CheckForInternetConnection())
+        if (!await Task.Run(() => CheckForInternetConnection()))
         {
             ShowNotif("Отсутствует подключение к интернету.", 1);           
             return;
@@ -80,7 +77,7 @@ public class Network : MonoBehaviour
             return;
         }
 
-        LoginInServerSystem();
+        await Task.Run(() => LoginInServerSystem());
 
         if (DataHolder.Connected == false)
         {
@@ -159,52 +156,37 @@ public class Network : MonoBehaviour
             {
                 ShowNotif("Разрыв соединения.\r\nОжидание ответа сервера", 2);
                 await Task.Run(() => LoginInServerSystem()); //TODO: А если не получится?
-                StopReconnect();
+                NotificatonMultyButton(2);
             }
         }
         TryRecconect = true; // Возвращаем true в переменную 
     }
 
-    public void ExitNotif()
+    public void NotificatonMultyButton(int num)
     {
         NotifPanel.SetActive(false);
-        NotifButton.SetActive(false);
         Shield.SetActive(false);
-    }
-
-    public void ExitGame()
-    {
-        NotifPanel.SetActive(false);
-        CloseEndGameButton.SetActive(false);
-        Shield.SetActive(false);
-        SceneManager.LoadScene("mainMenu");
-    }
-
-    public void StopReconnect()
-    {
-        TryRecconect = false;
-        NotifPanel.SetActive(false);
-        StopReconnectButton.SetActive(false);
-        Shield.SetActive(false);
-    }
-
-    public void CancelGameSearch() //TODO: Не забудь обработать отмену на сервере
-    {
-        DataHolder.ClientTCP.SendMassage("CancelSearch");
-        NotifPanel.SetActive(false);
-        CancelSearchButton.SetActive(false);
-        Shield.SetActive(false);
-    }
-
-    private static bool CheckForInternetConnection()
-    {
-        try
+        switch (num)
         {
-            using (var client = new WebClient())
-            using (client.OpenRead("http://google.com/generate_204"))
-                return true;
-        }
-        catch { return false; }
+            case 1: // ExitSimpleNotif       
+                NotifButton.SetActive(false);               
+                break;
+
+            case 2: // StopReconnect
+                TryRecconect = false;
+                StopReconnectButton.SetActive(false);
+                break;
+
+            case 3: // CancelGameSearch
+                DataHolder.ClientTCP.SendMassage("CancelSearch"); //TODO: Не забудь обработать отмену на сервере
+                CancelSearchButton.SetActive(false);
+                break;
+
+            case 4: // ExitPresentGame
+                CloseEndGameButton.SetActive(false);
+                SceneManager.LoadScene("mainMenu");
+                break;
+        }       
     }
 
     /// <summary>
@@ -226,7 +208,16 @@ public class Network : MonoBehaviour
             CancelSearchButton.SetActive(true);
         else if (caseNotif == 4)
             CloseEndGameButton.SetActive(true);
-
     }
 
+    private static bool CheckForInternetConnection()
+    {
+        try
+        {
+            using (var client = new WebClient())
+            using (client.OpenRead("http://google.com/generate_204"))
+                return true;
+        }
+        catch { return false; }
+    }
 }
