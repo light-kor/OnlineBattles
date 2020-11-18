@@ -10,6 +10,9 @@ public class UDPConnect
     public bool GameOn = false;
     public static UdpClient client;
 
+    //public delegate void UpdateFrame();
+    //public event UpdateFrame UpdateUdpInfo;
+
     public UDPConnect()
     {        
         GameOn = true;
@@ -38,7 +41,8 @@ public class UDPConnect
             {
                 byte[] data = client.Receive(ref remoteIp);
                 string messList = Encoding.UTF8.GetString(data);
-                DataHolder.MessageUDPget.Insert(0, messList); // TODO: Не забудь, что они тут собираются в обратную сторону
+                DataHolder.MessageUDPget.Add(messList);               
+                //UpdateUdpInfo?.Invoke();
 
             }
             catch { Reconnect(); }

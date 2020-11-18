@@ -5,7 +5,6 @@ public class timer : MonoBehaviour
 {
     private Text timerT;
     private sbyte goTimer = 0;
-    [SerializeField]
     private float time = 30f;
     private float timeLeft;
 

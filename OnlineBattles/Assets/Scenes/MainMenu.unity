@@ -2960,6 +2960,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1559723547}
     m_Modifications:
+    - target: {fileID: 1379353429793012645, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_Text
+      value: Cancel
+      objectReference: {fileID: 0}
+    - target: {fileID: 1586494364113781847, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_Text
+      value: Leave
+      objectReference: {fileID: 0}
     - target: {fileID: 3202640061564113783, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -3023,7 +3033,7 @@ PrefabInstance:
     - target: {fileID: 7513740709670206042, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
       propertyPath: m_Text
-      value: "\u041E\u0442\u043C\u0435\u043D\u0430"
+      value: Cancel
       objectReference: {fileID: 0}
     - target: {fileID: 7825454323598363675, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}

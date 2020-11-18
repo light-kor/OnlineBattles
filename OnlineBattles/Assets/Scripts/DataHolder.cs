@@ -22,8 +22,8 @@ public static class DataHolder
     public static List<string> MessageUDPget { get; set; } = new List<string>();
 
     //"127.0.0.1" - локальный; 188.134.87.78 - общий дом
-    public static string ConnectIp { get; set; } = "188.134.87.78";
-    public static int RemotePort { get; set; } = 55555;
+    public static string ConnectIp { get; } = "188.134.87.78";
+    public static int RemotePort { get; } = 55555;
 
     // Все варианты оповещений игрока для NotifPanel
     //TODO: Сделать NotifPanel переходящей из сцены в сцену

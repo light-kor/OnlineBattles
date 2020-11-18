@@ -300,7 +300,7 @@ MonoBehaviour:
   joystick: {fileID: 355289334}
   me: {fileID: 478700618}
   enemy: {fileID: 1071588454}
-  repTime: 0.034
+  UpdateRate: 0.05
 --- !u!4 &457828340
 Transform:
   m_ObjectHideFlags: 0

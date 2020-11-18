@@ -139,6 +139,13 @@ public class MainMenuScr : MonoBehaviour
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
 
+    //TODO: Полностью чистить DataHolder.MessageUDPget перед началом каждой игры
+
+    //TODO: В конце чистить все листы
+
+    //TODO: на телефоне не коннектится с первого раза к сервреу
+
+    //TODO: Декодировать сообщения по битам, а ене по пробелам
 
     //TODO: Сейчас награда добавляется в SplitByLobby, но это надо куда-то переместить и добавить выбор
 
