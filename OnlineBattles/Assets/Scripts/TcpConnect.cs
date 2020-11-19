@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using UnityEngine;
 
 public class TcpConnect
 {
@@ -14,25 +12,19 @@ public class TcpConnect
     private NetworkStream NS;
     private bool ReconnectAlreadyStart = false;
 
+    /// <summary>
+    /// Создание экземпляра и попытка подключения к серверу
+    /// </summary>
     public TcpConnect()
-    {       
+    {
         //TODO: Нужно ли это где-то?
         //if (Application.internetReachability.ToString() == "ReachableViaLocalAreaNetwork")
         //{
-            //ReachableViaCarrierDataNetwork  4G
-            //ReachableViaLocalAreaNetwork wifi
-            // NotReachable nihuya
+        //ReachableViaCarrierDataNetwork  4G
+        //ReachableViaLocalAreaNetwork wifi
+        // NotReachable nihuya
         //}
 
-        TryConnect();
-    }
-
-    /// <summary>
-    /// Попытка подключения к серверу
-    /// </summary>
-    public void TryConnect()
-    {
-        CloseClient();       
         try
         {
             client = new TcpClient();
@@ -51,7 +43,7 @@ public class TcpConnect
                 CloseClient();
                 DataHolder.Connected = false;
             }
-        } 
+        }
         catch
         {
             CloseClient();
@@ -76,8 +68,7 @@ public class TcpConnect
             if (!ReconnectAlreadyStart)
             {
                 ReconnectAlreadyStart = true;
-                DataHolder.Connected = false;
-                //DataHolder.NeedReconnect = true;
+                CloseClient();
                 DataHolder.NetworkScript.StartReconnect();
             }
         }
@@ -85,16 +76,16 @@ public class TcpConnect
 
     /// <summary>
     /// Приём TCP-сообщений с сревера с разделением их на отдельные, если склеились. 
-    /// Отлавливание ошибок соединения, контроль флага NeedToReconnect для начала реконнекта.
+    /// Отлавливание ошибок соединения, DataHolder.NetworkScript.StartReconnect();  для начала реконнекта.
     /// </summary>
     private void Reader()
     {
+        NS = client.GetStream();
         while (true)
         {           
             List<byte> Buffer = new List<byte>();
             try
-            {               
-                NS = client.GetStream();
+            {                              
                 while (NS.DataAvailable)
                 {
                     int ReadByte = NS.ReadByte();
@@ -109,16 +100,13 @@ public class TcpConnect
                 if (!ReconnectAlreadyStart)
                 {
                     ReconnectAlreadyStart = true;
-                    DataHolder.Connected = false;
-                    //DataHolder.NeedReconnect = true;
-                    // В Network начнётся процесс реконнекта 
-                    DataHolder.NetworkScript.StartReconnect();
                     CloseClient();
+                    DataHolder.NetworkScript.StartReconnect();                   
                 }
                 break;
             }            
             
-            if (Buffer.Count > 0)
+            if (Buffer.Count > 0 && DataHolder.Connected)
             {
                 string[] words = Encoding.UTF8.GetString(Buffer.ToArray()).Split(new char[] { '|' });
 
@@ -135,50 +123,19 @@ public class TcpConnect
     }
 
     public void CloseClient() //TODO: Добавить этот вызов на кнопку выхода из приложения
-    {
-        
+    {       
         if (client != null)
         {
             client.LingerState = new LingerOption(true, 0); //Чтоб он не ожидал.
             client.Close();
             client = null;
         }
-
         if (NS != null)
         {
             NS.Close();
             NS = null;
         }
-    }
-
-    public void zCloseClient()
-    {
-        if (client != null)
-        {
-            if (client.Client != null)
-            {                
-                try
-                {
-                    client.Client.Shutdown(SocketShutdown.Send);
-                    byte[] words = null;
-                    int read = 0;
-                    while ((read = client.Client.Receive(words)) > 0)
-                    { }
-                }
-                catch { }
-                try { client.Client.Close(); } catch { }
-                try { client.Close(); } catch { }               
-                client = null;
-            }
-        }
-        if (NS != null)
-        {
-            NS.Close();
-            NS = null;
-        }
-            
-    }
-
+    }          
 
     ~TcpConnect()
     {

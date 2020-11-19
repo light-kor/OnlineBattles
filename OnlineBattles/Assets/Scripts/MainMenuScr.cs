@@ -26,21 +26,23 @@ public class MainMenuScr : MonoBehaviour
                 DataHolder.ThisGameID = Convert.ToInt32(mes[1]);
                 DataHolder.GameId = Convert.ToInt32(mes[2]);
                 UnityEngine.SceneManagement.SceneManager.LoadScene(lvlName);
-
+                DataHolder.MessageTCP.RemoveAt(0);
                 //NetworkScript.CancelGameSearch(); //TODO: Надо ли? Всё равно загружается новая сцена и всё сбросится. Если включишь, то надо убрть в функции строку с отправкой сообщения об отмене.
             }
-
             // Значит до этого игрок вылетел, и сейчас может востановиться в игре
-            if (mes[0] == "goto")
+            else if (mes[0] == "goto")
             {
                 DataHolder.ThisGameID = Convert.ToInt32(mes[2]);
                 DataHolder.GameId = Convert.ToInt32(mes[3]);
                 if (mes[1] == "2")
+                {
+                    DataHolder.MessageTCP.RemoveAt(0); //TODO: Сделать нормальное централизованное удаление всех этих штук. 
+                                                       // Можно свитчём, и потом с помощью goto отправлтять всех на удаление.
                     UnityEngine.SceneManagement.SceneManager.LoadScene("UdpLVL");
+                }
+                    
             }
-
-
-            if (mes[0] != "0") // Если что-то левое
+            else if(mes[0] != "0") // Если что-то левое
             {
                 DataHolder.MessageTCP.RemoveAt(0);
             }
@@ -62,15 +64,16 @@ public class MainMenuScr : MonoBehaviour
 
     public async void SelectMultiplayerGame()
     {
+        //TODO: Может сразу после нажатия уже показывать уведомление, н6у или хотя бы счит поставить
         if (!DataHolder.Connected)
             DataHolder.NetworkScript.CreateTCP();                
         else
         {
             DataHolder.ClientTCP.SendMassage("Check"); // Если соединение уже было создано, то надо затестить  
-            await Task.Delay(1000);
+            await Task.Delay(1000); //TODO: Надо ли? Да хз
         }
               
-        // Если сеть была, но отлетела, то после Check Connected станет false
+        // Если сеть была, но отлетела, то после Check Начнётся реконнект.
         GoToMultiplayerMenu();
     }
 
@@ -144,6 +147,10 @@ public class MainMenuScr : MonoBehaviour
         MainPanel.SetActive(!MainPanel.activeSelf);
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
+
+    //TODO: Даже если игра нормально завершилась, удаляется ли udp экземпяры и потоки? Не помню, чтоб обрабатывал это!
+
+    //TODO: В начале каждой игры сделать заставку, чтоб успели прийти первые данные с позиционированием игроков, до того, как они попытаются ходить
 
     //TODO: В начале кажодй сцены выключать щит, панель и все кнопки, а то они могут залагать, и хер ты их выключишь
 

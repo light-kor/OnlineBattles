@@ -26,13 +26,6 @@ public class Network : MonoBehaviour
 
     private void Update()
     {
-        //// Если Reader в TcpConnect поймёт, что сеть прервалась, то сработает это и начнётся востановление сети.
-        //if (DataHolder.NeedReconnect)
-        //{
-        //    DataHolder.NeedReconnect = false;
-        //    StartReconnect();
-        //}
-
         if (DataHolder.MessageTCP.Count > 0)
         {
             string[] mes = DataHolder.MessageTCP[0].Split(' ');
@@ -80,8 +73,7 @@ public class Network : MonoBehaviour
 
         if (DataHolder.Connected == false)
         {
-            if (DataHolder.ClientTCP != null)
-                DataHolder.ClientTCP = null;
+            CleanTcpConnection();
             ShowNotif("Сервер не доступен. Попробуйте позже.", 1);
             return;
         }
@@ -90,10 +82,8 @@ public class Network : MonoBehaviour
 
         if (DataHolder.Connected == false)
         {
-            if (DataHolder.ClientTCP != null)
-                DataHolder.ClientTCP = null;
+            CleanTcpConnection();
             ShowNotif("Ошибка доступа к серверу.", 1);
-            DataHolder.ClientTCP.CloseClient();
             return;
         }
         else GetComponent<MainMenuScr>().GoToMultiplayerMenu(); // Переходим в меню мультиплеера
@@ -115,7 +105,7 @@ public class Network : MonoBehaviour
             if (((DateTime.Now - StartTryConnect).TotalSeconds < TimeForWaitAnswer))
             {
                 // Получаем id и деньги от сервера
-                if (DataHolder.MessageTCP.Count > 0)
+                if (DataHolder.MessageTCP.Count > 0) //TODO: Возможно в это время удалить у всех остальных Update ловить сообщения
                 {
                     string[] mes = DataHolder.MessageTCP[0].Split(' ');
                     if (mes[0] == "0")
@@ -145,10 +135,11 @@ public class Network : MonoBehaviour
     }
 
     /// <summary>
-    /// Начало реконнекта, показ всех нужных уведомлений, проверка сети и запуск цикла запросов повторное на соединение
+    /// Начало реконнекта, показ всех нужных уведомлений, проверка сети и запуск цикла запросов на повторное соединение
     /// </summary>
     public async void StartReconnect()
     {
+        DataHolder.Connected = false;
         ShowNotif("Разрыв соединения.\r\nПереподключение...", 2);
 
         while (TryRecconect)
@@ -160,13 +151,11 @@ public class Network : MonoBehaviour
             }
             else ShowNotif("Разрыв соединения.\r\nПодключение к серверу...", 2);
 
-            //await Task.Run(() => DataHolder.ClientTCP.TryConnect());
             await Task.Run(() => DataHolder.ClientTCP = new TcpConnect());
 
             if (DataHolder.Connected == false)
             {
-                if (DataHolder.ClientTCP != null)
-                    DataHolder.ClientTCP = null;
+                CleanTcpConnection();
                 continue;
             }
 
@@ -175,11 +164,7 @@ public class Network : MonoBehaviour
 
             if (DataHolder.Connected == false)
             {
-                DataHolder.ClientTCP.CloseClient();
-                if (DataHolder.ClientTCP != null)
-                    DataHolder.ClientTCP = null;
-
-                await Task.Delay(1000);
+                CleanTcpConnection();
                 continue;
             }
                
@@ -190,22 +175,19 @@ public class Network : MonoBehaviour
     }
 
     public void NotificatonMultyButton(int num)
-    {
-        NotifPanel.SetActive(false);
-        Shield.SetActive(false);
+    {       
         switch (num)
         {
             case 1: // ExitSimpleNotif       
                 NotifButton.SetActive(false);               
                 break;
 
-            case 2: // StopReconnect
+            case 2: // StopReconnect                
+                CleanTcpConnection();
                 TryRecconect = false;
                 StopReconnectButton.SetActive(false);
-                if (DataHolder.ClientTCP != null)
-                    DataHolder.ClientTCP.CloseClient();    
-                
                 SceneManager.LoadScene("mainMenu"); // Ну если не хочешь реконнект во время игры, то не играй))
+                //TODO: Ну тогда надо ещё корректно завершить игру и закрыть юдп соединение.
                 break;
 
             case 3: // CancelGameSearch
@@ -222,7 +204,9 @@ public class Network : MonoBehaviour
                 TryRecconect = false;
                 StopReconnectButton.SetActive(false);
                 break;
-        }       
+        }
+        NotifPanel.SetActive(false);
+        Shield.SetActive(false);
     }
 
     /// <summary>
@@ -257,4 +241,12 @@ public class Network : MonoBehaviour
         catch { return false; }
     }
 
+    private void CleanTcpConnection()
+    {
+        if (DataHolder.ClientTCP != null)
+        {
+            DataHolder.ClientTCP.CloseClient();
+            DataHolder.ClientTCP = null;
+        }
+    }
 }

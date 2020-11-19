@@ -11,7 +11,6 @@ public static class DataHolder
     public static string KeyID { get; set; } = "123";
     public static int ThisGameID { get; set; } = -1;
     public static bool CanMove { get; set; } = false;
-    //public static bool NeedReconnect { get; set; } = false;
     public static int WinFlag { get; set; } = -1;
     public static GameObject TimerT { get; set; } = null;
     public static TcpConnect ClientTCP { get; set; } = null;
@@ -24,17 +23,5 @@ public static class DataHolder
     //"127.0.0.1" - локальный; 188.134.87.78 - общий дом
     public static string ConnectIp { get; } = "188.134.87.78";
     public static int RemotePort { get; } = 55555;
-
- 
-    // Все варианты оповещений игрока для NotifPanel
-    //TODO: Сделать NotifPanel переходящей из сцены в сцену
-    public static string[] NotifOptions = new string[6] { 
-        "Сервер не доступен. Попробуйте позже.",
-        "Разрыв соединения.\r\nПереподключение...",
-        "Отсутствует подключение к интернету.",
-        "Отсутствует подключение к интернету.\r\nОжидание...",
-        "Переподключение к серверу...",
-        "Ожидание сети..."
-    };   
-   
+  
 }
