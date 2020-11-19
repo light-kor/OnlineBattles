@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,7 +42,6 @@ public class MainMenuScr : MonoBehaviour
 
             if (mes[0] != "0") // Если что-то левое
             {
-                Debug.Log(mes);
                 DataHolder.MessageTCP.RemoveAt(0);
             }
                 
@@ -60,13 +60,16 @@ public class MainMenuScr : MonoBehaviour
         MoveMenuPanels();
     }
 
-    public void SelectMultiplayerGame()
+    public async void SelectMultiplayerGame()
     {
         if (!DataHolder.Connected)
             DataHolder.NetworkScript.CreateTCP();                
-        else 
-            DataHolder.ClientTCP.SendMassage("Check"); // Если соединение уже было создано, то надо затестить    
-
+        else
+        {
+            DataHolder.ClientTCP.SendMassage("Check"); // Если соединение уже было создано, то надо затестить  
+            await Task.Delay(1000);
+        }
+              
         // Если сеть была, но отлетела, то после Check Connected станет false
         GoToMultiplayerMenu();
     }
@@ -141,6 +144,10 @@ public class MainMenuScr : MonoBehaviour
         MainPanel.SetActive(!MainPanel.activeSelf);
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
+
+    //TODO: В начале кажодй сцены выключать щит, панель и все кнопки, а то они могут залагать, и хер ты их выключишь
+
+    //TODO: Что если реконнект нанётся до окончания коннекта
 
     //TODO: Как-то сохранить, при каком действии произошёл дисконнект и выполнить его после востановления соединения
 

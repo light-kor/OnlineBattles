@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UnityEngine;
 
 public class TcpConnect
 {
@@ -10,6 +12,7 @@ public class TcpConnect
     public TcpClient client;
     private Thread clientListener;
     private NetworkStream NS;
+    private bool ReconnectAlreadyStart = false;
 
     public TcpConnect()
     {       
@@ -70,8 +73,13 @@ public class TcpConnect
         }
         catch
         {
-            DataHolder.Connected = false;
-            DataHolder.NeedReconnect = true;
+            if (!ReconnectAlreadyStart)
+            {
+                ReconnectAlreadyStart = true;
+                DataHolder.Connected = false;
+                //DataHolder.NeedReconnect = true;
+                DataHolder.NetworkScript.StartReconnect();
+            }
         }
     }
 
@@ -96,11 +104,17 @@ public class TcpConnect
                     }
                 }
             }
-            catch 
+            catch
             {
-                // В Network начнётся процесс реконнекта                
-                DataHolder.Connected = false;
-                DataHolder.NeedReconnect = true;
+                if (!ReconnectAlreadyStart)
+                {
+                    ReconnectAlreadyStart = true;
+                    DataHolder.Connected = false;
+                    //DataHolder.NeedReconnect = true;
+                    // В Network начнётся процесс реконнекта 
+                    DataHolder.NetworkScript.StartReconnect();
+                    CloseClient();
+                }
                 break;
             }            
             
@@ -122,13 +136,49 @@ public class TcpConnect
 
     public void CloseClient() //TODO: Добавить этот вызов на кнопку выхода из приложения
     {
+        
         if (client != null)
         {
-            client.Dispose();
+            client.LingerState = new LingerOption(true, 0); //Чтоб он не ожидал.
             client.Close();
             client = null;
         }
+
+        if (NS != null)
+        {
+            NS.Close();
+            NS = null;
+        }
     }
+
+    public void zCloseClient()
+    {
+        if (client != null)
+        {
+            if (client.Client != null)
+            {                
+                try
+                {
+                    client.Client.Shutdown(SocketShutdown.Send);
+                    byte[] words = null;
+                    int read = 0;
+                    while ((read = client.Client.Receive(words)) > 0)
+                    { }
+                }
+                catch { }
+                try { client.Client.Close(); } catch { }
+                try { client.Close(); } catch { }               
+                client = null;
+            }
+        }
+        if (NS != null)
+        {
+            NS.Close();
+            NS = null;
+        }
+            
+    }
+
 
     ~TcpConnect()
     {

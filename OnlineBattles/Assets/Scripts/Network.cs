@@ -9,7 +9,7 @@ public class Network : MonoBehaviour
 {
     private const float TimeForWaitAnswer = 3f;
 
-    private bool TryRecconect = true;
+    private bool TryRecconect { get; set; } = true;
 
     public GameObject NotifPanel, NotifButton, StopReconnectButton, CancelSearchButton, CloseEndGameButton;
     public GameObject Shield; // Блокирует нажатия на все кнопки, кроме notifPanel
@@ -26,12 +26,12 @@ public class Network : MonoBehaviour
 
     private void Update()
     {
-        // Если Reader в TcpConnect поймёт, что сеть прервалась, то сработает это и начнётся востановление сети.
-        if (DataHolder.NeedReconnect)
-        {
-            DataHolder.NeedReconnect = false;
-            StartReconnect();
-        }
+        //// Если Reader в TcpConnect поймёт, что сеть прервалась, то сработает это и начнётся востановление сети.
+        //if (DataHolder.NeedReconnect)
+        //{
+        //    DataHolder.NeedReconnect = false;
+        //    StartReconnect();
+        //}
 
         if (DataHolder.MessageTCP.Count > 0)
         {
@@ -45,12 +45,13 @@ public class Network : MonoBehaviour
                     //TODO: Нужен какой-то мультивыбор скрипта ниже, а не только этот
                     GetComponent<Joystic_controller>().CloseAll();
                     ShowNotif("Игра завершена\r\n" + mes[0], 4);
+                    DataHolder.MessageTCP.RemoveAt(0); // Убрать, когда сделаешь ниже кравсиво для всех.
                     break;
+
             }
-
-
-            DataHolder.MessageTCP.RemoveAt(0); //TODO: Вроде как, этот скрипт выполняется до всех остальных, и тогда сообщения,
-            // которые не вошли сюда, пойдут во второй скрипт (а он есть везде) и там либо используются, либо удалятся
+            //DataHolder.MessageTCP.RemoveAt(0); // Эта херня всё ломает, и крадёт сообщения из логина и второго скрипта
+                                                //TODO: Вроде как, этот скрипт выполняется до всех остальных, и тогда сообщения,
+                                               // которые не вошли сюда, пойдут во второй скрипт (а он есть везде) и там либо используются, либо удалятся
         }
         //TODO: Добавить стандартные команды от сервера типо закончить и тд
     }
@@ -79,8 +80,9 @@ public class Network : MonoBehaviour
 
         if (DataHolder.Connected == false)
         {
+            if (DataHolder.ClientTCP != null)
+                DataHolder.ClientTCP = null;
             ShowNotif("Сервер не доступен. Попробуйте позже.", 1);
-            DataHolder.ClientTCP = null;
             return;
         }
 
@@ -88,9 +90,10 @@ public class Network : MonoBehaviour
 
         if (DataHolder.Connected == false)
         {
+            if (DataHolder.ClientTCP != null)
+                DataHolder.ClientTCP = null;
             ShowNotif("Ошибка доступа к серверу.", 1);
             DataHolder.ClientTCP.CloseClient();
-            DataHolder.ClientTCP = null;
             return;
         }
         else GetComponent<MainMenuScr>().GoToMultiplayerMenu(); // Переходим в меню мультиплеера
@@ -144,7 +147,7 @@ public class Network : MonoBehaviour
     /// <summary>
     /// Начало реконнекта, показ всех нужных уведомлений, проверка сети и запуск цикла запросов повторное на соединение
     /// </summary>
-    private async void StartReconnect()
+    public async void StartReconnect()
     {
         ShowNotif("Разрыв соединения.\r\nПереподключение...", 2);
 
@@ -157,21 +160,33 @@ public class Network : MonoBehaviour
             }
             else ShowNotif("Разрыв соединения.\r\nПодключение к серверу...", 2);
 
-            await Task.Run(() => DataHolder.ClientTCP.TryConnect());
+            //await Task.Run(() => DataHolder.ClientTCP.TryConnect());
+            await Task.Run(() => DataHolder.ClientTCP = new TcpConnect());
 
             if (DataHolder.Connected == false)
+            {
+                if (DataHolder.ClientTCP != null)
+                    DataHolder.ClientTCP = null;
                 continue;
+            }
 
             ShowNotif("Разрыв соединения.\r\nОжидание ответа сервера", 2);
-            await Task.Run(() => LoginInServerSystem()); //TODO: А если не получится?
+            await Task.Run(() => LoginInServerSystem());
 
             if (DataHolder.Connected == false)
-                continue;
+            {
+                DataHolder.ClientTCP.CloseClient();
+                if (DataHolder.ClientTCP != null)
+                    DataHolder.ClientTCP = null;
 
+                await Task.Delay(1000);
+                continue;
+            }
+               
             // При полном успехе
             NotificatonMultyButton(10);
         }
-        TryRecconect = true; // Возвращаем true в переменную 
+        TryRecconect = true;
     }
 
     public void NotificatonMultyButton(int num)
@@ -187,8 +202,9 @@ public class Network : MonoBehaviour
             case 2: // StopReconnect
                 TryRecconect = false;
                 StopReconnectButton.SetActive(false);
-                DataHolder.ClientTCP.CloseClient();
-                DataHolder.ClientTCP = null;
+                if (DataHolder.ClientTCP != null)
+                    DataHolder.ClientTCP.CloseClient();    
+                
                 SceneManager.LoadScene("mainMenu"); // Ну если не хочешь реконнект во время игры, то не играй))
                 break;
 

@@ -11,7 +11,7 @@ public static class DataHolder
     public static string KeyID { get; set; } = "123";
     public static int ThisGameID { get; set; } = -1;
     public static bool CanMove { get; set; } = false;
-    public static bool NeedReconnect { get; set; } = false;
+    //public static bool NeedReconnect { get; set; } = false;
     public static int WinFlag { get; set; } = -1;
     public static GameObject TimerT { get; set; } = null;
     public static TcpConnect ClientTCP { get; set; } = null;
