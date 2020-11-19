@@ -8,11 +8,10 @@ public class MainMenuScr : MonoBehaviour
     public GameObject MainPanel, LvlPanel;
 
     private string lvlName = "";
-    private Network NetworkScript;
 
     void Start()
     {
-        NetworkScript = GetComponent<Network>();
+
     }
 
     void Update()
@@ -40,8 +39,12 @@ public class MainMenuScr : MonoBehaviour
             }
 
 
-            if (mes[0] != "0")
+            if (mes[0] != "0") // Если что-то левое
+            {
+                Debug.Log(mes);
                 DataHolder.MessageTCP.RemoveAt(0);
+            }
+                
         }
     }
 
@@ -59,21 +62,21 @@ public class MainMenuScr : MonoBehaviour
 
     public void SelectMultiplayerGame()
     {
-        if (!DataHolder.Connected)          
-            NetworkScript.CreateTCP();                
+        if (!DataHolder.Connected)
+            DataHolder.NetworkScript.CreateTCP();                
         else 
             DataHolder.ClientTCP.SendMassage("Check"); // Если соединение уже было создано, то надо затестить    
 
         // Если сеть была, но отлетела, то после Check Connected станет false
-        GoToMulty();
+        GoToMultiplayerMenu();
     }
 
-    public void GoToMulty()
+    public void GoToMultiplayerMenu()
     {
         if (DataHolder.Connected)
         {
             DataHolder.GameType = 3;
-            NetworkScript.NotificatonMultyButton(1);
+            DataHolder.NetworkScript.NotificatonMultyButton(1);
             MoveMenuPanels();
             GetMoney();
         }
@@ -107,7 +110,7 @@ public class MainMenuScr : MonoBehaviour
                 DataHolder.ClientTCP.SendMassage("game1");
 
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
-                NetworkScript.ShowNotif("Поиск игры", 3);
+                DataHolder.NetworkScript.ShowNotif("Поиск игры", 3);
             }
 
         }
@@ -128,7 +131,7 @@ public class MainMenuScr : MonoBehaviour
 
                 // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
                 //TODO: Добавить анимацию ожидания
-                NetworkScript.ShowNotif("Поиск игры", 3);
+                DataHolder.NetworkScript.ShowNotif("Поиск игры", 3);
             }
         }        
     }
@@ -138,6 +141,16 @@ public class MainMenuScr : MonoBehaviour
         MainPanel.SetActive(!MainPanel.activeSelf);
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
+
+    //TODO: Как-то сохранить, при каком действии произошёл дисконнект и выполнить его после востановления соединения
+
+    //TODO: Если пришло несколько сообщений полряд, то нужно все их отраоать. А то одно может отменять предыдущее и тд.
+
+    //TODO: Если игрок во время udp игры сменит сеть, то он об этом не узнает. Udp продолжится, а вот tcp упадёт
+
+    //TODO: скрипт network стоит первый в загрузке, поэтому он первый скажет о себе
+
+    //TODO: Если на экране одно уведомление, но второе сейчас важнее, то что? Как они накладываются друг на друга?
 
     //TODO: Полностью чистить DataHolder.MessageUDPget перед началом каждой игры
 

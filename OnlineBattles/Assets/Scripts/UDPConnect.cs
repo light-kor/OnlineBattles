@@ -2,16 +2,12 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using UnityEngine;
 
 public class UDPConnect
 {
     private IPEndPoint remoteIp = null;
     public bool GameOn = false;
     public static UdpClient client;
-
-    //public delegate void UpdateFrame();
-    //public event UpdateFrame UpdateUdpInfo;
 
     public UDPConnect()
     {        
@@ -42,8 +38,6 @@ public class UDPConnect
                 byte[] data = client.Receive(ref remoteIp);
                 string messList = Encoding.UTF8.GetString(data);
                 DataHolder.MessageUDPget.Add(messList);               
-                //UpdateUdpInfo?.Invoke();
-
             }
             catch { Reconnect(); }
         }

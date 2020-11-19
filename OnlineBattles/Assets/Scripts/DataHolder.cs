@@ -10,13 +10,13 @@ public static class DataHolder
     public static int GameId { get; set; } = -1;
     public static string KeyID { get; set; } = "123";
     public static int ThisGameID { get; set; } = -1;
-    public static bool NeedToReconnect { get; set; } = false;
     public static bool CanMove { get; set; } = false;
+    public static bool NeedReconnect { get; set; } = false;
     public static int WinFlag { get; set; } = -1;
-    public static GameObject TimerT { get; set; }
-    public static TcpConnect ClientTCP { get; set; }
-    public static UDPConnect ClientUDP { get; set; }
-
+    public static GameObject TimerT { get; set; } = null;
+    public static TcpConnect ClientTCP { get; set; } = null;
+    public static UDPConnect ClientUDP { get; set; } = null;
+    public static Network NetworkScript { get; set; } = null;
     public static List<string> MessageTCP { get; set; } = new List<string>();
     public static List<string> MessageTCPforGame { get; set; } = new List<string>();
     public static List<string> MessageUDPget { get; set; } = new List<string>();
@@ -25,6 +25,7 @@ public static class DataHolder
     public static string ConnectIp { get; } = "188.134.87.78";
     public static int RemotePort { get; } = 55555;
 
+ 
     // Все варианты оповещений игрока для NotifPanel
     //TODO: Сделать NotifPanel переходящей из сцены в сцену
     public static string[] NotifOptions = new string[6] { 

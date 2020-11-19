@@ -5,6 +5,8 @@ using System.Threading;
 
 public class TcpConnect
 {
+    const int WaitForConnection = 3000;
+
     public TcpClient client;
     private Thread clientListener;
     private NetworkStream NS;
@@ -32,7 +34,7 @@ public class TcpConnect
         {
             client = new TcpClient();
             var result = client.BeginConnect(DataHolder.ConnectIp, DataHolder.RemotePort, null, null);
-            if (result.AsyncWaitHandle.WaitOne(2000, true))
+            if (result.AsyncWaitHandle.WaitOne(WaitForConnection, true))
             {
                 client.EndConnect(result);
 
@@ -49,6 +51,7 @@ public class TcpConnect
         } 
         catch
         {
+            CloseClient();
             DataHolder.Connected = false;
         }
     }
@@ -62,14 +65,13 @@ public class TcpConnect
         try
         {
             message += "|";
-            //message.Trim();
             byte[] Buffer = Encoding.UTF8.GetBytes((message).ToCharArray());
             client.GetStream().Write(Buffer, 0, Buffer.Length);
         }
         catch
         {
             DataHolder.Connected = false;
-            DataHolder.NeedToReconnect = true;
+            DataHolder.NeedReconnect = true;
         }
     }
 
@@ -96,9 +98,9 @@ public class TcpConnect
             }
             catch 
             {
-                // В Network начнётся процесс реконнекта
-                DataHolder.NeedToReconnect = true;
-                DataHolder.Connected = false;               
+                // В Network начнётся процесс реконнекта                
+                DataHolder.Connected = false;
+                DataHolder.NeedReconnect = true;
                 break;
             }            
             
@@ -118,7 +120,7 @@ public class TcpConnect
         }
     }
 
-    private void CloseClient() //TODO: Добавить этот вызов на кнопку выхода из приложения
+    public void CloseClient() //TODO: Добавить этот вызов на кнопку выхода из приложения
     {
         if (client != null)
         {
