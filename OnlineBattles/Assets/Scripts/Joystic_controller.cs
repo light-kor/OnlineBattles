@@ -65,7 +65,7 @@ public class Joystic_controller : MonoBehaviour
 
             long time = Convert.ToInt64(frame1[0]);
             long time2 = Convert.ToInt64(frame2[0]);
-            long vrem = ServerTime - (100 * 1000); //TODO: Вынести константу
+            long vrem = ServerTime - (100 * 10000); //TODO: Вынести константу
 
             if (time < vrem && vrem < time2)
             {
