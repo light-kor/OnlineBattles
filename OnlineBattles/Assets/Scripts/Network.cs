@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -37,14 +38,20 @@ public class Network : MonoBehaviour
                 case "drawn":
                     //TODO: Нужен какой-то мультивыбор скрипта ниже, а не только этот
                     GetComponent<Joystic_controller>().CloseAll();
-                    ShowNotif("Игра завершена\r\n" + mes[0], 4);
-                    DataHolder.MessageTCP.RemoveAt(0); // Убрать, когда сделаешь ниже кравсиво для всех.
+                    ShowNotif("Игра завершена\r\n" + mes[0], 4);                    
+                    break;
+
+                case "login":
+                    return;
+
+                default:
+                    DataHolder.MessageTCPforGame.Add(DataHolder.MessageTCP[0]);
                     break;
 
             }
-            //DataHolder.MessageTCP.RemoveAt(0); // Эта херня всё ломает, и крадёт сообщения из логина и второго скрипта
-                                                //TODO: Вроде как, этот скрипт выполняется до всех остальных, и тогда сообщения,
-                                               // которые не вошли сюда, пойдут во второй скрипт (а он есть везде) и там либо используются, либо удалятся
+            DataHolder.MessageTCP.RemoveAt(0); // Эта херня всё ломает, и крадёт сообщения из логина и второго скрипта
+                                              //TODO: Вроде как, этот скрипт выполняется до всех остальных, и тогда сообщения,
+                                             // которые не вошли сюда, пойдут во второй скрипт (а он есть везде) и там либо используются, либо удалятся
         }
         //TODO: Добавить стандартные команды от сервера типо закончить и тд
     }
@@ -108,7 +115,7 @@ public class Network : MonoBehaviour
                 if (DataHolder.MessageTCP.Count > 0) //TODO: Возможно в это время удалить у всех остальных Update ловить сообщения
                 {
                     string[] mes = DataHolder.MessageTCP[0].Split(' ');
-                    if (mes[0] == "0")
+                    if (mes[0] == "login")
                     {
                         try
                         {

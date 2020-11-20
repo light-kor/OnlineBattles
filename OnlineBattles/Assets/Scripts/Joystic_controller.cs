@@ -8,30 +8,41 @@ public class Joystic_controller : MonoBehaviour
     public float UpdateRate = 0.05f; //TODO: Как часто клиенты должны слать свои изменения. Надо  как-то чекать это на стороне сервра. Чтоб нельзя было так читерить.
     private float buffX = 0, buffY = 0;
     private DateTime LastSend;
-    double delta = 0f;
+    private long ServerTime = DateTime.UtcNow.Ticks;
+
 
     private void Start()
     {
         DataHolder.NetworkScript.CreateUDP();       
         InvokeRepeating("SendJoy", 1.0f, UpdateRate);
-        DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.ThisGameID} {buffX} {buffY}");
         LastSend = DateTime.UtcNow;
+        DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.ThisGameID} start"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
+    }
 
-        if (DataHolder.MessageTCP.Count > 0)
-        {
-            string[] mes = DataHolder.MessageTCP[0].Split(' ');
-            if (mes[0] == "info")
-            {             
-                me.transform.position = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
-                enemy.transform.position = new Vector2(float.Parse(mes[3]), float.Parse(mes[4]));
-            }
-            DataHolder.MessageTCP.RemoveAt(0);
-        }
-
+    private void FixedUpdate()
+    {
+        ServerTime += 20 * 10000;
     }
 
     private void Update()
     {
+        if (DataHolder.MessageTCPforGame.Count > 0)
+        {
+            string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');            
+            if (mes[0] == "info")
+            {
+                me.transform.position = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
+                enemy.transform.position = new Vector2(float.Parse(mes[3]), float.Parse(mes[4]));
+            }
+            else if (mes[0] == "ping")
+                DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.ThisGameID} ping"); //TODO: НЕ ЗАБУДЬ!! Именно UDP сообщение, чтоб сервер получил удалённый адрес
+            else if(mes[0] == "time")
+                ServerTime = Convert.ToInt64(mes[1]);
+            
+
+            DataHolder.MessageTCPforGame.RemoveAt(0);
+        }
+
         UpdateThread();
     }
 
@@ -54,17 +65,14 @@ public class Joystic_controller : MonoBehaviour
 
             long time = Convert.ToInt64(frame1[0]);
             long time2 = Convert.ToInt64(frame2[0]);
-            long vrem = DateTime.UtcNow.Ticks - 1000000; //TODO: Вынести константу
+            long vrem = ServerTime - (100 * 1000); //TODO: Вынести константу
 
             if (time < vrem && vrem < time2)
             {
                 //normalized = (x - min(x)) / (max(x) - min(x));
-                delta = (vrem - time) / (time2 - time);
-                if (delta < 1f)
-                {                   
-                    me.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[1]), float.Parse(frame1[2])), new Vector2(float.Parse(frame2[1]), float.Parse(frame2[2])), (float)delta);
-                    enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[3]), float.Parse(frame1[4])), new Vector2(float.Parse(frame2[3]), float.Parse(frame2[4])), (float)delta);
-                }
+                float delta = (vrem - time) / (time2 - time);
+                me.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[1]), float.Parse(frame1[2])), new Vector2(float.Parse(frame2[1]), float.Parse(frame2[2])), delta);
+                enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[3]), float.Parse(frame1[4])), new Vector2(float.Parse(frame2[3]), float.Parse(frame2[4])), delta);
             }
             else if (time > vrem) return;
 

@@ -17,16 +17,15 @@ public class MainMenuScr : MonoBehaviour
 
     void Update()
     {         
-        if (DataHolder.MessageTCP.Count > 0)
+        if (DataHolder.MessageTCPforGame.Count > 0)
         {
-            string[] mes = DataHolder.MessageTCP[0].Split(' ');
+            string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
 
             if (mes[0] == "S")
             {
                 DataHolder.ThisGameID = Convert.ToInt32(mes[1]);
                 DataHolder.GameId = Convert.ToInt32(mes[2]);
                 UnityEngine.SceneManagement.SceneManager.LoadScene(lvlName);
-                DataHolder.MessageTCP.RemoveAt(0);
                 //NetworkScript.CancelGameSearch(); //TODO: Надо ли? Всё равно загружается новая сцена и всё сбросится. Если включишь, то надо убрть в функции строку с отправкой сообщения об отмене.
             }
             // Значит до этого игрок вылетел, и сейчас может востановиться в игре
@@ -35,18 +34,13 @@ public class MainMenuScr : MonoBehaviour
                 DataHolder.ThisGameID = Convert.ToInt32(mes[2]);
                 DataHolder.GameId = Convert.ToInt32(mes[3]);
                 if (mes[1] == "2")
-                {
-                    DataHolder.MessageTCP.RemoveAt(0); //TODO: Сделать нормальное централизованное удаление всех этих штук. 
-                                                       // Можно свитчём, и потом с помощью goto отправлтять всех на удаление.
+                {                  
                     UnityEngine.SceneManagement.SceneManager.LoadScene("UdpLVL");
                 }
                     
             }
-            else if(mes[0] != "0") // Если что-то левое
-            {
-                DataHolder.MessageTCP.RemoveAt(0);
-            }
-                
+
+            DataHolder.MessageTCPforGame.RemoveAt(0); //TODO: Сделать нормальное централизованное удаление всех этих штук.                                                       // Можно свитчём, и потом с помощью goto отправлтять всех на удаление.
         }
     }
 
@@ -147,6 +141,8 @@ public class MainMenuScr : MonoBehaviour
         MainPanel.SetActive(!MainPanel.activeSelf);
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
+
+    //TODO: А если в какой-то момент я начал юзать ТСПотправку в нескольких местах одновременно. Всё же нахуй сломается.
 
     //TODO: Даже если игра нормально завершилась, удаляется ли udp экземпяры и потоки? Не помню, чтоб обрабатывал это!
 
