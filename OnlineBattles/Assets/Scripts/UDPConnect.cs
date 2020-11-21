@@ -5,21 +5,25 @@ using System.Threading;
 
 public class UDPConnect
 {
+    public bool GameOn { get; set; } = false;      
+    private UdpClient client { get; set; }
     private IPEndPoint remoteIp = null;
-    public bool GameOn = false;
-    private static UdpClient client;
-    //TODO: Регулярно но редко отправлять тсп сообщенния, чтоб проверять наличие связи
+    //TODO: Регулярно но редко отправлять TCP сообщения, чтоб проверять наличие связи
     //TODO: Для всех ЮДП сообщений нужна структура: номер игры - номер лобби id - !свой id в бд! - номер игрока в лобби - сообщение
     public UDPConnect()
     {        
         GameOn = true;
         client = new UdpClient(DataHolder.ConnectIp, DataHolder.RemotePort);
 
-        Thread receiveThread = new Thread(ReceiveMessage);
+        Thread receiveThread = new Thread(ReceivingMessagesLoop);
         receiveThread.Start();
         receiveThread.IsBackground = true;
     }
 
+    /// <summary>
+    /// Отправка пользовательских UDP сообщений с добавлением "метаданных".
+    /// </summary>
+    /// <param name="mes">Текст сообщения.</param>
     public void SendMessage(string mes)
     {
         try
@@ -27,10 +31,13 @@ public class UDPConnect
             byte[] data = Encoding.UTF8.GetBytes($"{DataHolder.SelectedServerGame} {DataHolder.LobbyID} {DataHolder.IDInThisGame} " + mes);
             client.Send(data, data.Length);
         }
-        catch { Reconnect(); }
+        catch { TryReconnect(); }
     }
 
-    private void ReceiveMessage()
+    /// <summary>
+    /// Цикл приёма UDP сообщений и помещение их в MessageUDPget.
+    /// </summary>
+    private void ReceivingMessagesLoop()
     {
         while (GameOn)
         {
@@ -40,32 +47,35 @@ public class UDPConnect
                 string messList = Encoding.UTF8.GetString(data);
                 DataHolder.MessageUDPget.Add(messList);               
             }
-            catch { Reconnect(); }
+            catch { TryReconnect(); }
         }
     }
 
-    private void Reconnect()
+    /// <summary>
+    /// Уничтожение старого, и если игра ещё не завершилась, создание нового экземпляра client.
+    /// </summary>
+    private void TryReconnect()
     {
+        CloseClient();
+
         if (GameOn)
         {
-            if (client != null)
-                client.Close();
-
             client = new UdpClient(DataHolder.ConnectIp, DataHolder.RemotePort);
-
-            // Тестим tcp на всякий случай, вдруг надо всё перезапустить.
-            //TODO: Игрок может отменить реконнект и игру, тогда надо будет обнулить и удалить все udp соединения
+            GameOn = true;
+            // Тестируем TCP соединение на всякий случай, вдруг надо всё перезапустить.
+            //TODO: Игрок может отменить реконнект и игру, тогда надо будет обнулить и удалить все UDP соединения
             DataHolder.ClientTCP.SendMassage("Check");
         }
-        else CloseClient();
     }
 
+    /// <summary>
+    /// Остановка всех UDP процессов. GameOn становится false, client уничтожается.
+    /// </summary>
     public void CloseClient()
     {
         if (client != null)
         {
             GameOn = false;
-            client.Dispose();
             client.Close();
             client = null;
         }

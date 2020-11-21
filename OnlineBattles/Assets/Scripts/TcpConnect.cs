@@ -5,12 +5,12 @@ using System.Threading;
 
 public class TcpConnect
 {
-    const int WaitForConnection = 3000;
+    private const int WaitForConnection = 3000;
 
-    public TcpClient client;
-    private Thread clientListener;
-    private NetworkStream NS;
-    private bool ReconnectAlreadyStart = false;
+    private TcpClient client { get; set; }
+    private Thread clientListener { get; set; }
+    private NetworkStream NS { get; set; }
+    private bool ReconnectAlreadyStart { get; set; } = false;
 
     /// <summary>
     /// Создание экземпляра и попытка подключения к серверу
@@ -33,7 +33,7 @@ public class TcpConnect
             {
                 client.EndConnect(result);
 
-                clientListener = new Thread(Reader);
+                clientListener = new Thread(ReceivingMessagesLoop);
                 clientListener.Start();
                 clientListener.IsBackground = true;
                 DataHolder.Connected = true;
@@ -52,9 +52,9 @@ public class TcpConnect
     }
 
     /// <summary>
-    /// Отправка TCP-сообщения на сервер с добавлением разделительного знака "|"
+    /// Отправка TCP-сообщения на сервер с добавлением разделительного знака "|".
     /// </summary>
-    /// <param name="message">Текст сообщения</param>
+    /// <param name="message">Текст сообщения.</param>
     public void SendMassage(string message)
     {
         try
@@ -76,9 +76,9 @@ public class TcpConnect
 
     /// <summary>
     /// Приём TCP-сообщений с сревера с разделением их на отдельные, если склеились. 
-    /// Отлавливание ошибок соединения, DataHolder.NetworkScript.StartReconnect();  для начала реконнекта.
+    /// Отлавливание ошибок соединения, DataHolder.NetworkScript.StartReconnect() для начала реконнекта.
     /// </summary>
-    private void Reader()
+    private void ReceivingMessagesLoop()
     {
         NS = client.GetStream();
         while (true)
@@ -122,6 +122,9 @@ public class TcpConnect
         }
     }
 
+    /// <summary>
+    /// Закрытие всех потоков TCP соединения и удаление client.
+    /// </summary>
     public void CloseClient() //TODO: Добавить этот вызов на кнопку выхода из приложения
     {       
         if (client != null)

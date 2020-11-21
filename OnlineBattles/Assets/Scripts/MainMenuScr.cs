@@ -7,28 +7,22 @@ public class MainMenuScr : MonoBehaviour
 {
     public Text Money, ID;
     public GameObject MainPanel, LvlPanel;
-
-    private string lvlName = "";
-
-    void Start()
-    {
-
-    }
+    private string lvlName { get; set; } = "";
 
     void Update()
     {         
         if (DataHolder.MessageTCPforGame.Count > 0)
         {
             string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
-
+            Debug.Log($"menu {DataHolder.MessageTCPforGame[0]}");
             if (mes[0] == "S")
             {
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[1]);
                 DataHolder.LobbyID = Convert.ToInt32(mes[2]);
                 UnityEngine.SceneManagement.SceneManager.LoadScene(lvlName);
-                //NetworkScript.CancelGameSearch(); //TODO: Надо ли? Всё равно загружается новая сцена и всё сбросится. Если включишь, то надо убрть в функции строку с отправкой сообщения об отмене.
+                //NetworkScript.CancelGameSearch(); //TODO: Надо ли? Всё равно загружается новая сцена и всё сбросится. Если включишь, то надо убрать в функции строку с отправкой сообщения об отмене.
             }
-            // Значит до этого игрок вылетел, и сейчас может востановиться в игре
+            // Значит до этого игрок вылетел, и сейчас может восстановиться в игре
             else if (mes[0] == "goto")
             {
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[2]);
@@ -39,38 +33,69 @@ public class MainMenuScr : MonoBehaviour
                 }
                     
             }
-
             DataHolder.MessageTCPforGame.RemoveAt(0); //TODO: Сделать нормальное централизованное удаление всех этих штук.                                                       // Можно свитчём, и потом с помощью goto отправлтять всех на удаление.
         }
     }
 
+    public void SelectGame(int lvlNum)
+    {
+        DataHolder.SelectedServerGame = lvlNum;
+
+        if (DataHolder.GameType == 1)
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("TicTacToe_Single"); //TODO: Сделать по шаблону мультиплеера.
+        }
+        else if (DataHolder.GameType == 2)
+        {
+
+        }
+        else if (DataHolder.GameType == 3)
+        {
+            //TODO: Добавить анимацию ожидания.
+            DataHolder.NetworkScript.ShowNotif("Поиск игры", 3);
+            lvlName = "lvl" + lvlNum;
+            DataHolder.ClientTCP.SendMassage($"game {lvlNum}");           
+        }
+    }
+
+    /// <summary>
+    /// Обработка кнопки и установка режима одиночной игры.
+    /// </summary>
     public void SelectSingleGame()
     {
         DataHolder.GameType = 1;
         MoveMenuPanels();
     }
 
+    /// <summary>
+    /// Обработка кнопки и установка режима игры по wifi.
+    /// </summary>
     public void SelectWifiGame()
     {
         DataHolder.GameType = 2;
         MoveMenuPanels();
     }
 
+    /// <summary>
+    /// Обработка кнопки, проверка/установка соединения с сервером и установка режима мультиплеера.
+    /// </summary>
     public async void SelectMultiplayerGame()
     {
-        //TODO: Может сразу после нажатия уже показывать уведомление, н6у или хотя бы счит поставить
         if (!DataHolder.Connected)
-            DataHolder.NetworkScript.CreateTCP();                
+            DataHolder.NetworkScript.CreateTCP();
         else
         {
-            DataHolder.ClientTCP.SendMassage("Check"); // Если соединение уже было создано, то надо затестить  
-            await Task.Delay(1000); //TODO: Надо ли? Да хз
+            // Если сеть была, но отлетела, то после Check выполнится Network.StartReconnect.
+            DataHolder.ClientTCP.SendMassage("Check");
+            await Task.Delay(1000); //TODO: Надо ли?
         }
-              
-        // Если сеть была, но отлетела, то после Check Начнётся реконнект.
+
         GoToMultiplayerMenu();
     }
 
+    /// <summary>
+    /// Переход в меню выбора мультиплеерных игр, показ money и id в UI.
+    /// </summary>
     public void GoToMultiplayerMenu()
     {
         if (DataHolder.Connected)
@@ -82,7 +107,10 @@ public class MainMenuScr : MonoBehaviour
         }
     }
 
-    public void GetMoney()
+    /// <summary>
+    /// Установить на экране значение MyServerID и Money.
+    /// </summary>
+    private void GetMoney()
     {
         if (DataHolder.Connected)
         {
@@ -91,58 +119,16 @@ public class MainMenuScr : MonoBehaviour
         }
     }
 
-    public void SelectGame(GameObject button)
-    {
-        if (button.name == "TicTacToe")
-        {
-            DataHolder.SelectedServerGame = 1;
-            if (DataHolder.GameType == 1)
-            {
-                UnityEngine.SceneManagement.SceneManager.LoadScene("TicTacToe_Single");
-            }
-            else if (DataHolder.GameType == 2)
-            {
-
-            }
-            else if (DataHolder.GameType == 3)
-            {
-                // Выключить все кнопки перед этим, чтоб игрок никуда не мог нажать 3 секунды
-                lvlName = "lvl1";
-                DataHolder.ClientTCP.SendMassage("game1");
-
-                // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
-                DataHolder.NetworkScript.ShowNotif("Поиск игры", 3);
-            }
-
-        }
-        if (button.name == "Second")
-        {
-            DataHolder.SelectedServerGame = 2;
-            if (DataHolder.GameType == 1)
-            {
-                //UnityEngine.SceneManagement.SceneManager.LoadScene("TicTacToe_Single");
-            }
-            else if (DataHolder.GameType == 2)
-            {
-
-            }
-            else if (DataHolder.GameType == 3)
-            {
-                lvlName = "UdpLVL";
-                DataHolder.ClientTCP.SendMassage("game2");
-
-                // Выключаем кнопки выбора уровней, пока ждём ответ со стартом
-                //TODO: Добавить анимацию ожидания
-                DataHolder.NetworkScript.ShowNotif("Поиск игры", 3);
-            }
-        }        
-    }
-
-    public void MoveMenuPanels()
+    /// <summary>
+    /// Смена панелей с выбора типа игры, на саму игру, и обратно.
+    /// </summary>
+    private void MoveMenuPanels()
     {
         MainPanel.SetActive(!MainPanel.activeSelf);
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
+
+    //TODO: Создать словари для всех string
 
     //TODO: А если в какой-то момент я начал юзать ТСПотправку в нескольких местах одновременно. Всё же нахуй сломается.
 
@@ -237,8 +223,6 @@ public class MainMenuScr : MonoBehaviour
 
     //TODO: ЧТо делать, если человек понял, что уже проиграл и ливнул в конце игры, он захочет начать другую игру, надо как-то запретить ему
 
-    //TODO: [SerializeField] ////// Для чего вообще это нужно (по пунктам)
-
     //TODO: Мб подгружать сцены с игрой, пока идёт поиск
 
     //TODO: Добавить возможность остановки поиска игры
@@ -246,10 +230,6 @@ public class MainMenuScr : MonoBehaviour
     //TODO: должна быть специальная команда проверки версии приложения, чтоб не самому создавать переменную, которую смогут изменить
 
     //TODO: После обновления данных о деньгах надо как-то грамотно передать их пользователю, но не в функции UpdateDBMoney
-
-    //TODO: Похоже в крестиках можно продолжить шевелиться после окончания матча
-
-    //TODO: Что делать, если пользователь меняет моб инет на wifi или ещё что-то подобное
 
     //TODO: Настроить камеру и вообще узнать, зачем все кнопки
 
@@ -310,9 +290,6 @@ public class MainMenuScr : MonoBehaviour
 
     //TODO: Сделать кнопку досрочного выхода из матча, соответственно тех-победа второго (обработай сразу, без ожидания)
 
-    //TODO: При подключении нового устройства, проверять, есть ли этот аккакунт в сети и решать проблему (либо массив подключённых id, либо в таблице bool connected)
-    // ЧТоб нельзя было играть по сети с одного id на нескольких устройствах
-
     //TODO: Продумать подключение игроков к системе( логин и пароль, рандомные ключи, почта и пароль и тд)
 
     //TODO: Установить на сервер защиту от DDoS
@@ -342,8 +319,6 @@ public class MainMenuScr : MonoBehaviour
     //TODO: Как искать другие устройства в в игре в LAN
 
     //TODO: при подключении запрашивать версию игры и не запускать онлайн и не давать играть по локальной сети без обновления
-
-    //TODO: Что делать, если оба прислали код завершения игры, но он не совпал
 
     //TODO: Если кто-то регулярно будет не принимать игру и заставлять других ждать, просто банить их
 

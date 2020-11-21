@@ -8,11 +8,11 @@ public class UDPGame : MonoBehaviour
     public float UpdateRate = 0.05f; //TODO: Как часто клиенты должны слать свои изменения. Надо  как-то чекать это на стороне сервра. Чтоб нельзя было так читерить.
     private float buffX = 0, buffY = 0;
     //private DateTime LastSend;
-    private long ServerTime = DateTime.UtcNow.Ticks;
 
 
     private void Start()
     {
+        DataHolder.ServerTime = DateTime.UtcNow.Ticks;
         DataHolder.NetworkScript.CreateUDP();       
         InvokeRepeating("SendJoy", 1.0f, UpdateRate);
         //LastSend = DateTime.UtcNow;
@@ -21,23 +21,21 @@ public class UDPGame : MonoBehaviour
 
     private void FixedUpdate()
     {
-        ServerTime += 20 * 10000;
+        DataHolder.ServerTime += 20 * 10000;
     }
 
     private void Update()
     {
         if (DataHolder.MessageTCPforGame.Count > 0)
         {
-            string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');            
+            string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
+            Debug.Log($"game {DataHolder.MessageTCPforGame[0]}");
             if (mes[0] == "info")
             {
                 me.transform.position = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
                 enemy.transform.position = new Vector2(float.Parse(mes[3]), float.Parse(mes[4]));
             }
-            else if (mes[0] == "ping")
-                DataHolder.ClientUDP.SendMessage("ping"); //TODO: НЕ ЗАБУДЬ!! Именно UDP сообщение, чтоб сервер получил удалённый адрес
-            else if(mes[0] == "time")
-                ServerTime = Convert.ToInt64(mes[1]);
+            
             
 
             DataHolder.MessageTCPforGame.RemoveAt(0);
@@ -65,7 +63,7 @@ public class UDPGame : MonoBehaviour
 
             long time = Convert.ToInt64(frame1[0]);
             long time2 = Convert.ToInt64(frame2[0]);
-            long vrem = ServerTime - (100 * 10000); //TODO: Вынести константу
+            long vrem = DataHolder.ServerTime - (100 * 10000); //TODO: Вынести константу
 
             if (time < vrem && vrem < time2)
             {

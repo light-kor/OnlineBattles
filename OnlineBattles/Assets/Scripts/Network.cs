@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -8,21 +7,15 @@ using UnityEngine.UI;
 
 public class Network : MonoBehaviour
 {
-    private const float TimeForWaitAnswer = 3f;
-
-    private bool TryRecconect { get; set; } = true;
-
     public GameObject NotifPanel, NotifButton, StopReconnectButton, CancelSearchButton, CloseEndGameButton;
     public GameObject Shield; // Блокирует нажатия на все кнопки, кроме notifPanel
+
+    private const float TimeForWaitAnswer = 3f;
+    private bool TryRecconect { get; set; } = true;
 
     void Awake()
     {
         DataHolder.NetworkScript = this;
-    }
-
-    private void Start()
-    {        
-        
     }
 
     private void Update()
@@ -30,7 +23,7 @@ public class Network : MonoBehaviour
         if (DataHolder.MessageTCP.Count > 0)
         {
             string[] mes = DataHolder.MessageTCP[0].Split(' ');
-
+            Debug.Log($"net {DataHolder.MessageTCP[0]}");
             switch (mes[0])
             {
                 case "win":
@@ -44,25 +37,34 @@ public class Network : MonoBehaviour
                 case "login":
                     return;
 
+                case "ping":
+                    DataHolder.ClientUDP.SendMessage("ping"); //TODO: НЕ ЗАБУДЬ!! Именно UDP сообщение, чтоб сервер получил удалённый адрес
+                    break;
+
+                case "time":
+                    DataHolder.ServerTime = Convert.ToInt64(mes[1]);
+                    break;
+
                 default:
                     DataHolder.MessageTCPforGame.Add(DataHolder.MessageTCP[0]);
                     break;
 
             }
-            DataHolder.MessageTCP.RemoveAt(0); // Эта херня всё ломает, и крадёт сообщения из логина и второго скрипта
-                                              //TODO: Вроде как, этот скрипт выполняется до всех остальных, и тогда сообщения,
-                                             // которые не вошли сюда, пойдут во второй скрипт (а он есть везде) и там либо используются, либо удалятся
+            DataHolder.MessageTCP.RemoveAt(0); 
         }
         //TODO: Добавить стандартные команды от сервера типо закончить и тд
     }
-    
+
+    /// <summary>
+    /// Создание экземпляра ClientUDP и установка UDP "соединения".
+    /// </summary>
     public void CreateUDP()
     {
         DataHolder.ClientUDP = new UDPConnect();
     }
 
     /// <summary>
-    /// Проверка интернета, создание экземпляра TcpConnect и авторизация в системе сесрвера
+    /// Установка соединения с сервером (асинхронная): проверка интернета, создание экземпляра TcpConnect и авторизация в системе.
     /// </summary>
     public async void CreateTCP()
     {
@@ -93,20 +95,19 @@ public class Network : MonoBehaviour
             ShowNotif("Ошибка доступа к серверу.", 1);
             return;
         }
-        else GetComponent<MainMenuScr>().GoToMultiplayerMenu(); // Переходим в меню мультиплеера
+        else GetComponent<MainMenuScr>().GoToMultiplayerMenu();
     }
 
     /// <summary>
-    /// Отправка запроса на авторизацию и ожидание подтверждения, id и money
+    /// Отправка запроса на авторизацию в системе сервера и ожидание подтверждения (получение id и money).
     /// </summary>
     private void LoginInServerSystem()
     {
         DataHolder.ClientTCP.SendMassage("login " + DataHolder.KeyCodeName);
 
         DateTime StartTryConnect = DateTime.Now;
-        // Просто пусть будет несколько сек, вдруг сервер тупит
         //TODO: При этом, пока телефон думает, пусть в углу будет гифка загрузки, чтоб пользователь понимал, что что-то происходит
-        //TODO: Можно вызывть это не бесконечно, а раз в пол секунды
+        //TODO: Можно вызывать это не бесконечно, а раз в пол секунды
         while (true)
         {
             if (((DateTime.Now - StartTryConnect).TotalSeconds < TimeForWaitAnswer))
@@ -130,7 +131,6 @@ public class Network : MonoBehaviour
                         DataHolder.MessageTCP.RemoveAt(0);
                         break;
                     }
-                    //TODO: Тут могут прислать ещё что-то, типо сервер на рем работах и тд
                 }
             }
             else
@@ -142,7 +142,7 @@ public class Network : MonoBehaviour
     }
 
     /// <summary>
-    /// Начало реконнекта, показ всех нужных уведомлений, проверка сети и запуск цикла запросов на повторное соединение
+    /// Функция реконнекта. Блокировка кнопок на экране, показ всех нужных уведомлений, проверка сети и запуск цикла запросов на повторное соединение с сервером.
     /// </summary>
     public async void StartReconnect()
     {
@@ -181,6 +181,10 @@ public class Network : MonoBehaviour
         TryRecconect = true;
     }
 
+    /// <summary>
+    /// Функция закрытия всех типов уведомлений NotifPanel с последующей обработкой.
+    /// </summary>
+    /// <param name="num">Тип уведомления.</param>
     public void NotificatonMultyButton(int num)
     {       
         switch (num)
@@ -193,8 +197,8 @@ public class Network : MonoBehaviour
                 CleanTcpConnection();
                 TryRecconect = false;
                 StopReconnectButton.SetActive(false);
-                SceneManager.LoadScene("mainMenu"); // Ну если не хочешь реконнект во время игры, то не играй))
-                //TODO: Ну тогда надо ещё корректно завершить игру и закрыть юдп соединение.
+                SceneManager.LoadScene("mainMenu"); // Ну если не хочешь reconnect во время игры, то не играй))
+                //TODO: Ну тогда надо ещё корректно завершить игру и закрыть UDP соединение.
                 break;
 
             case 3: // CancelGameSearch
@@ -207,7 +211,7 @@ public class Network : MonoBehaviour
                 SceneManager.LoadScene("mainMenu");
                 break;
 
-            case 10: // Правильный выход из реконнекта
+            case 10: // Правильный выход из StartReconnect
                 TryRecconect = false;
                 StopReconnectButton.SetActive(false);
                 break;
@@ -219,14 +223,17 @@ public class Network : MonoBehaviour
     /// <summary>
     /// Выводит на экран уведомление и отключает все остальные кнопки.
     /// </summary>
-    /// <param name="num">Текст ведомления</param>
-    /// <param name="caseNotif">Выбор типа и кнопки на окне уведомления</param>
-    public void ShowNotif(string notif, int caseNotif)
+    /// <param name="notif">Текст уведомления.</param>
+    /// <param name="caseNotif">Выбор типа кнопки и самого уведомления на окне.</param>
+    public void ShowNotif(string notif, int caseNotif) //TODO: А если будет несколько уведомлений по очереди, надо сделать очередь.
     {
         Shield.SetActive(true);
-        NotifPanel.transform.Find("Text").GetComponent<Text>().text = notif;
-        NotifPanel.SetActive(true);
 
+        NotifButton.SetActive(false);
+        StopReconnectButton.SetActive(false);
+        CancelSearchButton.SetActive(false);
+        CloseEndGameButton.SetActive(false);
+             
         if (caseNotif == 1)
             NotifButton.SetActive(true);
         else if (caseNotif == 2)
@@ -235,8 +242,15 @@ public class Network : MonoBehaviour
             CancelSearchButton.SetActive(true);
         else if (caseNotif == 4)
             CloseEndGameButton.SetActive(true);
+
+        NotifPanel.transform.Find("Text").GetComponent<Text>().text = notif;
+        NotifPanel.SetActive(true);
     }
 
+    /// <summary>
+    /// Проверка соединения с интернетом, путём открытия гугловской страницы.
+    /// </summary>
+    /// <returns>True, если выход в интернет есть.</returns>
     private static bool CheckForInternetConnection()
     {
         try
@@ -248,6 +262,9 @@ public class Network : MonoBehaviour
         catch { return false; }
     }
 
+    /// <summary>
+    /// Очистка и удаление ClientTCP и всего TCP соединения.
+    /// </summary>
     private void CleanTcpConnection()
     {
         if (DataHolder.ClientTCP != null)
