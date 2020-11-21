@@ -10,7 +10,7 @@ public class pre : MonoBehaviour
 
     public void Second()
     {
-        DataHolder.KeyID = "321";
+        DataHolder.KeyCodeName = "321";
         SceneManager.LoadScene("mainMenu");
     }
 }

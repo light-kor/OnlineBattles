@@ -4,12 +4,13 @@ using UnityEngine;
 public static class DataHolder
 {
     public static int GameType { get; set; } = -1;
+    public static int SelectedServerGame { get; set; } = -1;
     public static bool Connected { get; set; } = false;
-    public static int MyID { get; set; }  = -1;
     public static int Money { get; set; } = -1;
-    public static int GameId { get; set; } = -1;
-    public static string KeyID { get; set; } = "123";
-    public static int ThisGameID { get; set; } = -1;
+    public static string KeyCodeName { get; set; } = "123";
+    public static int MyServerID { get; set; }  = -1;   
+    public static int LobbyID { get; set; } = -1;   
+    public static int IDInThisGame { get; set; } = -1;
     public static bool CanMove { get; set; } = false;
     public static int WinFlag { get; set; } = -1;
     public static GameObject TimerT { get; set; } = null;

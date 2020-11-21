@@ -23,16 +23,16 @@ public class MainMenuScr : MonoBehaviour
 
             if (mes[0] == "S")
             {
-                DataHolder.ThisGameID = Convert.ToInt32(mes[1]);
-                DataHolder.GameId = Convert.ToInt32(mes[2]);
+                DataHolder.IDInThisGame = Convert.ToInt32(mes[1]);
+                DataHolder.LobbyID = Convert.ToInt32(mes[2]);
                 UnityEngine.SceneManagement.SceneManager.LoadScene(lvlName);
                 //NetworkScript.CancelGameSearch(); //TODO: Надо ли? Всё равно загружается новая сцена и всё сбросится. Если включишь, то надо убрть в функции строку с отправкой сообщения об отмене.
             }
             // Значит до этого игрок вылетел, и сейчас может востановиться в игре
             else if (mes[0] == "goto")
             {
-                DataHolder.ThisGameID = Convert.ToInt32(mes[2]);
-                DataHolder.GameId = Convert.ToInt32(mes[3]);
+                DataHolder.IDInThisGame = Convert.ToInt32(mes[2]);
+                DataHolder.LobbyID = Convert.ToInt32(mes[3]);
                 if (mes[1] == "2")
                 {                  
                     UnityEngine.SceneManagement.SceneManager.LoadScene("UdpLVL");
@@ -87,7 +87,7 @@ public class MainMenuScr : MonoBehaviour
         if (DataHolder.Connected)
         {
             Money.text = DataHolder.Money.ToString();
-            ID.text = DataHolder.MyID.ToString();
+            ID.text = DataHolder.MyServerID.ToString();
         }
     }
 
@@ -95,6 +95,7 @@ public class MainMenuScr : MonoBehaviour
     {
         if (button.name == "TicTacToe")
         {
+            DataHolder.SelectedServerGame = 1;
             if (DataHolder.GameType == 1)
             {
                 UnityEngine.SceneManagement.SceneManager.LoadScene("TicTacToe_Single");
@@ -116,6 +117,7 @@ public class MainMenuScr : MonoBehaviour
         }
         if (button.name == "Second")
         {
+            DataHolder.SelectedServerGame = 2;
             if (DataHolder.GameType == 1)
             {
                 //UnityEngine.SceneManagement.SceneManager.LoadScene("TicTacToe_Single");

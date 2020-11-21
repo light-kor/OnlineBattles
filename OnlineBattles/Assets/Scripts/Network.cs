@@ -37,7 +37,7 @@ public class Network : MonoBehaviour
                 case "lose":
                 case "drawn":
                     //TODO: Нужен какой-то мультивыбор скрипта ниже, а не только этот
-                    GetComponent<Joystic_controller>().CloseAll();
+                    GetComponent<UDPGame>().CloseAll();
                     ShowNotif("Игра завершена\r\n" + mes[0], 4);                    
                     break;
 
@@ -101,7 +101,7 @@ public class Network : MonoBehaviour
     /// </summary>
     private void LoginInServerSystem()
     {
-        DataHolder.ClientTCP.SendMassage("login " + DataHolder.KeyID);
+        DataHolder.ClientTCP.SendMassage("login " + DataHolder.KeyCodeName);
 
         DateTime StartTryConnect = DateTime.Now;
         // Просто пусть будет несколько сек, вдруг сервер тупит
@@ -119,7 +119,7 @@ public class Network : MonoBehaviour
                     {
                         try
                         {
-                            DataHolder.MyID = Convert.ToInt32(mes[1]);
+                            DataHolder.MyServerID = Convert.ToInt32(mes[1]);
                             DataHolder.Money = Convert.ToInt32(mes[2]);                           
                         }
                         catch

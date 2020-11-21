@@ -3,68 +3,120 @@ using UnityEngine;
 
 public class UDPGame : MonoBehaviour
 {
-    public GameObject enemy;
-    private Network NetworkScript;
-    bool startGame = false;
+    public Joystick joystick;
+    public GameObject me, enemy;
+    public float UpdateRate = 0.05f; //TODO: Как часто клиенты должны слать свои изменения. Надо  как-то чекать это на стороне сервра. Чтоб нельзя было так читерить.
+    private float buffX = 0, buffY = 0;
+    //private DateTime LastSend;
+    private long ServerTime = DateTime.UtcNow.Ticks;
 
-    public float repTime = 0.04f;
 
     private void Start()
     {
-        NetworkScript = GetComponent<Network>();
-        NetworkScript.CreateUDP();
-        InvokeRepeating("SendAndGetPos", 1.0f, repTime);
+        DataHolder.NetworkScript.CreateUDP();       
+        InvokeRepeating("SendJoy", 1.0f, UpdateRate);
+        //LastSend = DateTime.UtcNow;
+        DataHolder.ClientUDP.SendMessage("start"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
+    }
+
+    private void FixedUpdate()
+    {
+        ServerTime += 20 * 10000;
     }
 
     private void Update()
     {
-        if (Input.touchCount > 0)
+        if (DataHolder.MessageTCPforGame.Count > 0)
         {
-            var touch = Input.GetTouch(0);
-
-            switch (touch.phase)
+            string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');            
+            if (mes[0] == "info")
             {
-                case TouchPhase.Moved:
-                    var pos = Camera.main.ScreenToWorldPoint(touch.position);
-                    pos.z = transform.position.z;
-                    transform.position = pos;
-                    break;
+                me.transform.position = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
+                enemy.transform.position = new Vector2(float.Parse(mes[3]), float.Parse(mes[4]));
             }
+            else if (mes[0] == "ping")
+                DataHolder.ClientUDP.SendMessage("ping"); //TODO: НЕ ЗАБУДЬ!! Именно UDP сообщение, чтоб сервер получил удалённый адрес
+            else if(mes[0] == "time")
+                ServerTime = Convert.ToInt64(mes[1]);
+            
+
+            DataHolder.MessageTCPforGame.RemoveAt(0);
         }
 
-        if (DataHolder.MessageUDPget.Count > 0)
+        UpdateThread();
+    }
+
+    //private void UpdateWorld()
+    //{
+    //    //TODO: А если накопилось уже больше одного, то мб стоит удалить несколько или обработать несколько с плавным переходом
+    //    string[] frame1 = DataHolder.MessageUDPget[0].Split(' ');
+    //    string[] frame2 = DataHolder.MessageUDPget[1].Split(' ');
+
+    //    me.transform.position = new Vector2(float.Parse(frame1[1]), float.Parse(frame1[2]));
+    //    enemy.transform.position = new Vector2(float.Parse(frame1[3]), float.Parse(frame1[4]));
+    //}
+
+    private void UpdateThread()
+    {
+        if (DataHolder.MessageUDPget.Count > 1)
         {
-            //TODO: А если накопилось уже больше одного, то мб стоит удалить несколько или обработать несколько с плавным переходом
-            string[] mes = DataHolder.MessageUDPget[0].Split(' ');
-            if (mes[0] != "" && mes[1] != "")
+            string[] frame1 = DataHolder.MessageUDPget[0].Split(' ');
+            string[] frame2 = DataHolder.MessageUDPget[1].Split(' ');
+
+            long time = Convert.ToInt64(frame1[0]);
+            long time2 = Convert.ToInt64(frame2[0]);
+            long vrem = ServerTime - (100 * 10000); //TODO: Вынести константу
+
+            if (time < vrem && vrem < time2)
             {
-                enemy.transform.position = new Vector3(float.Parse(mes[0]), float.Parse(mes[1]), 0);
+                //normalized = (x - min(x)) / (max(x) - min(x));
+                float delta = (vrem - time) / (time2 - time);
+                me.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[1]), float.Parse(frame1[2])), new Vector2(float.Parse(frame2[1]), float.Parse(frame2[2])), delta);
+                enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[3]), float.Parse(frame1[4])), new Vector2(float.Parse(frame2[3]), float.Parse(frame2[4])), delta);
             }
+            else if (time > vrem) return;
 
             DataHolder.MessageUDPget.RemoveAt(0);
         }
-
     }
 
-    void SendAndGetPos()
+
+    void SendJoy()
     {
-        string xpos = "", ypos = "";
-        if (startGame)
+        buffX = joystick.Horizontal;
+        buffY = joystick.Vertical;
+        if (buffX != 0 && buffY != 0)
         {
-            if ((xpos != (float)Math.Round((0 - transform.position.x), 2) + "") || (ypos != (float)Math.Round(transform.position.y, 2) + ""))
-            {
-                xpos = (float)Math.Round((transform.position.x), 2) + "";
-                ypos = (float)Math.Round(0 - transform.position.y, 2) + "";
-                //TODO: Пока отправляем pos, но потом надо будет поменять на значения джостика и сделать на сервере проверку, что значение меньшн 1
-                DataHolder.ClientUDP.SendMessage($"2 {DataHolder.GameId} {DataHolder.ThisGameID} {xpos} {ypos}");
-            }           
+            DataHolder.ClientUDP.SendMessage($"{buffX} {buffY}"); //TODO: Проверять на сервере, что число от 0 до 1
+            //LastSend = DateTime.UtcNow;
+        }
+
+        //if ((DateTime.UtcNow - LastSend).TotalMilliseconds > 500)
+        //{
+            //DataHolder.ClientUDP.SendMessage("Y");
+            //LastSend = DateTime.UtcNow;
+            ////TODO: При получении сообщения на сервере от любого из игроков, чекнуть, когда пришло послденее сообщение от второго, и елси оно было больше секнды назад, то остановить игру
+        //}
+            
+    }
+
+    public void CloseAll()
+    {
+        CancelInvoke("SendJoy");
+        // Там автоматически после GameOn = false вызовется CloseClient()
+        if (DataHolder.ClientUDP != null)
+        {
+            DataHolder.ClientUDP.GameOn = false;
+            DataHolder.ClientUDP = null;
         }
     }
 
-
-    public void GoToMainMenu()
+    public void ExitGame()
     {
+        //TODO: Отправить что-то при досрочном завершении 
+        if (DataHolder.ClientUDP != null)
+            CloseAll();
+
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
-
 }
