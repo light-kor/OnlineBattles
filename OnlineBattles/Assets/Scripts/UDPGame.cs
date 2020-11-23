@@ -109,9 +109,13 @@ public class UDPGame : MonoBehaviour
         }
     }
 
-    public void ExitGame()
+    public void GiveUp()
     {
-        //TODO: Отправить что-то при досрочном завершении 
+        DataHolder.ClientTCP.SendMassage("leave");
+    }
+
+    public void ExitGame()
+    {        
         if (DataHolder.ClientUDP != null)
             CloseAll();
 

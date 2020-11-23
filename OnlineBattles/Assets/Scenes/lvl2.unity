@@ -218,8 +218,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 457828339}
-        m_TargetAssemblyTypeName: Joystic_controller, Assembly-CSharp
-        m_MethodName: ExitGame
+        m_TargetAssemblyTypeName: UDPGame, Assembly-CSharp
+        m_MethodName: GiveUp
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
