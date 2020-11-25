@@ -14,7 +14,6 @@ public class MainMenuScr : MonoBehaviour
         if (DataHolder.MessageTCPforGame.Count > 0)
         {
             string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
-            Debug.Log($"menu {DataHolder.MessageTCPforGame[0]}");
             if (mes[0] == "S")
             {
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[1]);
@@ -33,7 +32,7 @@ public class MainMenuScr : MonoBehaviour
                 }
                     
             }
-            DataHolder.MessageTCPforGame.RemoveAt(0); //TODO: Сделать нормальное централизованное удаление всех этих штук.                                                       // Можно свитчём, и потом с помощью goto отправлтять всех на удаление.
+            DataHolder.MessageTCPforGame.RemoveAt(0);
         }
     }
 

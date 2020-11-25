@@ -38,7 +38,7 @@ public class Network : MonoBehaviour
                     return;
 
                 case "ping":
-                    DataHolder.ClientUDP.SendMessage("ping"); //TODO: НЕ ЗАБУДЬ!! Именно UDP сообщение, чтоб сервер получил удалённый адрес
+                    DataHolder.ClientTCP.SendMassage("ping");
                     break;
 
                 case "time":
@@ -202,7 +202,7 @@ public class Network : MonoBehaviour
                 break;
 
             case 3: // CancelGameSearch
-                DataHolder.ClientTCP.SendMassage("CancelSearch"); //TODO: Не забудь обработать отмену на сервере
+                DataHolder.ClientTCP.SendMassage("CancelSearch");
                 CancelSearchButton.SetActive(false);
                 break;
 

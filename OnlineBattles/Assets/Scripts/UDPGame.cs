@@ -16,6 +16,7 @@ public class UDPGame : MonoBehaviour
         DataHolder.NetworkScript.CreateUDP();       
         InvokeRepeating("SendJoy", 1.0f, UpdateRate);
         //LastSend = DateTime.UtcNow;
+        DataHolder.ClientTCP.SendMassage("start");
         DataHolder.ClientUDP.SendMessage("start"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
     }
 
