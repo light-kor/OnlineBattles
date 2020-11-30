@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -62,9 +63,7 @@ public class UDPConnect
         {
             client = new UdpClient(DataHolder.ConnectIp, DataHolder.RemotePort);
             GameOn = true;
-            // Тестируем TCP соединение на всякий случай, вдруг надо всё перезапустить.
             //TODO: Игрок может отменить реконнект и игру, тогда надо будет обнулить и удалить все UDP соединения
-            DataHolder.ClientTCP.SendMassage("Check");
         }
     }
 

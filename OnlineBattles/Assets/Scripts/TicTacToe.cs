@@ -43,7 +43,7 @@ public class TicTacToe : MonoBehaviour
                 else
                 {
                     string mes = $"1 {x1} {y1} {clickCellPosition.x} {clickCellPosition.y}";
-                    DataHolder.ClientTCP.SendMassage(mes);
+                    DataHolder.ClientTCP.SendMessage(mes);
                     firstMove = true;
                     DataHolder.CanMove = false;
                     DataHolder.TimerT.GetComponent<timer>().StopTimer();

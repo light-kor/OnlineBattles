@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class DataHolder
@@ -10,10 +11,11 @@ public static class DataHolder
     public static UDPConnect ClientUDP { get; set; } = null;
     public static Network NetworkScript { get; set; } = null;
     public static GameObject TimerT { get; set; } = null;
+    public static DateTime LastSend { get; set; } = DateTime.UtcNow;
     public static string KeyCodeName { get; set; } = "123";
     public static bool Connected { get; set; } = false;
     public static bool CanMove { get; set; } = false;
-    public static long ServerTime { get; set; }
+    public static long ServerTime { get; set; } = DateTime.UtcNow.Ticks;
     public static int GameType { get; set; } = -1;
     public static int SelectedServerGame { get; set; } = -1;           
     public static int MyServerID { get; set; }  = -1;   

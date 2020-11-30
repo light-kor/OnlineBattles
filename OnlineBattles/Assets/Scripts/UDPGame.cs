@@ -7,22 +7,18 @@ public class UDPGame : MonoBehaviour
     public GameObject me, enemy;
     public float UpdateRate = 0.05f; //TODO: Как часто клиенты должны слать свои изменения. Надо  как-то чекать это на стороне сервра. Чтоб нельзя было так читерить.
     private float buffX = 0, buffY = 0;
-    //private DateTime LastSend;
-
 
     private void Start()
-    {
-        DataHolder.ServerTime = DateTime.UtcNow.Ticks;
+    {       
         DataHolder.NetworkScript.CreateUDP();       
         InvokeRepeating("SendJoy", 1.0f, UpdateRate);
-        //LastSend = DateTime.UtcNow;
-        DataHolder.ClientTCP.SendMassage("start");
+        DataHolder.ClientTCP.SendMessage("start");
         DataHolder.ClientUDP.SendMessage("start"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
     }
 
     private void FixedUpdate()
     {
-        DataHolder.ServerTime += 20 * 10000;
+        DataHolder.ServerTime += 20 * 10000; //TODO: Может будет более гладко в апдейт с умножением на deltatime
     }
 
     private void Update()
@@ -36,12 +32,9 @@ public class UDPGame : MonoBehaviour
                 me.transform.position = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
                 enemy.transform.position = new Vector2(float.Parse(mes[3]), float.Parse(mes[4]));
             }
-            
-            
-
+                       
             DataHolder.MessageTCPforGame.RemoveAt(0);
         }
-
         UpdateThread();
     }
 
@@ -87,16 +80,7 @@ public class UDPGame : MonoBehaviour
         if (buffX != 0 && buffY != 0)
         {
             DataHolder.ClientUDP.SendMessage($"{buffX} {buffY}"); //TODO: Проверять на сервере, что число от 0 до 1
-            //LastSend = DateTime.UtcNow;
         }
-
-        //if ((DateTime.UtcNow - LastSend).TotalMilliseconds > 500)
-        //{
-            //DataHolder.ClientUDP.SendMessage("Y");
-            //LastSend = DateTime.UtcNow;
-            ////TODO: При получении сообщения на сервере от любого из игроков, чекнуть, когда пришло послденее сообщение от второго, и елси оно было больше секнды назад, то остановить игру
-        //}
-            
     }
 
     public void CloseAll()
@@ -112,7 +96,7 @@ public class UDPGame : MonoBehaviour
 
     public void GiveUp()
     {
-        DataHolder.ClientTCP.SendMassage("leave");
+        DataHolder.ClientTCP.SendMessage("leave");
     }
 
     public void ExitGame()

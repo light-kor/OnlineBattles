@@ -29,7 +29,7 @@ public class Network : MonoBehaviour
                 case "win":
                 case "lose":
                 case "drawn":
-                    //TODO: Нужен какой-то мультивыбор скрипта ниже, а не только этот
+                    //TODO: Нужен какой-то мультивыбор скрипта ниже, а не только этот. ВОТ ТУТ И НУЖНО НАСЛЕДОВАНИЕ И ИНКАПСУЛЯЦИЯ.
                     GetComponent<UDPGame>().CloseAll();
                     ShowNotif("Игра завершена\r\n" + mes[0], 4);                    
                     break;
@@ -38,7 +38,7 @@ public class Network : MonoBehaviour
                     return;
 
                 case "ping":
-                    DataHolder.ClientTCP.SendMassage("ping");
+                    DataHolder.ClientTCP.SendMessage("ping");
                     break;
 
                 case "time":
@@ -52,7 +52,10 @@ public class Network : MonoBehaviour
             }
             DataHolder.MessageTCP.RemoveAt(0); 
         }
-        //TODO: Добавить стандартные команды от сервера типо закончить и тд
+
+        // Поддержание жизни соединения с сервером.
+        if ((DateTime.UtcNow - DataHolder.LastSend).TotalMilliseconds > 3000 && DataHolder.ClientTCP != null)
+            DataHolder.ClientTCP.SendMessage("Check");
     }
 
     /// <summary>
@@ -103,17 +106,16 @@ public class Network : MonoBehaviour
     /// </summary>
     private void LoginInServerSystem()
     {
-        DataHolder.ClientTCP.SendMassage("login " + DataHolder.KeyCodeName);
+        DataHolder.ClientTCP.SendMessage("login " + DataHolder.KeyCodeName);
 
         DateTime StartTryConnect = DateTime.Now;
         //TODO: При этом, пока телефон думает, пусть в углу будет гифка загрузки, чтоб пользователь понимал, что что-то происходит
-        //TODO: Можно вызывать это не бесконечно, а раз в пол секунды
         while (true)
         {
             if (((DateTime.Now - StartTryConnect).TotalSeconds < TimeForWaitAnswer))
             {
                 // Получаем id и деньги от сервера
-                if (DataHolder.MessageTCP.Count > 0) //TODO: Возможно в это время удалить у всех остальных Update ловить сообщения
+                if (DataHolder.MessageTCP.Count > 0)
                 {
                     string[] mes = DataHolder.MessageTCP[0].Split(' ');
                     if (mes[0] == "login")
@@ -123,11 +125,8 @@ public class Network : MonoBehaviour
                             DataHolder.MyServerID = Convert.ToInt32(mes[1]);
                             DataHolder.Money = Convert.ToInt32(mes[2]);                           
                         }
-                        catch
-                        {
-                            //TODO: Ошибка базы данных
-                            DataHolder.Connected = false;                           
-                        }
+                        catch { DataHolder.Connected = false; }
+
                         DataHolder.MessageTCP.RemoveAt(0);
                         break;
                     }
@@ -202,7 +201,7 @@ public class Network : MonoBehaviour
                 break;
 
             case 3: // CancelGameSearch
-                DataHolder.ClientTCP.SendMassage("CancelSearch");
+                DataHolder.ClientTCP.SendMessage("CancelSearch");
                 CancelSearchButton.SetActive(false);
                 break;
 

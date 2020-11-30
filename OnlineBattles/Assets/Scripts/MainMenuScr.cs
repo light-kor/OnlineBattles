@@ -29,8 +29,7 @@ public class MainMenuScr : MonoBehaviour
                 if (mes[1] == "2")
                 {                  
                     UnityEngine.SceneManagement.SceneManager.LoadScene("UdpLVL");
-                }
-                    
+                }                    
             }
             DataHolder.MessageTCPforGame.RemoveAt(0);
         }
@@ -53,7 +52,7 @@ public class MainMenuScr : MonoBehaviour
             //TODO: Добавить анимацию ожидания.
             DataHolder.NetworkScript.ShowNotif("Поиск игры", 3);
             lvlName = "lvl" + lvlNum;
-            DataHolder.ClientTCP.SendMassage($"game {lvlNum}");           
+            DataHolder.ClientTCP.SendMessage($"game {lvlNum}");           
         }
     }
 
@@ -85,7 +84,7 @@ public class MainMenuScr : MonoBehaviour
         else
         {
             // Если сеть была, но отлетела, то после Check выполнится Network.StartReconnect.
-            DataHolder.ClientTCP.SendMassage("Check");
+            DataHolder.ClientTCP.SendMessage("Check");
             await Task.Delay(1000); //TODO: Надо ли?
         }
 
@@ -127,6 +126,8 @@ public class MainMenuScr : MonoBehaviour
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
 
+    //TODO: Проверить соответствие всех сообщений от сервера и игрока.
+
     //TODO: Пусть кнопка отмены поиска появится не сразу
 
     //TODO: Добавить на сервере try для всех Convert.ToInt32 и всех возможных несостыковок типов данных
@@ -139,13 +140,11 @@ public class MainMenuScr : MonoBehaviour
 
     //TODO: В начале каждой игры сделать заставку, чтоб успели прийти первые данные с позиционированием игроков, до того, как они попытаются ходить
 
-    //TODO: В начале кажодй сцены выключать щит, панель и все кнопки, а то они могут залагать, и хер ты их выключишь
-
-    //TODO: Что если реконнект нанётся до окончания коннекта
+    //TODO: В начале каждой сцены выключать щит, панель и все кнопки, а то они могут залагать, и хер ты их выключишь
 
     //TODO: Как-то сохранить, при каком действии произошёл дисконнект и выполнить его после востановления соединения
 
-    //TODO: Если пришло несколько сообщений полряд, то нужно все их отраоать. А то одно может отменять предыдущее и тд.
+    //TODO: Если пришло несколько сообщений подряд, то нужно все их отработать на клиенте. А то одно может отменять предыдущее и тд.
 
     //TODO: Если игрок во время udp игры сменит сеть, то он об этом не узнает. Udp продолжится, а вот tcp упадёт
 
@@ -157,9 +156,9 @@ public class MainMenuScr : MonoBehaviour
 
     //TODO: В конце чистить все листы
 
-    //TODO: на телефоне не коннектится с первого раза к сервреу
+    //TODO: на телефоне не коннектится с первого раза к серверу
 
-    //TODO: Декодировать сообщения по битам, а ене по пробелам
+    //TODO: Декодировать сообщения по битам, а не по пробелам
 
     //TODO: Сейчас награда добавляется в SplitByLobby, но это надо куда-то переместить и добавить выбор
 

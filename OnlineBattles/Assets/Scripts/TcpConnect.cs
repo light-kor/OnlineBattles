@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -55,13 +56,14 @@ public class TcpConnect
     /// Отправка TCP-сообщения на сервер с добавлением разделительного знака "|".
     /// </summary>
     /// <param name="message">Текст сообщения.</param>
-    public void SendMassage(string message)
+    public void SendMessage(string message)
     {
         try
         {
             message += "|";
             byte[] Buffer = Encoding.UTF8.GetBytes((message).ToCharArray());
             client.GetStream().Write(Buffer, 0, Buffer.Length);
+            DataHolder.LastSend = DateTime.UtcNow;
         }
         catch
         {

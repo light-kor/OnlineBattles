@@ -72,17 +72,17 @@ public class OnlineGameController : MonoBehaviour
             if (DataHolder.WinFlag == 1)
             {
                 endText.text = "WIN";
-                DataHolder.ClientTCP.SendMassage("W");
+                DataHolder.ClientTCP.SendMessage("W");
             }
             else if (DataHolder.WinFlag == -1)
             {
                 endText.text = "LOSE";
-                DataHolder.ClientTCP.SendMassage("L");
+                DataHolder.ClientTCP.SendMessage("L");
             }
             else if (DataHolder.WinFlag == 2)
             {
                 endText.text = "DRAWN";
-                DataHolder.ClientTCP.SendMassage("D");
+                DataHolder.ClientTCP.SendMessage("D");
             }
             DataHolder.WinFlag = 0;
         }
@@ -105,7 +105,7 @@ public class OnlineGameController : MonoBehaviour
 
     public void AcceptExit()
     {
-        DataHolder.ClientTCP.SendMassage("C");
+        DataHolder.ClientTCP.SendMessage("C");
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 }
