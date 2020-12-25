@@ -20,6 +20,8 @@ public class Network : MonoBehaviour
 
     private void Update()
     {
+        DataHolder.ServerTime += Convert.ToInt64(Time.deltaTime * 10000 * 1000);
+
         if (DataHolder.MessageTCP.Count > 0)
         {
             string[] mes = DataHolder.MessageTCP[0].Split(' ');
@@ -226,7 +228,7 @@ public class Network : MonoBehaviour
     /// <param name="caseNotif">Выбор типа кнопки и самого уведомления на окне.</param>
     public void ShowNotif(string notif, int caseNotif) //TODO: А если будет несколько уведомлений по очереди, надо сделать очередь.
     {
-        Shield.SetActive(true);
+        Shield.SetActive(true); //TODO: При переходе между сценами связь между ссылками временно теряется и вылетает ошибка
 
         NotifButton.SetActive(false);
         StopReconnectButton.SetActive(false);

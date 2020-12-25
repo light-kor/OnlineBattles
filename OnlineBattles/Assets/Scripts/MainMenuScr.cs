@@ -22,7 +22,7 @@ public class MainMenuScr : MonoBehaviour
                 //NetworkScript.CancelGameSearch(); //TODO: Надо ли? Всё равно загружается новая сцена и всё сбросится. Если включишь, то надо убрать в функции строку с отправкой сообщения об отмене.
             }
             // Значит до этого игрок вылетел, и сейчас может восстановиться в игре
-            else if (mes[0] == "goto")
+            else if (mes[0] == "goto") //TODO: А вот это больше почему-то не работает.
             {
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[2]);
                 DataHolder.LobbyID = Convert.ToInt32(mes[3]);
@@ -125,6 +125,10 @@ public class MainMenuScr : MonoBehaviour
         MainPanel.SetActive(!MainPanel.activeSelf);
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
+
+    //TODO: Даже если нажал отмену переподключения, оно всё равно попытается через некоторое время. ПОФИКСИТЬ!!!
+
+    //TODO: Инфа о том, что противник вылетел высвечивается только если ты сам что-то нажимаешь
 
     //TODO: Проверить соответствие всех сообщений от сервера и игрока.
 

@@ -18,7 +18,7 @@ public class UDPGame : MonoBehaviour
 
     private void FixedUpdate()
     {
-        DataHolder.ServerTime += 20 * 10000; //TODO: Может будет более гладко в апдейт с умножением на deltatime
+        //DataHolder.ServerTime += 20 * 10000; //TODO: Может будет более гладко в апдейт с умножением на deltatime
     }
 
     private void Update()
