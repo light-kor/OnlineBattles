@@ -8,10 +8,13 @@ public class TcpConnect
 {
     private const int WaitForConnection = 3000;
 
+    public bool CanStartReconnect { get; set; } = false;
     private TcpClient client { get; set; }
     private Thread clientListener { get; set; }
     private NetworkStream NS { get; set; }
-    private bool ReconnectAlreadyStart { get; set; } = false;
+
+    public delegate void Notification();
+    public event Notification GetMessage;
 
     /// <summary>
     /// Создание экземпляра и попытка подключения к серверу
@@ -65,15 +68,7 @@ public class TcpConnect
             client.GetStream().Write(Buffer, 0, Buffer.Length);
             DataHolder.LastSend = DateTime.UtcNow;
         }
-        catch
-        {
-            if (!ReconnectAlreadyStart)
-            {
-                ReconnectAlreadyStart = true;
-                CloseClient();
-                DataHolder.NetworkScript.StartReconnect();
-            }
-        }
+        catch { TryStartReconnect(); }
     }
 
     /// <summary>
@@ -99,12 +94,7 @@ public class TcpConnect
             }
             catch
             {
-                if (!ReconnectAlreadyStart)
-                {
-                    ReconnectAlreadyStart = true;
-                    CloseClient();
-                    DataHolder.NetworkScript.StartReconnect();                   
-                }
+                TryStartReconnect();
                 break;
             }            
             
@@ -120,7 +110,19 @@ public class TcpConnect
                 {
                     DataHolder.MessageTCP.Add(messList[i]);
                 }
+
+                GetMessage?.Invoke();
             }
+        }
+    }
+
+    private void TryStartReconnect()
+    {
+        if (CanStartReconnect)
+        {
+            CanStartReconnect = false;
+            CloseClient();
+            DataHolder.NetworkScript.StartReconnect();
         }
     }
 

@@ -28,5 +28,5 @@ public static class DataHolder
     //"127.0.0.1" - локальный; 188.134.87.78 - общий дом
     public static string ConnectIp { get; } = "188.134.87.78";
     public static int RemotePort { get; } = 55555;
-  
+    
 }

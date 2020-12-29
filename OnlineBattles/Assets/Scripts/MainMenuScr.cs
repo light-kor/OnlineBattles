@@ -28,7 +28,7 @@ public class MainMenuScr : MonoBehaviour
                 DataHolder.LobbyID = Convert.ToInt32(mes[3]);
                 if (mes[1] == "2")
                 {                  
-                    UnityEngine.SceneManagement.SceneManager.LoadScene("UdpLVL");
+                    UnityEngine.SceneManagement.SceneManager.LoadScene("lvl2");
                 }                    
             }
             DataHolder.MessageTCPforGame.RemoveAt(0);
