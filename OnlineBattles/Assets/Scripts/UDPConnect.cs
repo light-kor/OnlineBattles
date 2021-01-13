@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -9,7 +8,7 @@ public class UDPConnect
     public bool GameOn { get; set; } = false;      
     private UdpClient client { get; set; }
     private IPEndPoint remoteIp = null;
-    //TODO: Регулярно но редко отправлять TCP сообщения, чтоб проверять наличие связи
+
     //TODO: Для всех ЮДП сообщений нужна структура: номер игры - номер лобби id - !свой id в бд! - номер игрока в лобби - сообщение
     public UDPConnect()
     {        

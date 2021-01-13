@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -13,19 +14,19 @@ public class Network : MonoBehaviour
 
     private const float TimeForWaitAnswer = 3f;
     private bool TryRecconect { get; set; } = true;
+    public Stopwatch stopWatch = new Stopwatch();
 
     void Awake()
     {
-        DataHolder.NetworkScript = this;       
+        DataHolder.NetworkScript = this;     
     }
 
     private void Update()
     {
-        DataHolder.ServerTime += Convert.ToInt64(Time.deltaTime * 10000 * 1000);
+        //DataHolder.ServerTime += Convert.ToInt64(Time.deltaTime * 10000 * 1000);
         if (DataHolder.MessageTCP.Count > 0)
         {
             string[] mes = DataHolder.MessageTCP[0].Split(' ');
-            Debug.Log($"net {DataHolder.MessageTCP[0]}");
             switch (mes[0])
             {
                 case "win":
@@ -45,6 +46,7 @@ public class Network : MonoBehaviour
 
                 case "time":
                     DataHolder.ServerTime = Convert.ToInt64(mes[1]);
+                    stopWatch.Start();
                     break;
 
                 default:
@@ -347,6 +349,12 @@ public class Network : MonoBehaviour
 
     public void SOS()
     {
-        Debug.Log("sosi");
+        UnityEngine.Debug.Log("sosi");
+    }
+
+    //TODO: Очистка всего, связанного  с соединениями, и тем, что создано в этом скрипте
+    void Clear()
+    {
+        stopWatch.Stop();
     }
 }

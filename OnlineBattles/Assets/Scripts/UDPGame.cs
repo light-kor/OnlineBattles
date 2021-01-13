@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class UDPGame : MonoBehaviour
 {
+    private const int delay = 100 * 10000; // 100ms для интерполяции
     public Joystick joystick;
     public GameObject me, enemy;
     public float UpdateRate = 0.05f; //TODO: Как часто клиенты должны слать свои изменения. Надо  как-то чекать это на стороне сервра. Чтоб нельзя было так читерить.
@@ -14,11 +15,6 @@ public class UDPGame : MonoBehaviour
         InvokeRepeating("SendJoy", 1.0f, UpdateRate);
         DataHolder.ClientTCP.SendMessage("start");
         DataHolder.ClientUDP.SendMessage("start"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
-    }
-
-    private void FixedUpdate()
-    {
-        //DataHolder.ServerTime += 20 * 10000; //TODO: Может будет более гладко в апдейт с умножением на deltatime
     }
 
     private void Update()
@@ -57,7 +53,7 @@ public class UDPGame : MonoBehaviour
 
             long time = Convert.ToInt64(frame1[0]);
             long time2 = Convert.ToInt64(frame2[0]);
-            long vrem = DataHolder.ServerTime - (100 * 10000); //TODO: Вынести константу
+            long vrem = DataHolder.ServerTime - delay + DataHolder.NetworkScript.stopWatch.ElapsedTicks;
 
             if (time < vrem && vrem < time2)
             {
