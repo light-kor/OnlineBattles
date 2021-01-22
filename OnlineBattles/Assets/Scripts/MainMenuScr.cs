@@ -32,7 +32,8 @@ public class MainMenuScr : MonoBehaviour
             {
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[2]);
                 DataHolder.LobbyID = Convert.ToInt32(mes[3]);
-                if (mes[1] == "2")
+                DataHolder.SelectedServerGame = Convert.ToInt32(mes[1]);
+                if (DataHolder.SelectedServerGame == 2)
                 {                  
                     UnityEngine.SceneManagement.SceneManager.LoadScene("lvl2");
                 }                    
@@ -131,6 +132,10 @@ public class MainMenuScr : MonoBehaviour
         MainPanel.SetActive(!MainPanel.activeSelf);
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
+
+    //TODO: Присылать инфу о том, что противник отключился не только если игрок сам что-то делает, а сразу после истечения таймера
+
+    //TODO: Переделать все листы в Queue млм подобное, что не так трудозатратно
 
     //TODO: Если чел вышел из игры во время матча, то сервер говорит второму, что тот выиграл. Но надо ещё добавить, чтоб сразу дисконнектить первого с сервера.
 

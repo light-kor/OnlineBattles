@@ -25,7 +25,6 @@ public class UDPGame : MonoBehaviour
         if (DataHolder.MessageTCPforGame.Count > 0 && _gameOn)
         {
             string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
-            Debug.Log($"game {DataHolder.MessageTCPforGame[0]}");
             if (mes[0] == "info")
             {
                 me.transform.position = new Vector2(float.Parse(mes[2]), float.Parse(mes[3]));

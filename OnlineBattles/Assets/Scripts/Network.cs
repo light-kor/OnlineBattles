@@ -69,6 +69,11 @@ public static class Network
     /// </summary>
     public static void CreateUDP()
     {
+        if (DataHolder.ClientUDP != null)
+        {
+            DataHolder.ClientUDP.CloseClient();
+            DataHolder.ClientUDP = null;
+        }
         DataHolder.ClientUDP = new UDPConnect();
     }
 

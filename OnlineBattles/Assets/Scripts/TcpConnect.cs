@@ -108,7 +108,6 @@ public class TcpConnect
 
                 for (int i = 0; i < messList.Count; i++)
                 {
-                    Debug.Log("mes: " + messList[i]);
                     DataHolder.MessageTCP.Add(messList[i]);
                     GetMessage?.Invoke();
                 }               
