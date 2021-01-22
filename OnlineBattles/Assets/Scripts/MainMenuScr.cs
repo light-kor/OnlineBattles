@@ -5,12 +5,18 @@ using UnityEngine.UI;
 
 public class MainMenuScr : MonoBehaviour
 {
+    public static event DataHolder.GameNotification ShowGameNotification;
     public Text Money, ID;
     public GameObject MainPanel, LvlPanel;
     private string lvlName { get; set; } = "";
 
+    private void Start()
+    {
+        Network.TcpConnectionIsDone += GoToMultiplayerMenu;
+    }
+
     void Update()
-    {         
+    {       
         if (DataHolder.MessageTCPforGame.Count > 0)
         {
             string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
@@ -19,7 +25,7 @@ public class MainMenuScr : MonoBehaviour
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[1]);
                 DataHolder.LobbyID = Convert.ToInt32(mes[2]);
                 UnityEngine.SceneManagement.SceneManager.LoadScene(lvlName);
-                //NetworkScript.CancelGameSearch(); //TODO: Надо ли? Всё равно загружается новая сцена и всё сбросится. Если включишь, то надо убрать в функции строку с отправкой сообщения об отмене.
+                DataHolder.NotifPanels.NotificatonMultyButton(0);
             }
             // Значит до этого игрок вылетел, и сейчас может восстановиться в игре
             else if (mes[0] == "goto") //TODO: А вот это больше почему-то не работает.
@@ -50,7 +56,7 @@ public class MainMenuScr : MonoBehaviour
         else if (DataHolder.GameType == 3)
         {
             //TODO: Добавить анимацию ожидания.
-            DataHolder.NetworkScript.ShowNotif("Поиск игры", 3);
+            ShowGameNotification?.Invoke("Поиск игры", 3);
             lvlName = "lvl" + lvlNum;
             DataHolder.ClientTCP.SendMessage($"game {lvlNum}");           
         }
@@ -80,7 +86,7 @@ public class MainMenuScr : MonoBehaviour
     public async void SelectMultiplayerGame()
     {
         if (!DataHolder.Connected)
-            DataHolder.NetworkScript.CreateTCP();
+            Network.CreateTCP();
         else
         {
             // Если сеть была, но отлетела, то после Check выполнится Network.StartReconnect.
@@ -99,7 +105,7 @@ public class MainMenuScr : MonoBehaviour
         if (DataHolder.Connected)
         {
             DataHolder.GameType = 3;
-            DataHolder.NetworkScript.NotificatonMultyButton(1);
+            DataHolder.NotifPanels.NotificatonMultyButton(1);
             MoveMenuPanels();
             GetMoney();
         }
@@ -125,6 +131,10 @@ public class MainMenuScr : MonoBehaviour
         MainPanel.SetActive(!MainPanel.activeSelf);
         LvlPanel.SetActive(!LvlPanel.activeSelf);
     }
+
+    //TODO: Если чел вышел из игры во время матча, то сервер говорит второму, что тот выиграл. Но надо ещё добавить, чтоб сразу дисконнектить первого с сервера.
+
+    //TODO: Перед каждой игрой чистить лист сообщений юдп
 
     //TODO: Если вырубить сервер, то бесконечно на экране будет пустое уведомление, которое не убрать. Переработать  уведомления и кнопки
 

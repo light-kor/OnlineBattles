@@ -787,7 +787,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1632653836}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Network, Assembly-CSharp
         m_MethodName: NotificatonMultyButton
         m_Mode: 3
@@ -2282,7 +2282,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1632653833}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebff971ec38435547b5cc3b55c088f5b, type: 3}
+  m_Script: {fileID: 11500000, guid: 1b9af8d30a566264d84c0290889a3be1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   NotifPanel: {fileID: 26039321}
@@ -2974,7 +2974,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1632653836}
+      objectReference: {fileID: 0}
     - target: {fileID: 3202640061564113783, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
@@ -3010,6 +3010,11 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 4918756428584926444, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: NotificationPanels, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -3029,6 +3034,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5385520881590055342, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: NotificationPanels, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 7513740709670206042, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
@@ -3054,6 +3064,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7825454323598363675, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: NotificationPanels, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 8551085286020075573, guid: b6e4caf061445534bbdf7e6401303352,
         type: 3}
@@ -3194,6 +3209,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8551085287162685294, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: NotificationPanels, Assembly-CSharp
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b6e4caf061445534bbdf7e6401303352, type: 3}

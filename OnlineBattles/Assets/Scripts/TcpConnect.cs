@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UnityEngine;
 
 public class TcpConnect
 {
@@ -13,8 +14,7 @@ public class TcpConnect
     private Thread clientListener { get; set; }
     private NetworkStream NS { get; set; }
 
-    public delegate void Notification();
-    public event Notification GetMessage;
+    public event DataHolder.Notification GetMessage;
 
     /// <summary>
     /// Создание экземпляра и попытка подключения к серверу
@@ -108,10 +108,10 @@ public class TcpConnect
 
                 for (int i = 0; i < messList.Count; i++)
                 {
+                    Debug.Log("mes: " + messList[i]);
                     DataHolder.MessageTCP.Add(messList[i]);
-                }
-
-                GetMessage?.Invoke();
+                    GetMessage?.Invoke();
+                }               
             }
         }
     }
@@ -122,7 +122,7 @@ public class TcpConnect
         {
             CanStartReconnect = false;
             CloseClient();
-            DataHolder.NetworkScript.StartReconnect();
+            Network.StartReconnect();
         }
     }
 

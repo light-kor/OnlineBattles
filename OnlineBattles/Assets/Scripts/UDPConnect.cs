@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UnityEngine;
 
 public class UDPConnect
 {
@@ -45,7 +46,8 @@ public class UDPConnect
             {
                 byte[] data = client.Receive(ref remoteIp);
                 string messList = Encoding.UTF8.GetString(data);
-                DataHolder.MessageUDPget.Add(messList);               
+                DataHolder.MessageUDPget.Add(messList);
+                Debug.Log("GetUDP");
             }
             catch { TryReconnect(); }
         }

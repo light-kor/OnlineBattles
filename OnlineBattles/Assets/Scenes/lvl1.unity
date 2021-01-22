@@ -249,7 +249,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   endPanel: {fileID: 113927612}
   fastExitPanel: {fileID: 1469504035}
-  notifPanel: {fileID: 1765536542}
+  notifPanel: {fileID: 0}
+  Shield: {fileID: 0}
   endText: {fileID: 1247111045}
 --- !u!4 &501948324
 Transform:
@@ -1804,17 +1805,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: NotificationPanel
       objectReference: {fileID: 0}
+    - target: {fileID: 8551085286020075574, guid: b6e4caf061445534bbdf7e6401303352,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b6e4caf061445534bbdf7e6401303352, type: 3}
 --- !u!224 &1765536541 stripped
 RectTransform:
-  m_CorrespondingSourceObject: {fileID: 7519688601630405237, guid: b6e4caf061445534bbdf7e6401303352,
-    type: 3}
-  m_PrefabInstance: {fileID: 1765536540}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1765536542 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7519688601630405238, guid: b6e4caf061445534bbdf7e6401303352,
+  m_CorrespondingSourceObject: {fileID: 8551085286020075573, guid: b6e4caf061445534bbdf7e6401303352,
     type: 3}
   m_PrefabInstance: {fileID: 1765536540}
   m_PrefabAsset: {fileID: 0}
@@ -1999,7 +1999,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8473077eac98964e991cd6997c9623a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  time: 30
 --- !u!114 &2023734635
 MonoBehaviour:
   m_ObjectHideFlags: 0
