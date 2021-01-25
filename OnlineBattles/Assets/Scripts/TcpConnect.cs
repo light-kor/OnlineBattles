@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using UnityEngine;
 
 public class TcpConnect
 {
+    public event DataHolder.Notification GetMessage;
+
     private const int WaitForConnection = 3000;
 
-    public bool CanStartReconnect { get; set; } = false;
-    private TcpClient client { get; set; }
-    private Thread clientListener { get; set; }
+    public bool _canStartReconnect { get; set; } = false;
+    private TcpClient _client { get; set; }
+    private Thread _clientListener { get; set; }
     private NetworkStream NS { get; set; }
-
-    public event DataHolder.Notification GetMessage;
 
     /// <summary>
     /// Создание экземпляра и попытка подключения к серверу
@@ -31,15 +30,15 @@ public class TcpConnect
 
         try
         {
-            client = new TcpClient();
-            var result = client.BeginConnect(DataHolder.ConnectIp, DataHolder.RemotePort, null, null);
+            _client = new TcpClient();
+            var result = _client.BeginConnect(DataHolder.ConnectIp, DataHolder.RemotePort, null, null);
             if (result.AsyncWaitHandle.WaitOne(WaitForConnection, true))
             {
-                client.EndConnect(result);
+                _client.EndConnect(result);
 
-                clientListener = new Thread(ReceivingMessagesLoop);
-                clientListener.Start();
-                clientListener.IsBackground = true;
+                _clientListener = new Thread(ReceivingMessagesLoop);
+                _clientListener.Start();
+                _clientListener.IsBackground = true;
                 DataHolder.Connected = true;
             }
             else
@@ -65,7 +64,7 @@ public class TcpConnect
         {
             message += "|";
             byte[] Buffer = Encoding.UTF8.GetBytes((message).ToCharArray());
-            client.GetStream().Write(Buffer, 0, Buffer.Length);
+            _client.GetStream().Write(Buffer, 0, Buffer.Length);
             DataHolder.LastSend = DateTime.UtcNow;
         }
         catch { TryStartReconnect(); }
@@ -77,7 +76,7 @@ public class TcpConnect
     /// </summary>
     private void ReceivingMessagesLoop()
     {
-        NS = client.GetStream();
+        NS = _client.GetStream();
         while (true)
         {           
             List<byte> Buffer = new List<byte>();
@@ -117,9 +116,9 @@ public class TcpConnect
 
     private void TryStartReconnect()
     {
-        if (CanStartReconnect)
+        if (_canStartReconnect)
         {
-            CanStartReconnect = false;
+            _canStartReconnect = false;
             CloseClient();
             Network.StartReconnect();
         }
@@ -130,11 +129,11 @@ public class TcpConnect
     /// </summary>
     public void CloseClient() //TODO: Добавить этот вызов на кнопку выхода из приложения
     {       
-        if (client != null)
+        if (_client != null)
         {
-            client.LingerState = new LingerOption(true, 0); //Чтоб он не ожидал.
-            client.Close();
-            client = null;
+            _client.LingerState = new LingerOption(true, 0); //Чтоб он не ожидал.
+            _client.Close();
+            _client = null;
         }
         if (NS != null)
         {

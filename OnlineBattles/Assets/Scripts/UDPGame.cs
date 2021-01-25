@@ -1,27 +1,26 @@
 ﻿using System;
 using UnityEngine;
 
-public class UDPGame : MonoBehaviour
+public class UDPGame : OnlineGameTemplate
 {
-    private const int delay = 100 * 10000; // 100ms для интерполяции
+    
     public Joystick joystick;
     public GameObject me, enemy;
     public float UpdateRate = 0.05f; //TODO: Как часто клиенты должны слать свои изменения. Надо  как-то чекать это на стороне сервра. Чтоб нельзя было так читерить.
     private float buffX = 0, buffY = 0;
-    private bool _finishTheGame = false;
-    private bool _gameOn = true;
-
-    private void Start()
+    
+    
+    protected override void Start()
     {
-        DataHolder.game = this;
-        Network.CreateUDP();       
+        base.Start();
         InvokeRepeating("SendJoy", 1.0f, UpdateRate);
-        DataHolder.ClientTCP.SendMessage("start");
-        DataHolder.ClientUDP.SendMessage("start"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
     }
+
 
     private void Update()
     {
+        BaseOnlineFunctions();
+
         if (DataHolder.MessageTCPforGame.Count > 0 && _gameOn)
         {
             string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
@@ -40,25 +39,10 @@ public class UDPGame : MonoBehaviour
             _finishTheGame = false;
         }
             
-
         UpdateThread();
     }
 
-    public void FinishTheGame()
-    {
-        _finishTheGame = true;
-    }
-
-    //private void UpdateWorld()
-    //{
-    //    //TODO: А если накопилось уже больше одного, то мб стоит удалить несколько или обработать несколько с плавным переходом
-    //    string[] frame1 = DataHolder.MessageUDPget[0].Split(' ');
-    //    string[] frame2 = DataHolder.MessageUDPget[1].Split(' ');
-
-    //    me.transform.position = new Vector2(float.Parse(frame1[1]), float.Parse(frame1[2]));
-    //    enemy.transform.position = new Vector2(float.Parse(frame1[3]), float.Parse(frame1[4]));
-    //}
-
+    
     private void UpdateThread()
     {
         if (DataHolder.MessageUDPget.Count > 1 && _gameOn)
@@ -68,7 +52,7 @@ public class UDPGame : MonoBehaviour
 
             long time = Convert.ToInt64(frame1[0]);
             long time2 = Convert.ToInt64(frame2[0]);
-            long vrem = DateTime.UtcNow.Ticks + DataHolder.TimeDifferenceWithServer - delay;
+            long vrem = DateTime.UtcNow.Ticks + DataHolder.TimeDifferenceWithServer - _delay;
 
             if (time < vrem && vrem < time2)
             {
@@ -92,31 +76,5 @@ public class UDPGame : MonoBehaviour
         {
             DataHolder.ClientUDP.SendMessage($"{buffX} {buffY}"); //TODO: Проверять на сервере, что число от 0 до 1
         }
-    }
-
-    private void CloseAll()
-    {
-        _gameOn = false;
-        CancelInvoke("SendJoy");
-        // Там автоматически после GameOn = false вызовется CloseClient()
-        if (DataHolder.ClientUDP != null)
-        {
-            DataHolder.ClientUDP.GameOn = false;
-            DataHolder.ClientUDP.CloseClient();
-            DataHolder.ClientUDP = null;
-        }
-    }
-
-    public void GiveUp()
-    {
-        DataHolder.ClientTCP.SendMessage("leave");
-    }
-
-    public void ExitGame()
-    {        
-        if (DataHolder.ClientUDP != null)
-            CloseAll();
-
-        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
-    }
+    }   
 }

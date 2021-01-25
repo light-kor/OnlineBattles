@@ -64,6 +64,7 @@ public class UDPConnect
             client = new UdpClient(DataHolder.ConnectIp, DataHolder.RemotePort);
             GameOn = true;
             //TODO: Игрок может отменить реконнект и игру, тогда надо будет обнулить и удалить все UDP соединения
+            //TODO: Сделать отдельную функцию выхода в меню, если ты потерял связь во время игры и не хочешь реконнкта
         }
     }
 

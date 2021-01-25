@@ -14,6 +14,7 @@ public class NotificationPanels : MonoBehaviour
     private void Awake()
     {
         DataHolder.NotifPanels = this;
+
         Network.ShowGameNotification += AddNotificationToQueue;
         MainMenuScr.ShowGameNotification += AddNotificationToQueue;
 
@@ -30,9 +31,7 @@ public class NotificationPanels : MonoBehaviour
     }
 
     private void Update()
-    {
-        Network.ConnectionLifeSupport();
-
+    {       
         if (ListOfNotification.Count > 0)
         {
             ShowNotif(ListOfNotification[0], NumOfNotification[0]);           

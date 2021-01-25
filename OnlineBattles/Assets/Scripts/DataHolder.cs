@@ -7,7 +7,6 @@ public static class DataHolder
     public static List<string> MessageTCP { get; set; } = new List<string>();
     public static List<string> MessageTCPforGame { get; set; } = new List<string>();
     public static List<string> MessageUDPget { get; set; } = new List<string>();
-    public static UDPGame game { get; set; } = null;
     public static NotificationPanels NotifPanels { get; set; } = null;
     public static TcpConnect ClientTCP { get; set; } = null;
     public static UDPConnect ClientUDP { get; set; } = null;

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
 public static class Network
 {    
     public static event DataHolder.Notification TcpConnectionIsDone;
+    public static event DataHolder.Notification EndOfGame;
     public static event DataHolder.GameNotification ShowGameNotification;
 
     private const float TimeForWaitAnswer = 3f;
@@ -26,8 +26,7 @@ public static class Network
                     case "win":
                     case "lose":
                     case "drawn":
-                        //TODO: Нужен какой-то мультивыбор скрипта ниже, а не только этот. ВОТ ТУТ И НУЖНО НАСЛЕДОВАНИЕ И ИНКАПСУЛЯЦИЯ.
-                        DataHolder.game.FinishTheGame(); //TODO: Перенести это в другое место
+                        EndOfGame?.Invoke();
                         ShowGameNotification?.Invoke("Игра завершена\r\n" + mes[0], 4);
                         break;
 
@@ -60,7 +59,7 @@ public static class Network
     public static void ConnectionLifeSupport()
     {        
         // Поддержание жизни соединения с сервером.
-        if ((DateTime.UtcNow - DataHolder.LastSend).TotalMilliseconds > 3000 && DataHolder.ClientTCP != null)
+        if (DataHolder.ClientTCP != null && (DateTime.UtcNow - DataHolder.LastSend).TotalMilliseconds > 3000)
             DataHolder.ClientTCP.SendMessage("Check");
     }
 
@@ -113,7 +112,7 @@ public static class Network
         else
         {
             TcpConnectionIsDone?.Invoke();
-            DataHolder.ClientTCP.CanStartReconnect = true;
+            DataHolder.ClientTCP._canStartReconnect = true;
         }
     }
 
@@ -180,7 +179,7 @@ public static class Network
 
             // При полном успехе
             DataHolder.NotifPanels.NotificatonMultyButton(10);
-            DataHolder.ClientTCP.CanStartReconnect = true;
+            DataHolder.ClientTCP._canStartReconnect = true;
         }
         TryRecconect = true;
     }  
