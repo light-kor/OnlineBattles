@@ -74,7 +74,7 @@ public class UDPGame : OnlineGameTemplate
         buffY = joystick.Vertical;
         if (buffX != 0 && buffY != 0)
         {
-            DataHolder.ClientUDP.SendMessage($"{buffX} {buffY}"); //TODO: Проверять на сервере, что число от 0 до 1
+            DataHolder.ClientUDP.SendMessage($"{buffX} {buffY}", true); //TODO: Проверять на сервере, что число от 0 до 1
         }
     }   
 }

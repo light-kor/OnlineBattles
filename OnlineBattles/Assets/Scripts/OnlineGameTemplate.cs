@@ -9,10 +9,10 @@ public class OnlineGameTemplate : MonoBehaviour
     protected virtual void Start()
     {
         Network.EndOfGame += FinishTheGame;
-        Network.CreateUDP(null);
+        Network.CreateUDP("game");
         DataHolder.MessageUDPget.Clear();
         DataHolder.ClientTCP.SendMessage("start");
-        DataHolder.ClientUDP.SendMessage("start"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
+        DataHolder.ClientUDP.SendMessage("start", true); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
     }
 
     protected void BaseOnlineFunctions()

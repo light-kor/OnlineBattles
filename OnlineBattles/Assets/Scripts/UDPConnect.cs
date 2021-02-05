@@ -7,59 +7,72 @@ using UnityEngine;
 
 public class UDPConnect
 {
-    public event DataHolder.Notification GetUdpMessage;
+    public static event DataHolder.Notification GetWifiServer;
+    public static event DataHolder.GameNotification ShowGameNotification;
     public bool Working { get; set; } = true;
-    private static UdpClient _client { get; set; }
     public IPEndPoint remoteIp = null;
-
+    private static UdpClient _client { get; set; }
+    
     private Thread _receiveThread;
     private string _ip = null;
     private int _port = 0;
-    private string _typeOfUDP;
+    private string _typeOfUDP = null;
 
     //TODO: Для всех ЮДП сообщений нужна структура: номер игры - номер лобби id - !свой id в бд! - номер игрока в лобби - сообщение
+    public UDPConnect()
+    {
+        if (DataHolder.GameType == 3)
+            _ip = DataHolder.ServerIp;           
+        else if (DataHolder.GameType == 2)
+            _ip = DataHolder.WifiGameIp;
+
+        _port = DataHolder.RemotePort;
+        _client = new UdpClient(_ip, _port);
+        _receiveThread = new Thread(ReceivingMessagesLoop);
+
+        _receiveThread.Start();
+        _receiveThread.IsBackground = true; //TODO: Надо ли?
+    }
+
     public UDPConnect(string type)
     {
         _typeOfUDP = type;
+        _port = DataHolder.RemotePort;
+
         if (type == "broadcast")
         {
-            _ip = "255.255.255.255";
+            _client = new UdpClient(_port, AddressFamily.InterNetwork); // Можно просто порт указать, разницы нет
+            _client.Connect("255.255.255.255", _port); //TODO: Мы так устанавливаем и локальную, и удалённую точку. 
+                                                       // Чтоб потом принимать по нужному порту сообщения после закрытия.
+                                                       // Закрывать нужно тк нельзя принимать сокетом broadcast
+            SendMessage("server?");
 
-            _port = 55550;
-            _client = new UdpClient(_ip, _port);
-            _receiveThread = new Thread(ReceivingBroadcastAnswers);
-        }
-        else if (type == "server")
-        {
-            _port = 55550;
+            _client.Close();
             _client = new UdpClient(_port);
-            _receiveThread = new Thread(ReceivingBroadcastAnswers);
         }
-        else
-        {
-            if (DataHolder.GameType == 3)
-            {
-                _ip = DataHolder.ServerIp;
-                _port = DataHolder.RemotePort;
-            }
-            else if (DataHolder.GameType == 2)
-            {
-                _ip = DataHolder.WifiGameIp;
-                _port = DataHolder.RemoteWifiPort;
-            }
-            _client = new UdpClient(_ip, _port);
-            _receiveThread = new Thread(ReceivingMessagesLoop);
-        }
+        else if (type == "server")       
+            _client = new UdpClient(_port);           
 
+        _receiveThread = new Thread(ReceivingBroadcastAnswers);
         _receiveThread.Start();
         _receiveThread.IsBackground = true;
+    }
+   
+    public void SendMessage(string mes)
+    {
+        try
+        {
+            byte[] data = Encoding.UTF8.GetBytes(mes);
+            _client.Send(data, data.Length);
+        }
+        catch { TryReconnect(); }
     }
 
     /// <summary>
     /// Отправка пользовательских UDP сообщений с добавлением "метаданных".
     /// </summary>
     /// <param name="mes">Текст сообщения.</param>
-    public void SendMessage(string mes)
+    public void SendMessage(string mes, bool online)
     {
         try
         {
@@ -102,31 +115,19 @@ public class UDPConnect
         {
             try
             {
-                byte[] data = _client.Receive(ref remoteIp);
+                byte[] data = _client.Receive(ref remoteIp);                
                 string messList = Encoding.UTF8.GetString(data);
+
+                Debug.Log(messList);
+                ShowGameNotification?.Invoke("Сообщение!\r\n" + messList, 1);
+
                 if (ReplyToRequest(messList))
                     continue;
-                DataHolder.MessageUDPget.Add($"{messList} {remoteIp.Address} {remoteIp.Port}");
-                GetUdpMessage?.Invoke();
-                asfj();
-            }
-            catch (Exception ex)
-            {
-                Debug.Log(ex);
-                TryReconnect(); }
-        }
-    }
 
-    private void asfj()
-    {
-        while (DataHolder.MessageUDPget.Count > 0)
-        {
-            string[] mes = DataHolder.MessageUDPget[0].Split(' ');
-            if (mes[0] == "server")
-            {
-                Debug.Log("Server: " + mes[1]);
+                DataHolder.MessageUDPget.Add($"{messList} {remoteIp.Address} {remoteIp.Port}");
+                GetWifiServer?.Invoke();
             }
-            DataHolder.MessageUDPget.RemoveAt(0);
+            catch { TryReconnect(); }
         }
     }
 
@@ -135,7 +136,6 @@ public class UDPConnect
         if (message == "server?")
         {
             DataHolder.ClientUDP.SendMessage("server", remoteIp);
-            Debug.Log("Request from: " + remoteIp.Address);
             return true;
         }
         else return false;

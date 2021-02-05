@@ -78,7 +78,10 @@ public static class Network
             DataHolder.ClientUDP.CloseClient();
             DataHolder.ClientUDP = null;
         }
-        DataHolder.ClientUDP = new UDPConnect(type);
+
+        if (type == "game")
+            DataHolder.ClientUDP = new UDPConnect();
+        else DataHolder.ClientUDP = new UDPConnect(type);
     }
 
     /// <summary>
@@ -235,76 +238,4 @@ public static class Network
 
     }
 
-    //public static async void SearchingServer()
-    //{
-    //    int PORT = 9876;
-    //    UdpClient udpClient = new UdpClient();
-    //    udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, PORT));
-    //    var data = Encoding.UTF8.GetBytes("server?");
-    //    var from = new IPEndPoint(0, 0);
-
-    //    udpClient.Send(data, data.Length, "255.255.255.255", PORT);
-
-    //    await Task.Run(() =>
-    //    {
-    //        while (true)
-    //        {
-    //            var recvBuffer = udpClient.Receive(ref from);
-    //            Debug.Log(Encoding.UTF8.GetString(recvBuffer) + " " + from);
-    //        }
-    //    });       
-    //}
-
-    //public static async void WaitForClients()
-    //{
-    //    int PORT = 9876;
-    //    UdpClient udpClient = new UdpClient();
-    //    udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, PORT));
-    //    var data = Encoding.UTF8.GetBytes("server");
-    //    var from = new IPEndPoint(0, 0);
-
-    //    Thread receiveThread = new Thread(Read);
-    //    receiveThread.Start();
-    //}
-
-    //private static void ReadingAnsswer()
-    //{
-    //    while (WaitBroadcastAnswer)
-    //    {
-    //        var recvBuffer = udpClient.Receive(ref from);
-    //        Debug.Log(Encoding.UTF8.GetString(recvBuffer) + " " + from);
-    //        udpClient.Send(data, data.Length, from);
-    //    }
-    //}
-
-    public static void SearchingServer()
-    {
-        CreateUDP("broadcast");
-        DataHolder.ClientUDP.SendMessage("server?");
-
-        //await Task.Run(() =>
-        //{
-        //    while (true)
-        //    {
-        //        if (DataHolder.MessageUDPget.Count > 0)
-        //        {
-        //            string[] mes = DataHolder.MessageUDPget[0].Split(' ');
-        //            if (mes[0] == "server")
-        //            {
-        //                Debug.Log("Server: " + mes[1]);
-        //            }
-        //            DataHolder.MessageUDPget.RemoveAt(0);
-        //        }
-        //    }
-        //});
-    }
-
-    public static void WaitForClients()
-    {
-        CreateUDP("server");
-    }
-
-
-
-    // cd C:\Program Files\Unity\Hub\Editor\2020.1.8f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\platform-tools
 }

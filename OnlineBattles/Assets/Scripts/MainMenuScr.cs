@@ -16,6 +16,7 @@ public class MainMenuScr : MonoBehaviour
     {
         Host_Server.AcceptOpponent += ShowOpponentName;
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
+        UDPConnect.GetWifiServer += SearchingServers;
         ActivateMenuPanel();
     }
 
@@ -66,6 +67,19 @@ public class MainMenuScr : MonoBehaviour
             ShowGameNotification?.Invoke("Поиск игры", 3);
             lvlName = "lvl" + lvlNum;
             DataHolder.ClientTCP.SendMessage($"game {lvlNum}");           
+        }
+    }
+
+    private void SearchingServers()
+    {
+        while (DataHolder.MessageUDPget.Count > 0)
+        {
+            string[] mes = DataHolder.MessageUDPget[0].Split(' ');
+            if (mes[0] == "server")
+            {
+                Debug.Log("Server: " + mes[1]);
+            }
+            DataHolder.MessageUDPget.RemoveAt(0);
         }
     }
 
@@ -141,15 +155,18 @@ public class MainMenuScr : MonoBehaviour
 
     public void SetHost()
     {
-        Host_Server.StartHosting();
-        Network.WaitForClients();
+        Network.CreateUDP("server");
+        //Host_Server.StartHosting();       
         ActivateLvlPanel();
     }
 
     public void ConnectToWifi()
     {
-        Network.SearchingServer();
-        //Network.CreateTCP();       
+        Network.CreateUDP("broadcast");
+        //DataHolder.ClientUDP.SendMessage("server?");
+
+        //Network.CreateTCP();      
+        DeactivatePanels();
     }
 
     public void StopListener()
