@@ -9,7 +9,7 @@ public class OnlineGameTemplate : MonoBehaviour
     protected virtual void Start()
     {
         Network.EndOfGame += FinishTheGame;
-        Network.CreateUDP();
+        Network.CreateUDP(null);
         DataHolder.MessageUDPget.Clear();
         DataHolder.ClientTCP.SendMessage("start");
         DataHolder.ClientUDP.SendMessage("start"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
@@ -39,7 +39,7 @@ public class OnlineGameTemplate : MonoBehaviour
         // Там автоматически после GameOn = false вызовется CloseClient()
         if (DataHolder.ClientUDP != null)
         {
-            DataHolder.ClientUDP.GameOn = false;
+            DataHolder.ClientUDP.Working = false;
             DataHolder.ClientUDP.CloseClient();
             DataHolder.ClientUDP = null;
         }

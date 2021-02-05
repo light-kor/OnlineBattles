@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class NotificationPanels : MonoBehaviour
 {
-    public GameObject NotifPanel, NotifButton, StopReconnectButton, CancelSearchButton, CloseEndGameButton;
+    public GameObject NotifPanel, NotifButton, StopReconnectButton, CancelSearchButton, CloseEndGameButton, AcceptOpponent, CancelOpponent;
     public GameObject Shield; // Блокирует нажатия на все кнопки, кроме notifPanel
 
     public static List<string> ListOfNotification = new List<string>();
@@ -17,6 +17,7 @@ public class NotificationPanels : MonoBehaviour
 
         Network.ShowGameNotification += AddNotificationToQueue;
         MainMenuScr.ShowGameNotification += AddNotificationToQueue;
+        Host_Server.FoundOnePlayer += AddNotificationToQueue;
 
         //TODO: Следующие две строчки - это костыль от Таблички "Поиск новый игры" 
         //в начале сцены тк запрос с опоздание переходит с прошлой сцены в эту, если игра нашлась слишком быстро
@@ -69,6 +70,15 @@ public class NotificationPanels : MonoBehaviour
                 SceneManager.LoadScene("mainMenu");
                 break;
 
+            case 50: // Искать другого противника по wifi
+            case 51: // Принять противника по wifi?
+                AcceptOpponent.SetActive(false);
+                CancelOpponent.SetActive(false);
+                if (num == 50)
+                    Host_Server.OpponentStatus = "cancel";
+                else Host_Server.OpponentStatus = "accept";
+                break;
+
             case 0: // Выключение всех
                 NotifButton.SetActive(false);
                 CancelSearchButton.SetActive(false);
@@ -98,6 +108,8 @@ public class NotificationPanels : MonoBehaviour
         StopReconnectButton.SetActive(false);
         CancelSearchButton.SetActive(false);
         CloseEndGameButton.SetActive(false);
+        AcceptOpponent.SetActive(false);
+        CancelOpponent.SetActive(false);
 
         if (caseNotif == 1)
             NotifButton.SetActive(true);
@@ -107,6 +119,12 @@ public class NotificationPanels : MonoBehaviour
             CancelSearchButton.SetActive(true);
         else if (caseNotif == 4)
             CloseEndGameButton.SetActive(true);
+        else if (caseNotif == 5)
+        {
+            AcceptOpponent.SetActive(true);
+            CancelOpponent.SetActive(true);
+        }
+            
 
         NotifPanel.transform.Find("Text").GetComponent<Text>().text = notif;
         NotifPanel.SetActive(true);

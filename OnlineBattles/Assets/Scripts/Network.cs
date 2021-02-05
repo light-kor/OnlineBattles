@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
 public static class Network
 {    
@@ -12,6 +16,7 @@ public static class Network
     public static bool TryRecconect { get; set; } = true;
     private static bool WaitingForLogin = true;
     private static bool MessageHandlerIsBusy = false;
+    private static bool WaitBroadcastAnswer = true;
 
     private static void MessageHandler()
     {
@@ -66,14 +71,14 @@ public static class Network
     /// <summary>
     /// Создание экземпляра ClientUDP и установка UDP "соединения".
     /// </summary>
-    public static void CreateUDP()
+    public static void CreateUDP(string type)
     {
         if (DataHolder.ClientUDP != null)
         {
             DataHolder.ClientUDP.CloseClient();
             DataHolder.ClientUDP = null;
         }
-        DataHolder.ClientUDP = new UDPConnect();
+        DataHolder.ClientUDP = new UDPConnect(type);
     }
 
     /// <summary>
@@ -121,7 +126,13 @@ public static class Network
     /// </summary>
     private static void LoginInServerSystem()
     {
-        DataHolder.ClientTCP.SendMessage("login " + DataHolder.KeyCodeName);
+        if (DataHolder.GameType == 3)
+            DataHolder.ClientTCP.SendMessage("login " + DataHolder.KeyCodeName);
+        else if (DataHolder.GameType == 2)
+        {
+            DataHolder.ClientTCP.SendMessage("name" + DataHolder.NickName);
+            return;
+        }
 
         DateTime StartTryConnect = DateTime.Now;
         //TODO: При этом, пока телефон думает, пусть в углу будет гифка загрузки, чтоб пользователь понимал, что что-то происходит
@@ -223,4 +234,77 @@ public static class Network
     {
 
     }
+
+    //public static async void SearchingServer()
+    //{
+    //    int PORT = 9876;
+    //    UdpClient udpClient = new UdpClient();
+    //    udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, PORT));
+    //    var data = Encoding.UTF8.GetBytes("server?");
+    //    var from = new IPEndPoint(0, 0);
+
+    //    udpClient.Send(data, data.Length, "255.255.255.255", PORT);
+
+    //    await Task.Run(() =>
+    //    {
+    //        while (true)
+    //        {
+    //            var recvBuffer = udpClient.Receive(ref from);
+    //            Debug.Log(Encoding.UTF8.GetString(recvBuffer) + " " + from);
+    //        }
+    //    });       
+    //}
+
+    //public static async void WaitForClients()
+    //{
+    //    int PORT = 9876;
+    //    UdpClient udpClient = new UdpClient();
+    //    udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, PORT));
+    //    var data = Encoding.UTF8.GetBytes("server");
+    //    var from = new IPEndPoint(0, 0);
+
+    //    Thread receiveThread = new Thread(Read);
+    //    receiveThread.Start();
+    //}
+
+    //private static void ReadingAnsswer()
+    //{
+    //    while (WaitBroadcastAnswer)
+    //    {
+    //        var recvBuffer = udpClient.Receive(ref from);
+    //        Debug.Log(Encoding.UTF8.GetString(recvBuffer) + " " + from);
+    //        udpClient.Send(data, data.Length, from);
+    //    }
+    //}
+
+    public static void SearchingServer()
+    {
+        CreateUDP("broadcast");
+        DataHolder.ClientUDP.SendMessage("server?");
+
+        //await Task.Run(() =>
+        //{
+        //    while (true)
+        //    {
+        //        if (DataHolder.MessageUDPget.Count > 0)
+        //        {
+        //            string[] mes = DataHolder.MessageUDPget[0].Split(' ');
+        //            if (mes[0] == "server")
+        //            {
+        //                Debug.Log("Server: " + mes[1]);
+        //            }
+        //            DataHolder.MessageUDPget.RemoveAt(0);
+        //        }
+        //    }
+        //});
+    }
+
+    public static void WaitForClients()
+    {
+        CreateUDP("server");
+    }
+
+
+
+    // cd C:\Program Files\Unity\Hub\Editor\2020.1.8f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\platform-tools
 }

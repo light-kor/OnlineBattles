@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,12 +8,15 @@ public class MainMenuScr : MonoBehaviour
 {
     public static event DataHolder.GameNotification ShowGameNotification;
     public Text Money, ID;
-    public GameObject MainPanel, LvlPanel;
+    public TMP_Text opponent;
+    public GameObject MainPanel, LvlPanel, WifiPanel;
     private string lvlName { get; set; } = "";
 
     private void Start()
     {
-        Network.TcpConnectionIsDone += GoToMultiplayerMenu;
+        Host_Server.AcceptOpponent += ShowOpponentName;
+        Network.TcpConnectionIsDone += TcpConnectionIsReady;
+        ActivateMenuPanel();
     }
 
     void Update()
@@ -71,7 +75,7 @@ public class MainMenuScr : MonoBehaviour
     public void SelectSingleGame()
     {
         DataHolder.GameType = 1;
-        MoveMenuPanels();
+        ActivateLvlPanel();
     }
 
     /// <summary>
@@ -79,8 +83,8 @@ public class MainMenuScr : MonoBehaviour
     /// </summary>
     public void SelectWifiGame()
     {
-        DataHolder.GameType = 2;
-        MoveMenuPanels();
+        DataHolder.GameType = 2;        
+        ActivateWifiPanel();
     }
 
     /// <summary>
@@ -88,6 +92,7 @@ public class MainMenuScr : MonoBehaviour
     /// </summary>
     public async void SelectMultiplayerGame()
     {
+        DataHolder.GameType = 3;
         if (!DataHolder.Connected)
             Network.CreateTCP();
         else
@@ -97,20 +102,22 @@ public class MainMenuScr : MonoBehaviour
             await Task.Delay(1000); //TODO: Надо ли?
         }
 
-        GoToMultiplayerMenu();
+        TcpConnectionIsReady();
     }
 
     /// <summary>
     /// Переход в меню выбора мультиплеерных игр, показ money и id в UI.
     /// </summary>
-    public void GoToMultiplayerMenu()
+    public void TcpConnectionIsReady()
     {
         if (DataHolder.Connected)
-        {
-            DataHolder.GameType = 3;
+        {           
             DataHolder.NotifPanels.NotificatonMultyButton(1);
-            MoveMenuPanels();
-            GetMoney();
+
+            if (DataHolder.GameType == 3)
+                ActivateLvlPanel();
+            else if (DataHolder.GameType == 2)
+                DeactivatePanels();
         }
     }
 
@@ -126,14 +133,59 @@ public class MainMenuScr : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Смена панелей с выбора типа игры, на саму игру, и обратно.
-    /// </summary>
-    private void MoveMenuPanels()
+    private void ShowOpponentName()
     {
-        MainPanel.SetActive(!MainPanel.activeSelf);
-        LvlPanel.SetActive(!LvlPanel.activeSelf);
+        opponent.gameObject.SetActive(true);
+        opponent.text = "Подключён: " + Host_Server._opponent.PlayerName;
     }
+
+    public void SetHost()
+    {
+        Host_Server.StartHosting();
+        Network.WaitForClients();
+        ActivateLvlPanel();
+    }
+
+    public void ConnectToWifi()
+    {
+        Network.SearchingServer();
+        //Network.CreateTCP();       
+    }
+
+    public void StopListener()
+    {
+        Host_Server.Listener.Stop();
+    }
+
+
+    #region ActivatePanels
+    public void ActivateMenuPanel() // В основном для кнопки Back в меню
+    {
+        DeactivatePanels();
+        MainPanel.SetActive(true);
+    }
+
+    private void ActivateLvlPanel()
+    {
+        DeactivatePanels();
+        LvlPanel.SetActive(true);
+    }
+
+    private void ActivateWifiPanel()
+    {
+        DeactivatePanels();
+        WifiPanel.SetActive(true);
+    }
+
+    private void DeactivatePanels()
+    {
+        MainPanel.SetActive(false);
+        LvlPanel.SetActive(false);
+        WifiPanel.SetActive(false);
+    }
+    #endregion
+
+    //TODO: Сбрасывать значения в DataHolder после онлайн матча
 
     //TODO: Если ты потерял сеть во время игры, всё ли будет потом нормально? Ты сможешь продолжить играть? Будет ли ждать противник? Надо как-то отправлять подтверждение, что ты вернулся и готов
 
