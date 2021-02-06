@@ -78,6 +78,7 @@ public class MainMenuScr : MonoBehaviour
             if (mes[0] == "server")
             {
                 Debug.Log("Server: " + mes[1]);
+                ShowGameNotification?.Invoke("Сервер на: \r\n" + mes[1], 1);
             }
             DataHolder.MessageUDPget.RemoveAt(0);
         }
@@ -163,7 +164,7 @@ public class MainMenuScr : MonoBehaviour
     public void ConnectToWifi()
     {
         Network.CreateUDP("broadcast");
-        //DataHolder.ClientUDP.SendMessage("server?");
+        DataHolder.ClientUDP.SendBroadcast();
 
         //Network.CreateTCP();      
         DeactivatePanels();
