@@ -74,10 +74,7 @@ public static class Network
     public static void CreateUDP(string type)
     {
         if (DataHolder.ClientUDP != null)
-        {
             DataHolder.ClientUDP.CloseClient();
-            DataHolder.ClientUDP = null;
-        }
 
         if (type == "game")
             DataHolder.ClientUDP = new UDPConnect();

@@ -11,8 +11,8 @@ public class UDPConnect
     public static event DataHolder.GameNotification ShowGameNotification;
     public bool Working { get; set; } = true;
     public IPEndPoint remoteIp = null;
-    private static UdpClient _client { get; set; }
-    private static UdpClient _broadcastSender { get; set; }
+    private static UdpClient _client { get; set; } = null;
+    private static UdpClient _broadcastSender { get; set; } = null;
 
     private Thread _receiveThread;
     private string _ip = null;
@@ -39,7 +39,7 @@ public class UDPConnect
     {
         _typeOfUDP = type;
         _port = DataHolder.RemotePort;
-        _ip = "235.5.5.11";
+        _ip = "235.5.5.225";
 
         if (type == "multicast")
         {
@@ -49,7 +49,7 @@ public class UDPConnect
                                                        // Закрывать нужно тк нельзя принимать сокетом broadcast
 
             _broadcastSender = new UdpClient(_ip, _port);
-            _client = new UdpClient(_port);           
+            _client = new UdpClient(_port);
 
         }
         else if (type == "server")       
@@ -58,7 +58,6 @@ public class UDPConnect
         _client.JoinMulticastGroup(IPAddress.Parse(_ip), 20); //TODO: Хватит ли времени?
         _receiveThread = new Thread(ReceivingBroadcastAnswers);
         _receiveThread.Start();
-        _receiveThread.IsBackground = true;
     }
    
     public void SendBroadcast()
@@ -112,7 +111,6 @@ public class UDPConnect
             {
                 byte[] data = _client.Receive(ref remoteIp);                
                 string messList = Encoding.UTF8.GetString(data);
-
                 if (remoteIp.Address.ToString() == localAddress)
                     continue;
                 else if (ReplyToRequest(messList))
@@ -168,12 +166,14 @@ public class UDPConnect
     /// </summary>
     public void CloseClient()
     {
-        if (_client != null)
-        {
-            Working = false;
+        Working = false;
+        _receiveThread.Abort();
+
+        if (_client != null)           
             _client.Close();
-            _client = null;
-        }
+        
+        if (_broadcastSender != null)
+            _broadcastSender.Close();
     }
 
     ~UDPConnect()

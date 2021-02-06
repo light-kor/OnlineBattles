@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -167,12 +169,13 @@ public class MainMenuScr : MonoBehaviour
         DataHolder.ClientUDP.SendBroadcast();
 
         //Network.CreateTCP();      
-        DeactivatePanels();
+        //DeactivatePanels();
     }
 
     public void StopListener()
     {
-        Host_Server.Listener.Stop();
+        var localAddress = Array.Find(Dns.GetHostEntry(string.Empty).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork).ToString();
+        ShowGameNotification?.Invoke("Мой ip: \r\n" + localAddress, 1);
     }
 
 
