@@ -158,15 +158,16 @@ public class MainMenuScr : MonoBehaviour
 
     public void SetHost()
     {
-        Network.CreateUDP("server");
+        Network.CreateUDP("multicast");
+        
         //Host_Server.StartHosting();       
         ActivateLvlPanel();
     }
 
     public void ConnectToWifi()
     {
-        Network.CreateUDP("multicast");
-        DataHolder.ClientUDP.SendBroadcast();
+        Network.CreateUDP("waiting");
+        
 
         //Network.CreateTCP();      
         //DeactivatePanels();
@@ -174,8 +175,9 @@ public class MainMenuScr : MonoBehaviour
 
     public void StopListener()
     {
-        var localAddress = Array.Find(Dns.GetHostEntry(string.Empty).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork).ToString();
-        ShowGameNotification?.Invoke("Мой ip: \r\n" + localAddress, 1);
+        //var localAddress = Array.Find(Dns.GetHostEntry(string.Empty).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork).ToString();
+        //ShowGameNotification?.Invoke("Мой ip: \r\n" + localAddress, 1);
+        DataHolder.ClientUDP.CloseClient();
     }
 
 

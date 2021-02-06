@@ -8,13 +8,12 @@ using UnityEngine;
 public class UDPConnect
 {
     public static event DataHolder.Notification GetWifiServer;
-    public static event DataHolder.GameNotification ShowGameNotification;
     public bool Working { get; set; } = true;
     public IPEndPoint remoteIp = null;
     private static UdpClient _client { get; set; } = null;
-    private static UdpClient _broadcastSender { get; set; } = null;
 
-    private Thread _receiveThread;
+    private Timer timer = null;
+    private Thread _receiveThread = null;
     private string _ip = null;
     private int _port = 0;
     private string _typeOfUDP = null;
@@ -41,31 +40,28 @@ public class UDPConnect
         _port = DataHolder.RemotePort;
         _ip = "235.5.5.225";
 
-        if (type == "multicast")
+        if (type == "waiting")
         {
-            //_client = new UdpClient(_port, AddressFamily.InterNetwork); // Можно просто порт указать, разницы нет
-            //_client.Connect("255.255.255.255", _port); //TODO: Мы так устанавливаем и локальную, и удалённую точку. 
-                                                       // Чтоб потом принимать по нужному порту сообщения после закрытия.
-                                                       // Закрывать нужно тк нельзя принимать сокетом broadcast
-
-            _broadcastSender = new UdpClient(_ip, _port);
             _client = new UdpClient(_port);
-
+            _client.JoinMulticastGroup(IPAddress.Parse(_ip), 20);
+            _receiveThread = new Thread(ReceivingMulticastMessages);
+            _receiveThread.Start();
         }
-        else if (type == "server")       
-            _client = new UdpClient(_port);
-
-        _client.JoinMulticastGroup(IPAddress.Parse(_ip), 20); //TODO: Хватит ли времени?
-        _receiveThread = new Thread(ReceivingBroadcastAnswers);
-        _receiveThread.Start();
+        else if (type == "multicast")
+        {
+            _client = new UdpClient(_ip, _port);
+            TimerCallback tm = new TimerCallback(SpammingSeverLoop);
+            timer = new Timer(tm, null, 1000, 2000);
+        }
+                   
     }
-   
-    public void SendBroadcast()
+
+    public void SendMessage(string mes)
     {
         try
         {
-            byte[] data = Encoding.UTF8.GetBytes("server?");
-            _broadcastSender.Send(data, data.Length);
+            byte[] data = Encoding.UTF8.GetBytes(mes);
+            _client.Send(data, data.Length);
         }
         catch { TryReconnect(); }
     }
@@ -101,21 +97,14 @@ public class UDPConnect
         }
     }
 
-    private void ReceivingBroadcastAnswers()
-    {
-
-        var localAddress = Array.Find(Dns.GetHostEntry(string.Empty).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork).ToString();        
+    private void ReceivingMulticastMessages()
+    {       
         while (Working)
         {
             try
             {
                 byte[] data = _client.Receive(ref remoteIp);                
                 string messList = Encoding.UTF8.GetString(data);
-                if (remoteIp.Address.ToString() == localAddress)
-                    continue;
-                else if (ReplyToRequest(messList))
-                    continue;
-
                 DataHolder.MessageUDPget.Add($"{messList} {remoteIp.Address} {remoteIp.Port}");
                 GetWifiServer?.Invoke();
             }
@@ -123,17 +112,9 @@ public class UDPConnect
         }
     }
 
-    private bool ReplyToRequest(string message)
+    private void SpammingSeverLoop(object obj)
     {
-        if (message == "server?")
-        {
-            Debug.Log("Клиент на: " + remoteIp.Address.ToString());
-            ShowGameNotification?.Invoke("Запрос от: \r\n" + remoteIp.Address.ToString(), 1);
-            byte[] data = Encoding.UTF8.GetBytes("server");
-            _client.Send(data, data.Length, remoteIp.Address.ToString(), _port);
-            return true;
-        }
-        else return false;
+        SendMessage("server");
     }
 
     /// <summary>
@@ -167,13 +148,15 @@ public class UDPConnect
     public void CloseClient()
     {
         Working = false;
-        _receiveThread.Abort();
+
+        if (_receiveThread != null)
+            _receiveThread.Abort();
 
         if (_client != null)           
             _client.Close();
-        
-        if (_broadcastSender != null)
-            _broadcastSender.Close();
+
+        if (timer != null)
+            timer.Dispose();
     }
 
     ~UDPConnect()
