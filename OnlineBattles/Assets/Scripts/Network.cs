@@ -71,14 +71,12 @@ public static class Network
     /// <summary>
     /// Создание экземпляра ClientUDP и установка UDP "соединения".
     /// </summary>
-    public static void CreateUDP(string type)
+    public static void CreateUDP()
     {
         if (DataHolder.ClientUDP != null)
             DataHolder.ClientUDP.CloseClient();
 
-        if (type == "game")
-            DataHolder.ClientUDP = new UDPConnect();
-        else DataHolder.ClientUDP = new UDPConnect(type);
+        DataHolder.ClientUDP = new UDPConnect();
     }
 
     /// <summary>

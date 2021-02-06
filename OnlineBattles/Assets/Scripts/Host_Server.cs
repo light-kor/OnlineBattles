@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 public static class Host_Server
-{
-    private const int Port = 55550;    
+{  
     private const int UpdateRate = 50; // Отправка UDP инфы каждые UpdateRate мс    
     public static TcpListener Listener { get; set; }
     private static NetworkStream streamGame { get; set; }
@@ -20,11 +19,15 @@ public static class Host_Server
     public static event DataHolder.Notification AcceptOpponent;
     public static string OpponentStatus = null;
 
+    private static WifiServerSearch ServerSearcher = null;
+
 
     public static async void StartHosting()
     {
+        ServerSearcher = new WifiServerSearch("spamming");
+
         //TODO: Когда начинаешь хостить, наверное надо самому отключиться от основного сервера
-        Listener = new TcpListener(IPAddress.Any, Port);
+        Listener = new TcpListener(IPAddress.Any, DataHolder.WifiPort);
         Listener.Start();
 
         StartSearch:
@@ -34,6 +37,7 @@ public static class Host_Server
 
         if (await Task.Run(() => WaitPlayerAnswer()))
         {
+            ServerSearcher.CloseClient();
             AcceptOpponent?.Invoke();
         }
         else

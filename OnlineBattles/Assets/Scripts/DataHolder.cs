@@ -31,6 +31,8 @@ public static class DataHolder
     //"127.0.0.1" - локальный; 188.134.87.78 - общий дом
     public static string ServerIp { get; } = "188.134.87.78";
     public static string WifiGameIp { get; } = null;
-    public static int RemotePort { get; } = 55555;
+    public static int RemoteServerPort { get; } = 55555;
+    public static int WifiPort { get; } = 55550;
+
 
 }

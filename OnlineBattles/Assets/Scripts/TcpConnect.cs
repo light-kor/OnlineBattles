@@ -29,16 +29,24 @@ public class TcpConnect
         // NotReachable nihuya
         //}
         string ip = null;
+        int _port = 0;
 
         if (DataHolder.GameType == 3)
+        {
             ip = DataHolder.ServerIp;
+            _port = DataHolder.RemoteServerPort;
+        }
         else if (DataHolder.GameType == 2)
+        {
             ip = DataHolder.WifiGameIp;
+            _port = DataHolder.WifiPort;
+        }
+            
 
         try
         {
             _client = new TcpClient();
-            var result = _client.BeginConnect(ip, DataHolder.RemotePort, null, null);
+            var result = _client.BeginConnect(ip, _port, null, null);
             if (result.AsyncWaitHandle.WaitOne(WaitForConnection, true))
             {
                 _client.EndConnect(result);

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -13,12 +11,13 @@ public class MainMenuScr : MonoBehaviour
     public TMP_Text opponent;
     public GameObject MainPanel, LvlPanel, WifiPanel;
     private string lvlName { get; set; } = "";
+    private WifiServerSearch ServerSearcher = null;
 
     private void Start()
     {
         Host_Server.AcceptOpponent += ShowOpponentName;
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
-        UDPConnect.GetWifiServer += SearchingServers;
+        WifiServerSearch.GetWifiServer += SearchingServers;
         ActivateMenuPanel();
     }
 
@@ -157,27 +156,22 @@ public class MainMenuScr : MonoBehaviour
     }
 
     public void SetHost()
-    {
-        Network.CreateUDP("multicast");
-        
-        //Host_Server.StartHosting();       
+    {        
+        Host_Server.StartHosting();       
         ActivateLvlPanel();
     }
 
     public void ConnectToWifi()
     {
-        Network.CreateUDP("waiting");
+        ServerSearcher = new WifiServerSearch("receiving");
         
-
         //Network.CreateTCP();      
         //DeactivatePanels();
     }
 
     public void StopListener()
     {
-        //var localAddress = Array.Find(Dns.GetHostEntry(string.Empty).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork).ToString();
-        //ShowGameNotification?.Invoke("Мой ip: \r\n" + localAddress, 1);
-        DataHolder.ClientUDP.CloseClient();
+        ServerSearcher.CloseClient();
     }
 
 
@@ -207,6 +201,12 @@ public class MainMenuScr : MonoBehaviour
         WifiPanel.SetActive(false);
     }
     #endregion
+
+    ~MainMenuScr()
+    {
+        if (ServerSearcher != null)
+            ServerSearcher.CloseClient();
+    }
 
     //TODO: Сбрасывать значения в DataHolder после онлайн матча
 

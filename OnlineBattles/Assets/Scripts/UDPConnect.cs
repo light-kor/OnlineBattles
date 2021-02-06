@@ -1,59 +1,36 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using UnityEngine;
 
 public class UDPConnect
-{
-    public static event DataHolder.Notification GetWifiServer;
-    public bool Working { get; set; } = true;
+{    
     public IPEndPoint remoteIp = null;
-    private static UdpClient _client { get; set; } = null;
-
-    private Timer timer = null;
+    private static UdpClient _client = null;
     private Thread _receiveThread = null;
+    private bool Working = true;
     private string _ip = null;
     private int _port = 0;
-    private string _typeOfUDP = null;
 
-    //TODO: Для всех ЮДП сообщений нужна структура: номер игры - номер лобби id - !свой id в бд! - номер игрока в лобби - сообщение
+    //TODO: Для всех ЮДП сообщений для сервера нужна структура: номер игры - номер лобби id - !свой id в бд! - номер игрока в лобби - сообщение
     public UDPConnect()
     {
         if (DataHolder.GameType == 3)
-            _ip = DataHolder.ServerIp;           
-        else if (DataHolder.GameType == 2)
-            _ip = DataHolder.WifiGameIp;
-
-        _port = DataHolder.RemotePort;
-        _client = new UdpClient(_ip, _port);
-        _receiveThread = new Thread(ReceivingMessagesLoop);
-
-        _receiveThread.Start();
-        _receiveThread.IsBackground = true; //TODO: Надо ли?
-    }
-
-    public UDPConnect(string type)
-    {
-        _typeOfUDP = type;
-        _port = DataHolder.RemotePort;
-        _ip = "235.5.5.225";
-
-        if (type == "waiting")
         {
-            _client = new UdpClient(_port);
-            _client.JoinMulticastGroup(IPAddress.Parse(_ip), 20);
-            _receiveThread = new Thread(ReceivingMulticastMessages);
-            _receiveThread.Start();
-        }
-        else if (type == "multicast")
-        {
+            _ip = DataHolder.ServerIp;
+            _port = DataHolder.RemoteServerPort;
             _client = new UdpClient(_ip, _port);
-            TimerCallback tm = new TimerCallback(SpammingSeverLoop);
-            timer = new Timer(tm, null, 1000, 2000);
+        }                     
+        else if (DataHolder.GameType == 2)
+        {
+            _ip = DataHolder.WifiGameIp;
+            _port = DataHolder.WifiPort;
+            _client = new UdpClient(_port);
+            _client.Connect(_ip, _port);
         }
                    
+        _receiveThread = new Thread(ReceivingMessagesLoop);
+        _receiveThread.Start();
     }
 
     public void SendMessage(string mes)
@@ -96,27 +73,7 @@ public class UDPConnect
             catch { TryReconnect(); }
         }
     }
-
-    private void ReceivingMulticastMessages()
-    {       
-        while (Working)
-        {
-            try
-            {
-                byte[] data = _client.Receive(ref remoteIp);                
-                string messList = Encoding.UTF8.GetString(data);
-                DataHolder.MessageUDPget.Add($"{messList} {remoteIp.Address} {remoteIp.Port}");
-                GetWifiServer?.Invoke();
-            }
-            catch { TryReconnect(); }
-        }
-    }
-
-    private void SpammingSeverLoop(object obj)
-    {
-        SendMessage("server");
-    }
-
+    
     /// <summary>
     /// Уничтожение старого, и если игра ещё не завершилась, создание нового экземпляра client.
     /// </summary>
@@ -154,9 +111,6 @@ public class UDPConnect
 
         if (_client != null)           
             _client.Close();
-
-        if (timer != null)
-            timer.Dispose();
     }
 
     ~UDPConnect()
