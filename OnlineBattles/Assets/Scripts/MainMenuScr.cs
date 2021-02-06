@@ -163,7 +163,7 @@ public class MainMenuScr : MonoBehaviour
 
     public void ConnectToWifi()
     {
-        Network.CreateUDP("broadcast");
+        Network.CreateUDP("multicast");
         DataHolder.ClientUDP.SendBroadcast();
 
         //Network.CreateTCP();      

@@ -39,23 +39,23 @@ public class UDPConnect
     {
         _typeOfUDP = type;
         _port = DataHolder.RemotePort;
+        _ip = "235.5.5.11";
 
-        if (type == "broadcast")
+        if (type == "multicast")
         {
             //_client = new UdpClient(_port, AddressFamily.InterNetwork); // Можно просто порт указать, разницы нет
             //_client.Connect("255.255.255.255", _port); //TODO: Мы так устанавливаем и локальную, и удалённую точку. 
                                                        // Чтоб потом принимать по нужному порту сообщения после закрытия.
                                                        // Закрывать нужно тк нельзя принимать сокетом broadcast
 
-            _broadcastSender = new UdpClient("255.255.255.255", _port);
-            _client = new UdpClient(_port);
-            _broadcastSender.EnableBroadcast = true;            
+            _broadcastSender = new UdpClient(_ip, _port);
+            _client = new UdpClient(_port);           
 
         }
         else if (type == "server")       
             _client = new UdpClient(_port);
 
-        _client.EnableBroadcast = true;
+        _client.JoinMulticastGroup(IPAddress.Parse(_ip), 20); //TODO: Хватит ли времени?
         _receiveThread = new Thread(ReceivingBroadcastAnswers);
         _receiveThread.Start();
         _receiveThread.IsBackground = true;
