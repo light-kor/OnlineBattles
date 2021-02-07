@@ -39,7 +39,7 @@ public class OnlineGameTemplate : MonoBehaviour
         // Там автоматически после GameOn = false вызовется CloseClient()
         if (DataHolder.ClientUDP != null)
         {
-            DataHolder.ClientUDP.CloseClient();
+            DataHolder.ClientUDP.CloseAll();
             DataHolder.ClientUDP = null;
         }
     }

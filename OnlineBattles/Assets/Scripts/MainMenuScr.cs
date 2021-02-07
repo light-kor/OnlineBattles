@@ -11,7 +11,6 @@ public class MainMenuScr : MonoBehaviour
     public TMP_Text opponent;
     public GameObject MainPanel, LvlPanel, WifiPanel;
     private string lvlName { get; set; } = "";
-    private WifiServerSearch ServerSearcher = null;
 
     private void Start()
     {
@@ -163,7 +162,7 @@ public class MainMenuScr : MonoBehaviour
 
     public void ConnectToWifi()
     {
-        ServerSearcher = new WifiServerSearch("receiving");
+        Network.CreateWifiServerSearcher("receiving");
         
         //Network.CreateTCP();      
         //DeactivatePanels();
@@ -171,7 +170,9 @@ public class MainMenuScr : MonoBehaviour
 
     public void StopListener()
     {
-        ServerSearcher.CloseClient();
+        if (DataHolder.ServerSearcher != null)
+            DataHolder.ServerSearcher.CloseAll();
+
     }
 
 
@@ -204,8 +205,8 @@ public class MainMenuScr : MonoBehaviour
 
     ~MainMenuScr()
     {
-        if (ServerSearcher != null)
-            ServerSearcher.CloseClient();
+        if (DataHolder.ServerSearcher != null)
+            DataHolder.ServerSearcher.CloseAll();
     }
 
     //TODO: Сбрасывать значения в DataHolder после онлайн матча

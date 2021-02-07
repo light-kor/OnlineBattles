@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
 
 public static class Network
 {    
     public static event DataHolder.Notification TcpConnectionIsDone;
     public static event DataHolder.Notification EndOfGame;
     public static event DataHolder.GameNotification ShowGameNotification;
-
+   
     private const float TimeForWaitAnswer = 3f;
     public static bool TryRecconect { get; set; } = true;
     private static bool WaitingForLogin = true;
     private static bool MessageHandlerIsBusy = false;
-    private static bool WaitBroadcastAnswer = true;
 
     private static void MessageHandler()
     {
@@ -74,9 +69,17 @@ public static class Network
     public static void CreateUDP()
     {
         if (DataHolder.ClientUDP != null)
-            DataHolder.ClientUDP.CloseClient();
+            DataHolder.ClientUDP.CloseAll();
 
         DataHolder.ClientUDP = new UDPConnect();
+    }
+
+    public static void CreateWifiServerSearcher(string type)
+    {
+        if (DataHolder.ServerSearcher != null)
+            DataHolder.ServerSearcher.CloseAll();
+
+        DataHolder.ServerSearcher = new WifiServerSearch(type);
     }
 
     /// <summary>

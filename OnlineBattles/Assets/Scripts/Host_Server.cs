@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -19,12 +18,9 @@ public static class Host_Server
     public static event DataHolder.Notification AcceptOpponent;
     public static string OpponentStatus = null;
 
-    private static WifiServerSearch ServerSearcher = null;
-
-
     public static async void StartHosting()
     {
-        ServerSearcher = new WifiServerSearch("spamming");
+        Network.CreateWifiServerSearcher("spamming");
 
         //TODO: Когда начинаешь хостить, наверное надо самому отключиться от основного сервера
         Listener = new TcpListener(IPAddress.Any, DataHolder.WifiPort);
@@ -37,7 +33,7 @@ public static class Host_Server
 
         if (await Task.Run(() => WaitPlayerAnswer()))
         {
-            ServerSearcher.CloseClient();
+            DataHolder.ServerSearcher.CloseAll();
             AcceptOpponent?.Invoke();
         }
         else

@@ -14,7 +14,7 @@ public class TcpConnect
     public bool _canStartReconnect { get; set; } = false;
     private TcpClient _client { get; set; }
     private Thread _clientListener { get; set; }
-    private NetworkStream NS { get; set; }
+    private NetworkStream _NS { get; set; }
 
     /// <summary>
     /// Создание экземпляра и попытка подключения к серверу
@@ -53,7 +53,6 @@ public class TcpConnect
 
                 _clientListener = new Thread(ReceivingMessagesLoop);
                 _clientListener.Start();
-                _clientListener.IsBackground = true;
                 DataHolder.Connected = true;
             }
             else
@@ -91,15 +90,15 @@ public class TcpConnect
     /// </summary>
     private void ReceivingMessagesLoop()
     {
-        NS = _client.GetStream();
+        _NS = _client.GetStream();
         while (true)
         {           
             List<byte> Buffer = new List<byte>();
             try
             {                              
-                while (NS.DataAvailable)
+                while (_NS.DataAvailable)
                 {
-                    int ReadByte = NS.ReadByte();
+                    int ReadByte = _NS.ReadByte();
                     if (ReadByte > -1)
                     {
                         Buffer.Add((byte)ReadByte);
@@ -150,10 +149,17 @@ public class TcpConnect
             _client.Close();
             _client = null;
         }
-        if (NS != null)
+        
+        if (_NS != null)
         {
-            NS.Close();
-            NS = null;
+            _NS.Close();
+            _NS = null;
+        }
+
+        if (_clientListener != null)
+        {
+            _clientListener.Abort();
+            _clientListener = null;
         }
     }          
 

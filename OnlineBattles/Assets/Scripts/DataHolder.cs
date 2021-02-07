@@ -10,6 +10,7 @@ public static class DataHolder
     public static NotificationPanels NotifPanels { get; set; } = null;
     public static TcpConnect ClientTCP { get; set; } = null;
     public static UDPConnect ClientUDP { get; set; } = null;
+    public static WifiServerSearch ServerSearcher { get; set; } = null;
     public static GameObject TimerT { get; set; } = null;
     public static DateTime LastSend { get; set; } = DateTime.UtcNow;
     public static string KeyCodeName { get; set; } = "123";

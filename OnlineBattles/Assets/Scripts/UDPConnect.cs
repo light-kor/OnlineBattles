@@ -15,12 +15,18 @@ public class UDPConnect
     //TODO: Для всех ЮДП сообщений для сервера нужна структура: номер игры - номер лобби id - !свой id в бд! - номер игрока в лобби - сообщение
     public UDPConnect()
     {
+        CreateClass();
+    }
+
+    private void CreateClass()
+    {
+        Working = true;
         if (DataHolder.GameType == 3)
         {
             _ip = DataHolder.ServerIp;
             _port = DataHolder.RemoteServerPort;
             _client = new UdpClient(_ip, _port);
-        }                     
+        }
         else if (DataHolder.GameType == 2)
         {
             _ip = DataHolder.WifiGameIp;
@@ -28,7 +34,7 @@ public class UDPConnect
             _client = new UdpClient(_port);
             _client.Connect(_ip, _port);
         }
-                   
+
         _receiveThread = new Thread(ReceivingMessagesLoop);
         _receiveThread.Start();
     }
@@ -78,43 +84,40 @@ public class UDPConnect
     /// Уничтожение старого, и если игра ещё не завершилась, создание нового экземпляра client.
     /// </summary>
     private void TryReconnect()
-    {     
-        ////TODO: Это всё какой-то мусор, надо это переосмыслить
-        //if (Working)
-        //{
-        //    CloseClient();
-        //    Working = true;
+    {
+        if (Working == true)
+        {
+            CloseAll();
+            CreateClass();
+        }
+        else CloseAll(); // На всякий случай
 
-        //    if (_ip == null)
-        //        _client = new UdpClient(_port);
-        //    else
-        //        _client = new UdpClient(_ip, _port);
-
-        //    else if (_typeOfUDP == "server")
-        //    {
-        //        _client = new UdpClient(_port);
-        //    }
-        //        //TODO: Игрок может отменить реконнект и игру, тогда надо будет обнулить и удалить все UDP соединения
-        //        //TODO: Сделать отдельную функцию выхода в меню, если ты потерял связь во время игры и не хочешь реконнкта
-        //}
+        //TODO: Игрок может отменить реконнект и игру, тогда надо будет обнулить и удалить все UDP соединения
+        //TODO: Сделать отдельную функцию выхода в меню, если ты потерял связь во время игры и не хочешь реконнкта
     }
 
     /// <summary>
     /// Остановка всех UDP процессов. GameOn становится false, client уничтожается.
     /// </summary>
-    public void CloseClient()
+    public void CloseAll()
     {
         Working = false;
 
         if (_receiveThread != null)
+        {
             _receiveThread.Abort();
+            _receiveThread = null;
+        }
 
-        if (_client != null)           
+        if (_client != null)
+        {
             _client.Close();
+            _client = null;
+        }
     }
 
     ~UDPConnect()
     {
-        CloseClient();
+        CloseAll();
     }
 }
