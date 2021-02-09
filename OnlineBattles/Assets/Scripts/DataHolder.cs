@@ -10,7 +10,7 @@ public static class DataHolder
     public static NotificationPanels NotifPanels { get; set; } = null;
     public static TcpConnect ClientTCP { get; set; } = null;
     public static UDPConnect ClientUDP { get; set; } = null;
-    public static WifiServerSearch ServerSearcher { get; set; } = null;
+    public static WifiServer_Searcher ServerSearcher { get; set; } = null;
     public static GameObject TimerT { get; set; } = null;
     public static DateTime LastSend { get; set; } = DateTime.UtcNow;
     public static string KeyCodeName { get; set; } = "123";
@@ -31,7 +31,7 @@ public static class DataHolder
 
     //"127.0.0.1" - локальный; 188.134.87.78 - общий дом
     public static string ServerIp { get; } = "188.134.87.78";
-    public static string WifiGameIp { get; } = null;
+    public static string WifiGameIp { get; set; } = null;
     public static int RemoteServerPort { get; } = 55555;
     public static int WifiPort { get; } = 55550;
 

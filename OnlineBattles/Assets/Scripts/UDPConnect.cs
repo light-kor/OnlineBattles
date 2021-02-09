@@ -103,12 +103,6 @@ public class UDPConnect
     {
         Working = false;
 
-        if (_receiveThread != null)
-        {
-            _receiveThread.Abort();
-            _receiveThread = null;
-        }
-
         if (_client != null)
         {
             _client.Close();

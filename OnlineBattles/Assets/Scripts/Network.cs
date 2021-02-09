@@ -44,6 +44,10 @@ public static class Network
                         DataHolder.TimeDifferenceWithServer = Convert.ToInt64(mes[1]) - DateTime.UtcNow.Ticks;
                         break;
 
+                    case "disconnect":
+                        CleanTcpConnection();
+                        break;
+
                     default:
                         DataHolder.MessageTCPforGame.Add(DataHolder.MessageTCP[0]);
                         break;
@@ -76,10 +80,18 @@ public static class Network
 
     public static void CreateWifiServerSearcher(string type)
     {
-        if (DataHolder.ServerSearcher != null)
-            DataHolder.ServerSearcher.CloseAll();
+        CloseWifiServerSearcher();
 
-        DataHolder.ServerSearcher = new WifiServerSearch(type);
+        DataHolder.ServerSearcher = new WifiServer_Searcher(type);
+    }
+
+    public static void CloseWifiServerSearcher()
+    {
+        if (DataHolder.ServerSearcher != null)
+        {
+            DataHolder.ServerSearcher.CloseAll();
+            DataHolder.ServerSearcher = null;
+        }            
     }
 
     /// <summary>
@@ -89,11 +101,15 @@ public static class Network
     {
         //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
         ShowGameNotification?.Invoke("Ожидание подключения", 0);
+        CleanTcpConnection();
 
-        if (!await Task.Run(() => CheckForInternetConnection()))
+        if (DataHolder.GameType == 3)
         {
-            ShowGameNotification?.Invoke("Отсутствует подключение к интернету.", 1);           
-            return;
+            if (!await Task.Run(() => CheckForInternetConnection()))
+            {
+                ShowGameNotification?.Invoke("Отсутствует подключение к интернету.", 1);
+                return;
+            }
         }
 
         // Асинхронность нужна чтоб сначала показать уведомление о начале подключения, а потом уже подключать. 
@@ -118,7 +134,7 @@ public static class Network
         else
         {
             TcpConnectionIsDone?.Invoke();
-            DataHolder.ClientTCP._canStartReconnect = true;
+            DataHolder.ClientTCP.CanStartReconnect = true;
         }
     }
 
@@ -131,7 +147,7 @@ public static class Network
             DataHolder.ClientTCP.SendMessage("login " + DataHolder.KeyCodeName);
         else if (DataHolder.GameType == 2)
         {
-            DataHolder.ClientTCP.SendMessage("name" + DataHolder.NickName);
+            DataHolder.ClientTCP.SendMessage("name " + DataHolder.NickName);
             return;
         }
 
@@ -164,12 +180,15 @@ public static class Network
 
         while (TryRecconect)
         {
-            if (!await Task.Run(() => CheckForInternetConnection()))
+            if (DataHolder.GameType == 3)
             {
-                ShowGameNotification?.Invoke("Разрыв соединения.\r\nОтсутствует подключение к интернету.\r\nОжидание...", 2);
-                continue;
+                if (!await Task.Run(() => CheckForInternetConnection()))
+                {
+                    ShowGameNotification?.Invoke("Разрыв соединения.\r\nОтсутствует подключение к интернету.\r\nОжидание...", 2);
+                    continue;
+                }
+                else ShowGameNotification?.Invoke("Разрыв соединения.\r\nПодключение к серверу...", 2);
             }
-            else ShowGameNotification?.Invoke("Разрыв соединения.\r\nПодключение к серверу...", 2);
 
             await Task.Run(() => DataHolder.ClientTCP = new TcpConnect());
             DataHolder.ClientTCP.GetMessage += MessageHandler;
@@ -191,7 +210,7 @@ public static class Network
 
             // При полном успехе
             DataHolder.NotifPanels.NotificatonMultyButton(10);
-            DataHolder.ClientTCP._canStartReconnect = true;
+            DataHolder.ClientTCP.CanStartReconnect = true;
         }
         TryRecconect = true;
     }  
@@ -214,11 +233,10 @@ public static class Network
     /// <summary>
     /// Очистка и удаление ClientTCP и всего TCP соединения.
     /// </summary>
-    private static void CleanTcpConnection()
+    public static void CleanTcpConnection()
     {
         if (DataHolder.ClientTCP != null)
         {
-            DataHolder.ClientTCP.GetMessage -= MessageHandler;
             DataHolder.ClientTCP.CloseClient();
             DataHolder.ClientTCP = null;
         }

@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public static class Host_Server
+public static class WifiServer_Host
 {  
     private const int UpdateRate = 50; // Отправка UDP инфы каждые UpdateRate мс    
-    public static TcpListener Listener { get; set; }
-    private static NetworkStream streamGame { get; set; }
+    private static TcpListener _listener { get; set; }
+    private static NetworkStream _streamGame { get; set; }
 
     public static Opponent_Info _opponent;
 
@@ -18,13 +18,16 @@ public static class Host_Server
     public static event DataHolder.Notification AcceptOpponent;
     public static string OpponentStatus = null;
 
+    private static bool _listening;
+
     public static async void StartHosting()
     {
+        _listening = true;
         Network.CreateWifiServerSearcher("spamming");
 
         //TODO: Когда начинаешь хостить, наверное надо самому отключиться от основного сервера
-        Listener = new TcpListener(IPAddress.Any, DataHolder.WifiPort);
-        Listener.Start();
+        _listener = new TcpListener(IPAddress.Any, DataHolder.WifiPort);
+        _listener.Start();
 
         StartSearch:
         await Task.Run(() => ListnerClientsTCP());
@@ -33,7 +36,8 @@ public static class Host_Server
 
         if (await Task.Run(() => WaitPlayerAnswer()))
         {
-            DataHolder.ServerSearcher.CloseAll();
+            Network.CloseWifiServerSearcher();
+            _listening = false;
             AcceptOpponent?.Invoke();
         }
         else
@@ -79,12 +83,12 @@ public static class Host_Server
     }
     public static void ListnerClientsTCP()
     {
-        while (true)
+        while (_listening)
         {
-            if (Listener.Pending())
+            if (_listener.Pending())
             {
                 Debug.Log("accept");
-                _opponent = new Opponent_Info(Listener.AcceptTcpClient(), DateTime.UtcNow);
+                _opponent = new Opponent_Info(_listener.AcceptTcpClient(), DateTime.UtcNow);
                 break;
             }
         }
@@ -109,12 +113,12 @@ public static class Host_Server
         List<byte> buffer = new List<byte>();
         try
         {
-            streamGame = _opponent.Client.GetStream();
-            if (streamGame.DataAvailable)
+            _streamGame = _opponent.Client.GetStream();
+            if (_streamGame.DataAvailable)
             {
-                while (streamGame.DataAvailable)
+                while (_streamGame.DataAvailable)
                 {
-                    int ReadByte = streamGame.ReadByte();
+                    int ReadByte = _streamGame.ReadByte();
                     if (ReadByte != -1)
                     {
                         buffer.Add((byte)ReadByte);

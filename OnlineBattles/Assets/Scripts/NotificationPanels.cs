@@ -17,7 +17,8 @@ public class NotificationPanels : MonoBehaviour
 
         Network.ShowGameNotification += AddNotificationToQueue;
         MainMenuScr.ShowGameNotification += AddNotificationToQueue;
-        Host_Server.FoundOnePlayer += AddNotificationToQueue;
+        WifiServer_Host.FoundOnePlayer += AddNotificationToQueue;
+        WifiServer_Connect.ShowGameNotification += AddNotificationToQueue;
         //TODO: Следующие две строчки - это костыль от Таблички "Поиск новый игры" 
         //в начале сцены тк запрос с опоздание переходит с прошлой сцены в эту, если игра нашлась слишком быстро
         ListOfNotification.Clear();
@@ -74,8 +75,8 @@ public class NotificationPanels : MonoBehaviour
                 AcceptOpponent.SetActive(false);
                 CancelOpponent.SetActive(false);
                 if (num == 50)
-                    Host_Server.OpponentStatus = "cancel";
-                else Host_Server.OpponentStatus = "accept";
+                    WifiServer_Host.OpponentStatus = "cancel";
+                else WifiServer_Host.OpponentStatus = "accept";
                 break;
 
             case 0: // Выключение всех

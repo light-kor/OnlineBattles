@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,9 +13,8 @@ public class MainMenuScr : MonoBehaviour
 
     private void Start()
     {
-        Host_Server.AcceptOpponent += ShowOpponentName;
+        WifiServer_Host.AcceptOpponent += ShowOpponentName;
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
-        WifiServerSearch.GetWifiServer += SearchingServers;
         ActivateMenuPanel();
     }
 
@@ -70,20 +68,7 @@ public class MainMenuScr : MonoBehaviour
         }
     }
 
-    private void SearchingServers()
-    {
-        while (DataHolder.MessageUDPget.Count > 0)
-        {
-            string[] mes = DataHolder.MessageUDPget[0].Split(' ');
-            if (mes[0] == "server")
-            {
-                Debug.Log("Server: " + mes[1]);
-                ShowGameNotification?.Invoke("Сервер на: \r\n" + mes[1], 1);
-            }
-            DataHolder.MessageUDPget.RemoveAt(0);
-        }
-    }
-
+    
     /// <summary>
     /// Обработка кнопки и установка режима одиночной игры.
     /// </summary>
@@ -105,17 +90,11 @@ public class MainMenuScr : MonoBehaviour
     /// <summary>
     /// Обработка кнопки, проверка/установка соединения с сервером и установка режима мультиплеера.
     /// </summary>
-    public async void SelectMultiplayerGame()
+    public void SelectMultiplayerGame()
     {
         DataHolder.GameType = 3;
         if (!DataHolder.Connected)
             Network.CreateTCP();
-        else
-        {
-            // Если сеть была, но отлетела, то после Check выполнится Network.StartReconnect.
-            DataHolder.ClientTCP.SendMessage("Check");
-            await Task.Delay(1000); //TODO: Надо ли?
-        }
 
         TcpConnectionIsReady();
     }
@@ -151,27 +130,25 @@ public class MainMenuScr : MonoBehaviour
     private void ShowOpponentName()
     {
         opponent.gameObject.SetActive(true);
-        opponent.text = "Подключён: " + Host_Server._opponent.PlayerName;
+        opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
     }
 
     public void SetHost()
     {        
-        Host_Server.StartHosting();       
+        WifiServer_Host.StartHosting();       
         ActivateLvlPanel();
     }
 
     public void ConnectToWifi()
-    {
-        Network.CreateWifiServerSearcher("receiving");
-        
-        //Network.CreateTCP();      
+    {        
+        WifiServer_Connect.StartConnection();
+        ActivateLvlPanel();
         //DeactivatePanels();
     }
 
     public void StopListener()
     {
-        if (DataHolder.ServerSearcher != null)
-            DataHolder.ServerSearcher.CloseAll();
+        Network.CloseWifiServerSearcher();
 
     }
 
@@ -203,11 +180,6 @@ public class MainMenuScr : MonoBehaviour
     }
     #endregion
 
-    ~MainMenuScr()
-    {
-        if (DataHolder.ServerSearcher != null)
-            DataHolder.ServerSearcher.CloseAll();
-    }
 
     //TODO: Сбрасывать значения в DataHolder после онлайн матча
 

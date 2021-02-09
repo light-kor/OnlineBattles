@@ -11,10 +11,11 @@ public class TcpConnect
 
     private const int WaitForConnection = 3000;
 
-    public bool _canStartReconnect { get; set; } = false;
+    public bool CanStartReconnect { get; set; } = false;
     private TcpClient _client { get; set; }
     private Thread _clientListener { get; set; }
     private NetworkStream _NS { get; set; }
+    private bool _working = true;
 
     /// <summary>
     /// Создание экземпляра и попытка подключения к серверу
@@ -91,7 +92,7 @@ public class TcpConnect
     private void ReceivingMessagesLoop()
     {
         _NS = _client.GetStream();
-        while (true)
+        while (_working)
         {           
             List<byte> Buffer = new List<byte>();
             try
@@ -130,9 +131,9 @@ public class TcpConnect
 
     private void TryStartReconnect()
     {
-        if (_canStartReconnect)
+        if (CanStartReconnect)
         {
-            _canStartReconnect = false;
+            CanStartReconnect = false;
             CloseClient();
             Network.StartReconnect();
         }
@@ -142,7 +143,9 @@ public class TcpConnect
     /// Закрытие всех потоков TCP соединения и удаление client.
     /// </summary>
     public void CloseClient() //TODO: Добавить этот вызов на кнопку выхода из приложения
-    {       
+    {
+        _working = false; //TODO: Переосмыслить все реконнекты и закрытия
+
         if (_client != null)
         {
             _client.LingerState = new LingerOption(true, 0); //Чтоб он не ожидал.
@@ -154,12 +157,6 @@ public class TcpConnect
         {
             _NS.Close();
             _NS = null;
-        }
-
-        if (_clientListener != null)
-        {
-            _clientListener.Abort();
-            _clientListener = null;
         }
     }          
 
