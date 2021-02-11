@@ -38,10 +38,12 @@ public static class WifiServer_Host
         {
             Network.CloseWifiServerSearcher();
             _listening = false;
+            SendMessage("accept");
             AcceptOpponent?.Invoke();
         }
         else
         {
+            SendMessage("denied");
             _opponent.Client.Close();
             _opponent = null;
             goto StartSearch;
@@ -87,7 +89,6 @@ public static class WifiServer_Host
         {
             if (_listener.Pending())
             {
-                Debug.Log("accept");
                 _opponent = new Opponent_Info(_listener.AcceptTcpClient(), DateTime.UtcNow);
                 break;
             }

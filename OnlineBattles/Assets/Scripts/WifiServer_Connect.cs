@@ -2,7 +2,6 @@ using UnityEngine;
 
 public static class WifiServer_Connect
 {
-    public static event DataHolder.GameNotification ShowGameNotification;
     public static void StartConnection()
     {
         WifiServer_Searcher.GetWifiServer += AddServerToList;
@@ -15,7 +14,7 @@ public static class WifiServer_Connect
         WifiServer_Searcher.GetWifiServer -= AddServerToList;
 
         if (DataHolder.Connected)
-            Network.CleanTcpConnection();
+            Network.CloseTcpConnection();
 
             Network.CreateTCP();
     }

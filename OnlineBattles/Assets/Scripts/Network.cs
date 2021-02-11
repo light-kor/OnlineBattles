@@ -8,7 +8,7 @@ public static class Network
     public static event DataHolder.Notification EndOfGame;
     public static event DataHolder.GameNotification ShowGameNotification;
    
-    private const float TimeForWaitAnswer = 3f;
+    private const float TimeForWaitAnswer = 5f;
     public static bool TryRecconect { get; set; } = true;
     private static bool WaitingForLogin = true;
     private static bool MessageHandlerIsBusy = false;
@@ -44,8 +44,13 @@ public static class Network
                         DataHolder.TimeDifferenceWithServer = Convert.ToInt64(mes[1]) - DateTime.UtcNow.Ticks;
                         break;
 
-                    case "disconnect":
-                        CleanTcpConnection();
+                    case "denied":
+                        CloseTcpConnection();
+                        ShowGameNotification?.Invoke("Запрос отклонён", 1);
+                        break;
+
+                    case "accept":
+                        ShowGameNotification?.Invoke("Запрос принят", 1);
                         break;
 
                     default:
@@ -81,7 +86,6 @@ public static class Network
     public static void CreateWifiServerSearcher(string type)
     {
         CloseWifiServerSearcher();
-
         DataHolder.ServerSearcher = new WifiServer_Searcher(type);
     }
 
@@ -97,17 +101,29 @@ public static class Network
     /// <summary>
     /// Установка соединения с сервером (асинхронная): проверка интернета, создание экземпляра TcpConnect и авторизация в системе.
     /// </summary>
-    public static async void CreateTCP()
+    public static void CreateTCP()
     {
         //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
         ShowGameNotification?.Invoke("Ожидание подключения", 0);
-        CleanTcpConnection();
+
+        TcpConnectionProcess(1);
+
+        if (DataHolder.Connected)
+        {
+            TcpConnectionIsDone?.Invoke();
+            DataHolder.ClientTCP.CanStartReconnect = true;
+        }
+    }
+
+    static async void TcpConnectionProcess(int num)
+    {
+        CloseTcpConnection();
 
         if (DataHolder.GameType == 3)
         {
             if (!await Task.Run(() => CheckForInternetConnection()))
             {
-                ShowGameNotification?.Invoke("Отсутствует подключение к интернету.", 1);
+                ShowGameNotification?.Invoke("Отсутствует подключение к интернету.", num);
                 return;
             }
         }
@@ -118,23 +134,19 @@ public static class Network
 
         if (!DataHolder.Connected)
         {
-            CleanTcpConnection();
-            ShowGameNotification?.Invoke("Сервер не доступен. Попробуйте позже.", 1);
+            CloseTcpConnection();
+            ShowGameNotification?.Invoke("Сервер не доступен.", num);
             return;
         }
 
+        ShowGameNotification?.Invoke("Ожидание ответа сервера", 0);
         await Task.Run(() => LoginInServerSystem());
 
         if (!DataHolder.Connected)
         {
-            CleanTcpConnection();
-            ShowGameNotification?.Invoke("Ошибка доступа к серверу.", 1);
+            CloseTcpConnection();
+            ShowGameNotification?.Invoke("Ошибка доступа к серверу.", num);
             return;
-        }
-        else
-        {
-            TcpConnectionIsDone?.Invoke();
-            DataHolder.ClientTCP.CanStartReconnect = true;
         }
     }
 
@@ -172,45 +184,20 @@ public static class Network
     /// <summary>
     /// Функция реконнекта. Блокировка кнопок на экране, показ всех нужных уведомлений, проверка сети и запуск цикла запросов на повторное соединение с сервером.
     /// </summary>
-    public static async void StartReconnect()
+    public static void StartReconnect()
     {
         DataHolder.Connected = false;
-        CleanTcpConnection();
         ShowGameNotification?.Invoke("Разрыв соединения.\r\nПереподключение...", 2);
 
         while (TryRecconect)
         {
-            if (DataHolder.GameType == 3)
+            TcpConnectionProcess(2);
+            if (DataHolder.Connected)
             {
-                if (!await Task.Run(() => CheckForInternetConnection()))
-                {
-                    ShowGameNotification?.Invoke("Разрыв соединения.\r\nОтсутствует подключение к интернету.\r\nОжидание...", 2);
-                    continue;
-                }
-                else ShowGameNotification?.Invoke("Разрыв соединения.\r\nПодключение к серверу...", 2);
+                // При полном успехе
+                DataHolder.NotifPanels.NotificatonMultyButton(10);
+                DataHolder.ClientTCP.CanStartReconnect = true;
             }
-
-            await Task.Run(() => DataHolder.ClientTCP = new TcpConnect());
-            DataHolder.ClientTCP.GetMessage += MessageHandler;
-
-            if (!DataHolder.Connected)
-            {
-                CleanTcpConnection();
-                continue;
-            }
-
-            ShowGameNotification?.Invoke("Разрыв соединения.\r\nОжидание ответа сервера", 2);
-            await Task.Run(() => LoginInServerSystem());
-
-            if (!DataHolder.Connected)
-            {
-                CleanTcpConnection();
-                continue;
-            }
-
-            // При полном успехе
-            DataHolder.NotifPanels.NotificatonMultyButton(10);
-            DataHolder.ClientTCP.CanStartReconnect = true;
         }
         TryRecconect = true;
     }  
@@ -233,7 +220,7 @@ public static class Network
     /// <summary>
     /// Очистка и удаление ClientTCP и всего TCP соединения.
     /// </summary>
-    public static void CleanTcpConnection()
+    public static void CloseTcpConnection()
     {
         if (DataHolder.ClientTCP != null)
         {
@@ -244,7 +231,7 @@ public static class Network
 
     public static void StopReconnecting()
     {
-        CleanTcpConnection();
+        CloseTcpConnection();
         TryRecconect = false;
     }
 

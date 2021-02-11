@@ -110,8 +110,6 @@ public class MainMenuScr : MonoBehaviour
 
             if (DataHolder.GameType == 3)
                 ActivateLvlPanel();
-            else if (DataHolder.GameType == 2)
-                DeactivatePanels();
         }
     }
 
@@ -140,15 +138,16 @@ public class MainMenuScr : MonoBehaviour
     }
 
     public void ConnectToWifi()
-    {        
+    {
+        DeactivatePanels();
         WifiServer_Connect.StartConnection();
-        ActivateLvlPanel();
-        //DeactivatePanels();
+        //ActivateLvlPanel();
     }
 
     public void StopListener()
     {
-        Network.CloseWifiServerSearcher();
+        ShowGameNotification?.Invoke(WifiServer_Searcher.GetLocalIPAddressPiece(), 1);
+        
 
     }
 

@@ -1,4 +1,3 @@
-using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -8,26 +7,20 @@ using UnityEngine;
 public class WifiServer_Searcher
 {
     public static event DataHolder.Notification GetWifiServer;
-    private const string IP = "235.5.5.225";
     private int _port = 0;
     private IPEndPoint _remoteIp = null;
     private UdpClient _client = null;
     private Timer _timer = null;
     private Thread _receiveThread = null;
     private bool _working = true;
-    private string IpPiece;
-
     private string _typeOfUDP = null;
 
     public WifiServer_Searcher(string type)
     {
+
         _typeOfUDP = type;
         _port = DataHolder.WifiPort;
-
-        string localIP = GetLocalIPAddress();
-        string[] IpPieces = localIP.Split('.');
-        IpPiece = $"{IpPieces[0]}.{IpPieces[1]}.{IpPieces[2]}.";
-
+        
         CreateClass();
     }
 
@@ -37,49 +30,51 @@ public class WifiServer_Searcher
         if (_typeOfUDP == "receiving")
         {
             _client = new UdpClient(_port);
-            //_client.JoinMulticastGroup(IPAddress.Parse(IP));
+            _client.EnableBroadcast = true;
+
             _receiveThread = new Thread(ReceivingMulticastMessages);
             _receiveThread.Start();
         }
         else if (_typeOfUDP == "spamming")
         {
             _client = new UdpClient();
-            //_client = new UdpClient(IP, _port);
-            TimerCallback tm = new TimerCallback(SpammingSeverLoop2);
-            _timer = new Timer(tm, null, 1000, 3000);
+            _client.EnableBroadcast = true;
             _client.ExclusiveAddressUse = false;
+
+            TimerCallback tm = new TimerCallback(SpammingSeverIp);
+            _timer = new Timer(tm, null, 1000, 3000);           
         }       
     }
-
-    public static string GetLocalIPAddress()
+   
+    public static string GetLocalIPAddressPiece()
     {
-        var host = Dns.GetHostEntry(Dns.GetHostName());
-        foreach (var ip in host.AddressList)
+        // Если подключён к wifi, то сам чекни свой 
+        if (Application.internetReachability.ToString() == "ReachableViaLocalAreaNetwork")
         {
-            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
             {
-                return ip.ToString();
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    string[] IpPieces = ip.ToString().Split('.');
+                    return $"{IpPieces[0]}.{IpPieces[1]}.{IpPieces[2]}.";                   
+                }
             }
+            return null;
         }
-        return null;
+        else
+        {
+            return "192.168.43."; // Стандартный адрес для всех Андроидов
+            //TODO: Для айфонов нужен другой адрес, возможно там даже есть функция для этого
+        }
     }
 
-    public void SendMessage(string mes, string ip)
+    private void SendMessage(string mes, string ip)
     {
         try
         {
             byte[] data = Encoding.UTF8.GetBytes(mes);
             _client.Send(data, data.Length, ip, _port);
-        }
-        catch { TryReconnect(); }
-    }
-
-    public void SendMessage(string mes)
-    {
-        try
-        {
-            byte[] data = Encoding.UTF8.GetBytes(mes);
-            _client.Send(data, data.Length);
         }
         catch { TryReconnect(); }
     }
@@ -91,7 +86,7 @@ public class WifiServer_Searcher
             try
             {
                 byte[] data = _client.Receive(ref _remoteIp);
-                string messList = Encoding.UTF8.GetString(data);
+                string messList = Encoding.UTF8.GetString(data);               
                 DataHolder.MessageUDPget.Add($"{messList} {_remoteIp.Address}");
                 GetWifiServer?.Invoke();
             }
@@ -99,15 +94,12 @@ public class WifiServer_Searcher
         }
     }
 
-    private void SpammingSeverLoop(object obj)
+    private void SpammingSeverIp(object obj)
     {
-        SendMessage("server");
-    }
+        string IpPiece = GetLocalIPAddressPiece();
 
-    private void SpammingSeverLoop2(object obj)
-    {
-        int count = 2;
-        while (count < 255)
+        int count = 0;
+        while (count <= 255)
         {
             string fullIp = IpPiece + count;
             SendMessage("server", fullIp);
