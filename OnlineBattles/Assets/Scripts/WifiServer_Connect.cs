@@ -8,6 +8,7 @@ public static class WifiServer_Connect
     public static void StartSearching()
     {
         WifiServer_Searcher.GetWifiServer += AddServerToList;
+        WifiServers.Clear();
         Network.CreateWifiServerSearcher("receiving");
     }
 
@@ -20,6 +21,7 @@ public static class WifiServer_Connect
             Network.CloseTcpConnection();
 
             Network.CreateTCP();
+        //TODO: Проконтролировать, что будет, если будет несколько перезаходов и прочего. Почему-то если первый раз отклонили, то и последующие кикнут
     }
 
     private static void AddServerToList()
@@ -31,6 +33,7 @@ public static class WifiServer_Connect
             {                
                 if (WifiServers.Find(x => x == mes[2]) == null)
                 {
+                    WifiServers.Add(mes[2]);
                     AddWifiServerToScreen?.Invoke($"{mes[1]} {mes[2]}");                    
                 }
             }

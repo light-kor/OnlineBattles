@@ -7,7 +7,8 @@ public static class Network
     public static event DataHolder.Notification TcpConnectionIsDone;
     public static event DataHolder.Notification EndOfGame;
     public static event DataHolder.GameNotification ShowGameNotification;
-   
+    public static event DataHolder.TextЕransmissionEnvent WifiServerAnswer;
+
     private const float TimeForWaitAnswer = 5f;
     public static bool TryRecconect { get; set; } = true;
     private static bool WaitingForLogin = true;
@@ -47,10 +48,12 @@ public static class Network
                     case "denied":
                         CloseTcpConnection();
                         ShowGameNotification?.Invoke("Запрос отклонён", 1);
+                        WifiServerAnswer?.Invoke("denied");
                         break;
 
                     case "accept":
                         ShowGameNotification?.Invoke("Запрос принят", 1);
+                        WifiServerAnswer?.Invoke("accept");
                         break;
 
                     default:

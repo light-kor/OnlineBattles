@@ -14,10 +14,12 @@ public class WifiServer_Searcher
     private Thread _receiveThread = null;
     private bool _working = true;
     private string _typeOfUDP = null;
+    private string IpPiece = null;
 
     public WifiServer_Searcher(string type)
     {
-        _typeOfUDP = type;   
+        _typeOfUDP = type;
+        IpPiece = GetLocalIPAddressPiece(); // Можно вызывать только из главного потока!!!
         CreateClass();
     }
 
@@ -43,10 +45,10 @@ public class WifiServer_Searcher
         }       
     }
 
-    private static string GetLocalIPAddressPiece()
+    private string GetLocalIPAddressPiece()
     {
-        // Если подключён к wifi, то сам чекни свой 
-        if (Application.internetReachability.ToString() == "ReachableViaLocalAreaNetwork")
+        // Если подключён к wifi, то сам чекни свой       
+        if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
             foreach (var ip in host.AddressList)
@@ -54,7 +56,7 @@ public class WifiServer_Searcher
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
                     string[] IpPieces = ip.ToString().Split('.');
-                    return $"{IpPieces[0]}.{IpPieces[1]}.{IpPieces[2]}.";                   
+                    return $"{IpPieces[0]}.{IpPieces[1]}.{IpPieces[2]}.";
                 }
             }
             return null;
@@ -62,7 +64,7 @@ public class WifiServer_Searcher
         else
         {
             return "192.168.43."; // Стандартный адрес для всех Андроидов
-            //TODO: Для айфонов нужен другой адрес, возможно там даже есть функция для этого
+                                  //TODO: Для айфонов нужен другой адрес, возможно там даже есть функция для этого
         }
     }
 
@@ -93,7 +95,11 @@ public class WifiServer_Searcher
 
     private void SpammingSeverIp(object obj)
     {
-        string IpPiece = GetLocalIPAddressPiece();
+        if (IpPiece == null)
+        {
+            //TODO: Как-то вывести предупреждение
+        }
+
         int count = 0;
         while (count <= 255)
         {

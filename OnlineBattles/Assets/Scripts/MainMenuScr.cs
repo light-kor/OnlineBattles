@@ -12,6 +12,8 @@ public class MainMenuScr : MonoBehaviour
     [SerializeField] private GameObject _mainPanel, _lvlPanel, _wifiPanel, _serverSearchPanel;
     [SerializeField] private GameObject _serverPrefab;
 
+    private string _serverAnswer = null;
+    private bool _canReadServerAnswer = false;
     private List<string> WifiServers = new List<string>();
     private string lvlName { get; set; } = "";
 
@@ -20,6 +22,7 @@ public class MainMenuScr : MonoBehaviour
         WifiServer_Host.AcceptOpponent += ShowOpponentName;
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
         WifiServer_Connect.AddWifiServerToScreen += GetNewWifiServer;
+        Network.WifiServerAnswer += WifiServerAnswerProcessing;
         ActivateMenuPanel();
     }
 
@@ -56,7 +59,14 @@ public class MainMenuScr : MonoBehaviour
             CreateWifiServerCopy(WifiServers[0]);
             WifiServers.RemoveAt(0);
         }
+
+        if (_canReadServerAnswer)
+        {
+            WifiServerAnswerProcessing();
+            _canReadServerAnswer = false;
+        }
             
+
     }
 
     public void SelectGame(int lvlNum)
@@ -160,6 +170,31 @@ public class MainMenuScr : MonoBehaviour
         }
     }
 
+    private void WifiServerAnswerProcessing(string text)
+    {
+        _serverAnswer = text;
+        _canReadServerAnswer = true;
+    }
+
+    private void WifiServerAnswerProcessing()
+    {
+        if (_serverAnswer == "denied")
+            ActivateMenuPanel();
+        else if (_serverAnswer == "accept")
+            DeactivatePanels();
+
+        _serverAnswer = null;
+    }
+
+    void DestroyAllWifiServersIcons()
+    {
+        foreach (Transform g in _serverSearchPanel.GetComponentsInChildren<Transform>())
+        {
+            if (g.name.Contains("ServerSelect"))
+                Destroy(g.gameObject);
+        }
+    }
+
     private void ShowOpponentName()
     {
         _opponent.gameObject.SetActive(true);
@@ -173,7 +208,8 @@ public class MainMenuScr : MonoBehaviour
     }
 
     public void ConnectToWifi()
-    {        
+    {
+        DestroyAllWifiServersIcons();
         WifiServer_Connect.StartSearching();
         ActivatePanel(_serverSearchPanel);
     }
