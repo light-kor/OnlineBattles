@@ -28,12 +28,13 @@ public static class DataHolder
 
     public delegate void Notification();
     public delegate void GameNotification(string text, int number);
+    public delegate void TextЕransmissionEnvent(string text);
 
     //"127.0.0.1" - локальный; 188.134.87.78 - общий дом
     public static string ServerIp { get; } = "188.134.87.78";
     public static string WifiGameIp { get; set; } = null;
     public static int RemoteServerPort { get; } = 55555;
     public static int WifiPort { get; } = 55550;
-
+    public static string ServerName { get; } = "Kate";
 
 }

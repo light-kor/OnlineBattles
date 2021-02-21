@@ -1,14 +1,17 @@
-using UnityEngine;
+using System.Collections.Generic;
 
 public static class WifiServer_Connect
 {
-    public static void StartConnection()
+    public static event DataHolder.Text≈ransmissionEnvent AddWifiServerToScreen;
+    private static List<string> WifiServers = new List<string>();
+
+    public static void StartSearching()
     {
         WifiServer_Searcher.GetWifiServer += AddServerToList;
         Network.CreateWifiServerSearcher("receiving");
     }
 
-    private static void TcpConnect()
+    public static void ConnectToWifiServer()
     {
         Network.CloseWifiServerSearcher();
         WifiServer_Searcher.GetWifiServer -= AddServerToList;
@@ -25,10 +28,11 @@ public static class WifiServer_Connect
         {
             string[] mes = DataHolder.MessageUDPget[0].Split(' ');
             if (mes[0] == "server")
-            {
-                Debug.Log("Server: " + mes[1]);
-                DataHolder.WifiGameIp = mes[1];
-                TcpConnect();
+            {                
+                if (WifiServers.Find(x => x == mes[2]) == null)
+                {
+                    AddWifiServerToScreen?.Invoke($"{mes[1]} {mes[2]}");                    
+                }
             }
             DataHolder.MessageUDPget.RemoveAt(0);
         }

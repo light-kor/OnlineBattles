@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,19 +7,23 @@ using UnityEngine.UI;
 public class MainMenuScr : MonoBehaviour
 {
     public static event DataHolder.GameNotification ShowGameNotification;
-    public Text Money, ID;
-    public TMP_Text opponent;
-    public GameObject MainPanel, LvlPanel, WifiPanel;
+    [SerializeField] private Text _money, _id;
+    [SerializeField] private TMP_Text _opponent;
+    [SerializeField] private GameObject _mainPanel, _lvlPanel, _wifiPanel, _serverSearchPanel;
+    [SerializeField] private GameObject _serverPrefab;
+
+    private List<string> WifiServers = new List<string>();
     private string lvlName { get; set; } = "";
 
     private void Start()
     {
         WifiServer_Host.AcceptOpponent += ShowOpponentName;
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
+        WifiServer_Connect.AddWifiServerToScreen += GetNewWifiServer;
         ActivateMenuPanel();
     }
 
-    void Update()
+    private void Update()
     {
         Network.ConnectionLifeSupport(); //TODO: Может вынести как-то поудобнее
 
@@ -45,6 +50,13 @@ public class MainMenuScr : MonoBehaviour
             }
             DataHolder.MessageTCPforGame.RemoveAt(0);
         }
+
+        if (WifiServers.Count > 0)
+        {
+            CreateWifiServerCopy(WifiServers[0]);
+            WifiServers.RemoveAt(0);
+        }
+            
     }
 
     public void SelectGame(int lvlNum)
@@ -75,7 +87,7 @@ public class MainMenuScr : MonoBehaviour
     public void SelectSingleGame()
     {
         DataHolder.GameType = 1;
-        ActivateLvlPanel();
+        ActivatePanel(_lvlPanel);
     }
 
     /// <summary>
@@ -84,7 +96,7 @@ public class MainMenuScr : MonoBehaviour
     public void SelectWifiGame()
     {
         DataHolder.GameType = 2;        
-        ActivateWifiPanel();
+        ActivatePanel(_wifiPanel);
     }
 
     /// <summary>
@@ -99,6 +111,29 @@ public class MainMenuScr : MonoBehaviour
         TcpConnectionIsReady();
     }
 
+    private void GetNewWifiServer(string text)
+    {
+        WifiServers.Add(text);
+    }
+
+    private void CreateWifiServerCopy(string text)
+    {
+        string[] mes = text.Split(' ');       
+        float x = 0, y = 0;
+        while (x < 150 && x > -150)
+        {
+            x = UnityEngine.Random.Range(-360, 360);
+        }
+
+        while (y < 150 && y > -150)
+        {
+            y = UnityEngine.Random.Range(-640, 640);
+        }
+        GameObject pref = Instantiate(_serverPrefab, _serverSearchPanel.transform);
+        pref.transform.localPosition = new Vector3(x, y, 0);
+        pref.GetComponent<WifiServerSelect>().SetNameAndIP(text);
+    }
+
     /// <summary>
     /// Переход в меню выбора мультиплеерных игр, показ money и id в UI.
     /// </summary>
@@ -109,7 +144,7 @@ public class MainMenuScr : MonoBehaviour
             DataHolder.NotifPanels.NotificatonMultyButton(1);
 
             if (DataHolder.GameType == 3)
-                ActivateLvlPanel();
+                ActivatePanel(_lvlPanel);
         }
     }
 
@@ -120,62 +155,54 @@ public class MainMenuScr : MonoBehaviour
     {
         if (DataHolder.Connected)
         {
-            Money.text = DataHolder.Money.ToString();
-            ID.text = DataHolder.MyServerID.ToString();
+            _money.text = DataHolder.Money.ToString();
+            _id.text = DataHolder.MyServerID.ToString();
         }
     }
 
     private void ShowOpponentName()
     {
-        opponent.gameObject.SetActive(true);
-        opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
+        _opponent.gameObject.SetActive(true);
+        _opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
     }
 
     public void SetHost()
     {        
         WifiServer_Host.StartHosting();       
-        ActivateLvlPanel();
+        ActivatePanel(_lvlPanel);
     }
 
     public void ConnectToWifi()
-    {
-        DeactivatePanels();
-        WifiServer_Connect.StartConnection();
-        //ActivateLvlPanel();
+    {        
+        WifiServer_Connect.StartSearching();
+        ActivatePanel(_serverSearchPanel);
     }
 
     public void StopListener()
     {
-        ShowGameNotification?.Invoke(WifiServer_Searcher.GetLocalIPAddressPiece(), 1);
-        
 
     }
 
 
     #region ActivatePanels
+    public void ActivatePanel(GameObject panel) // В основном для кнопки Back в меню
+    {
+        DeactivatePanels();
+        panel.SetActive(true);
+    }
+
     public void ActivateMenuPanel() // В основном для кнопки Back в меню
     {
         DeactivatePanels();
-        MainPanel.SetActive(true);
-    }
-
-    private void ActivateLvlPanel()
-    {
-        DeactivatePanels();
-        LvlPanel.SetActive(true);
-    }
-
-    private void ActivateWifiPanel()
-    {
-        DeactivatePanels();
-        WifiPanel.SetActive(true);
+        _mainPanel.SetActive(true);
     }
 
     private void DeactivatePanels()
     {
-        MainPanel.SetActive(false);
-        LvlPanel.SetActive(false);
-        WifiPanel.SetActive(false);
+        _mainPanel.SetActive(false);
+        _lvlPanel.SetActive(false);
+        _wifiPanel.SetActive(false);
+        _serverSearchPanel.SetActive(false);
     }
     #endregion
 

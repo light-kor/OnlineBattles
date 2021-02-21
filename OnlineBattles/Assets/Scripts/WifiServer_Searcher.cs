@@ -7,7 +7,7 @@ using UnityEngine;
 public class WifiServer_Searcher
 {
     public static event DataHolder.Notification GetWifiServer;
-    private int _port = 0;
+    private int _port = DataHolder.WifiPort;
     private IPEndPoint _remoteIp = null;
     private UdpClient _client = null;
     private Timer _timer = null;
@@ -17,10 +17,7 @@ public class WifiServer_Searcher
 
     public WifiServer_Searcher(string type)
     {
-
-        _typeOfUDP = type;
-        _port = DataHolder.WifiPort;
-        
+        _typeOfUDP = type;   
         CreateClass();
     }
 
@@ -42,11 +39,11 @@ public class WifiServer_Searcher
             _client.ExclusiveAddressUse = false;
 
             TimerCallback tm = new TimerCallback(SpammingSeverIp);
-            _timer = new Timer(tm, null, 1000, 3000);           
+            _timer = new Timer(tm, null, 1000, 2000);    
         }       
     }
-   
-    public static string GetLocalIPAddressPiece()
+
+    private static string GetLocalIPAddressPiece()
     {
         // Если подключён к wifi, то сам чекни свой 
         if (Application.internetReachability.ToString() == "ReachableViaLocalAreaNetwork")
@@ -97,12 +94,11 @@ public class WifiServer_Searcher
     private void SpammingSeverIp(object obj)
     {
         string IpPiece = GetLocalIPAddressPiece();
-
         int count = 0;
         while (count <= 255)
         {
             string fullIp = IpPiece + count;
-            SendMessage("server", fullIp);
+            SendMessage("server " + DataHolder.ServerName, fullIp);
             count++;
         }
     }
@@ -115,7 +111,6 @@ public class WifiServer_Searcher
             CreateClass();
         }
         else CloseAll(); // На всякий случай
-
     }
 
     public void CloseAll()
