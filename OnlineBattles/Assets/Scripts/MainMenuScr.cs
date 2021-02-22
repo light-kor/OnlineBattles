@@ -10,7 +10,7 @@ public class MainMenuScr : MonoBehaviour
     [SerializeField] private Text _money, _id;
     [SerializeField] private TMP_Text _opponent;
     [SerializeField] private GameObject _mainPanel, _lvlPanel, _wifiPanel, _serverSearchPanel;
-    [SerializeField] private GameObject _serverPrefab;
+    [SerializeField] private GameObject _serverPrefab, _waitingAnim;
 
     private string _serverAnswer = null;
     private bool _canReadServerAnswer = false;
@@ -20,6 +20,7 @@ public class MainMenuScr : MonoBehaviour
     private void Start()
     {
         WifiServer_Host.AcceptOpponent += ShowOpponentName;
+        WifiServer_Host.CleanHostingUI += StopWaitingWifiPlayers;      
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
         WifiServer_Connect.AddWifiServerToScreen += GetNewWifiServer;
         Network.WifiServerAnswer += WifiServerAnswerProcessing;
@@ -126,6 +127,13 @@ public class MainMenuScr : MonoBehaviour
         WifiServers.Add(text);
     }
 
+    private void StopWaitingWifiPlayers()
+    {
+        _waitingAnim.SetActive(false);
+        _opponent.gameObject.SetActive(false);
+        ActivateMenuPanel();
+    }
+
     private void CreateWifiServerCopy(string text)
     {
         string[] mes = text.Split(' ');       
@@ -197,13 +205,15 @@ public class MainMenuScr : MonoBehaviour
 
     private void ShowOpponentName()
     {
+        _waitingAnim.SetActive(false);
         _opponent.gameObject.SetActive(true);
         _opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
     }
 
     public void SetHost()
     {        
-        WifiServer_Host.StartHosting();       
+        WifiServer_Host.StartHosting();
+        _waitingAnim.SetActive(true);
         ActivatePanel(_lvlPanel);
     }
 

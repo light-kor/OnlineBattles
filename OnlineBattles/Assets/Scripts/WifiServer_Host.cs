@@ -9,12 +9,13 @@ using UnityEngine;
 public static class WifiServer_Host
 {  
     private const int UpdateRate = 50; // Отправка UDP инфы каждые UpdateRate мс    
-    private static TcpListener _listener { get; set; }
-    private static NetworkStream _streamGame { get; set; }
+    private static TcpListener _listener { get; set; } = null;
+    private static NetworkStream _streamGame { get; set; } = null;
 
-    public static Opponent_Info _opponent;
+    public static Opponent_Info _opponent = null;
 
     public static event DataHolder.GameNotification FoundOnePlayer;
+    public static event DataHolder.Notification CleanHostingUI;
     public static event DataHolder.Notification AcceptOpponent;
     public static string OpponentStatus = null;
 
@@ -22,10 +23,12 @@ public static class WifiServer_Host
 
     public static async void StartHosting()
     {
-        _searching = true;
-        Network.CreateWifiServerSearcher("spamming");
-
+        CancelSarching();
+        CleanHostingUI?.Invoke();
         //TODO: Когда начинаешь хостить, наверное надо самому отключиться от основного сервера
+
+        _searching = true;
+        Network.CreateWifiServerSearcher("spamming");       
         _listener = new TcpListener(IPAddress.Any, DataHolder.WifiPort);
         _listener.Start();
 
@@ -119,25 +122,40 @@ public static class WifiServer_Host
     {
         Network.CloseWifiServerSearcher();
         ClearOpponentInfo();
-        _listener.Stop();
-        _streamGame.Close();
+
+        if (_listener != null)
+        {
+            _listener.Stop();
+            _listener = null;
+        }
+
+        if (_streamGame != null)
+        {
+            _streamGame.Close();
+            _streamGame = null;
+        }
+
         OpponentStatus = null;
         //TODO: Отправить сообщение подключённом игроку на всякий случай
         //TODO: Вывести сообщение об отмене  подумать, всё ли обработал
     }
 
-    private static void CancelWaiting() //TODO: Досрочный выход из поиска
+    public static void CancelWaiting() //TODO: Досрочный выход из поиска
     {
         _searching = false;
+        CleanHostingUI?.Invoke();
     }
 
     private static void ClearOpponentInfo()
     {
-        _opponent.Client.Close();
-        _opponent = null;
+        if (_opponent != null)
+        {
+            _opponent.Client.Close();
+            _opponent = null;
+        }
     }
 
-    public static bool AddMessageToPlayerBuffer()
+    private static bool AddMessageToPlayerBuffer()
     {
         List<byte> buffer = new List<byte>();
         try

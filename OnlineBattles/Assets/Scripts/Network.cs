@@ -89,16 +89,7 @@ public static class Network
         CloseWifiServerSearcher();
         DataHolder.ServerSearcher = new WifiServer_Searcher(type);
     }
-
-    public static void CloseWifiServerSearcher()
-    {
-        if (DataHolder.ServerSearcher != null)
-        {
-            DataHolder.ServerSearcher.CloseAll();
-            DataHolder.ServerSearcher = null;
-        }            
-    }
-
+    
     /// <summary>
     /// Установка соединения с сервером (асинхронная): проверка интернета, создание экземпляра TcpConnect и авторизация в системе.
     /// </summary>
@@ -236,6 +227,15 @@ public static class Network
         {
             DataHolder.ClientUDP.CloseAll();
             DataHolder.ClientUDP = null;
+        }
+    }
+
+    public static void CloseWifiServerSearcher()
+    {
+        if (DataHolder.ServerSearcher != null)
+        {
+            DataHolder.ServerSearcher.CloseAll();
+            DataHolder.ServerSearcher = null;
         }
     }
 
