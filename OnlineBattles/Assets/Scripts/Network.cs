@@ -80,9 +80,7 @@ public static class Network
     /// </summary>
     public static void CreateUDP()
     {
-        if (DataHolder.ClientUDP != null)
-            DataHolder.ClientUDP.CloseAll();
-
+        CloseUdpConnection();
         DataHolder.ClientUDP = new UDPConnect();
     }
 
@@ -229,6 +227,15 @@ public static class Network
         {
             DataHolder.ClientTCP.CloseClient();
             DataHolder.ClientTCP = null;
+        }
+    }
+
+    public static void CloseUdpConnection()
+    {
+        if (DataHolder.ClientUDP != null)
+        {
+            DataHolder.ClientUDP.CloseAll();
+            DataHolder.ClientUDP = null;
         }
     }
 

@@ -74,7 +74,7 @@ public class NotificationPanels : MonoBehaviour
                 AcceptOpponent.SetActive(false);
                 CancelOpponent.SetActive(false);
                 if (num == 50)
-                    WifiServer_Host.OpponentStatus = "cancel";
+                    WifiServer_Host.OpponentStatus = "denied";
                 else WifiServer_Host.OpponentStatus = "accept";
                 break;
 

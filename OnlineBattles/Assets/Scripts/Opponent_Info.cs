@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using UnityEngine;
 
 public class Opponent_Info
 {
     public TcpClient Client { get; private set; }
     public IPEndPoint UdpEndPoint { get; set; } = null;
-    public string PlayerName = null;
+    public string PlayerName { get; set; } = null;
     public DateTime LastReciveTime { get; set; }
     public List<string> TcpMessages { get; set; } = new List<string>();
     public List<string> TcpGameMessages { get; set; } = new List<string>();

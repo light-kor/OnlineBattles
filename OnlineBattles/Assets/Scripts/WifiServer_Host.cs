@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 public static class WifiServer_Host
 {  
@@ -17,56 +18,62 @@ public static class WifiServer_Host
     public static event DataHolder.Notification AcceptOpponent;
     public static string OpponentStatus = null;
 
-    private static bool _listening;
+    private static bool _searching;
 
     public static async void StartHosting()
     {
-        _listening = true;
+        _searching = true;
         Network.CreateWifiServerSearcher("spamming");
 
         //TODO: Когда начинаешь хостить, наверное надо самому отключиться от основного сервера
         _listener = new TcpListener(IPAddress.Any, DataHolder.WifiPort);
         _listener.Start();
 
-        StartSearch:
+    StartSearch:
         await Task.Run(() => ListnerClientsTCP());
 
-        await Task.Run(() => WaitForConnections());
-
-        if (await Task.Run(() => WaitPlayerAnswer()))
+        if (_searching)
         {
-            Network.CloseWifiServerSearcher();
-            _listening = false;
-            SendMessage("accept");
-            AcceptOpponent?.Invoke();
+            await Task.Run(() => WaitForConnections());
+
+            if (_searching)
+            {
+                string myDecision = await Task.Run(() => WaitPlayerAnswer());
+                OpponentStatus = null;
+                if (myDecision == "accept")
+                {
+                    Network.CloseWifiServerSearcher();
+                    SendMessage("accept");
+                    AcceptOpponent?.Invoke();
+                }
+                else if (myDecision == "denied")
+                {
+                    SendMessage("denied");
+                    ClearOpponentInfo();
+                    goto StartSearch;
+                }
+            }
+            else
+                CancelSarching();
         }
         else
-        {
-            SendMessage("denied");
-            _opponent.Client.Close();
-            _opponent = null;
-            goto StartSearch;
-        }
+            CancelSarching();
     }
 
-    private static bool WaitPlayerAnswer()
+    private static string WaitPlayerAnswer()
     {
         while (true)
         {
             if (OpponentStatus == "accept")
-            {
-                return true;
-            }
-            else if (OpponentStatus == "cancel")
-            {
-                return false;
-            }
+                return "accept";
+            else if (OpponentStatus == "denied")
+                return "denied";
         }
     }
 
     private static void WaitForConnections()
     {
-        while (true)
+        while (_searching)
         {
             AddMessageToPlayerBuffer();
             if (_opponent.TcpMessages.Count > 0)
@@ -76,6 +83,7 @@ public static class WifiServer_Host
                 { 
                     _opponent.PlayerName = mes[1];
                     FoundOnePlayer?.Invoke("Подключился игрок:\r\n" + _opponent.PlayerName, 5);
+                    _opponent.TcpMessages.RemoveAt(0);
                     break;
                 }
                 _opponent.TcpMessages.RemoveAt(0);
@@ -84,7 +92,7 @@ public static class WifiServer_Host
     }
     public static void ListnerClientsTCP()
     {
-        while (_listening)
+        while (_searching)
         {
             if (_listener.Pending())
             {
@@ -92,7 +100,6 @@ public static class WifiServer_Host
                 break;
             }
         }
-
     }
 
     public static bool SendMessage(string mes)
@@ -106,6 +113,28 @@ public static class WifiServer_Host
             return true;
         }
         catch { return false; }
+    }
+
+    private static void CancelSarching()
+    {
+        Network.CloseWifiServerSearcher();
+        ClearOpponentInfo();
+        _listener.Stop();
+        _streamGame.Close();
+        OpponentStatus = null;
+        //TODO: Отправить сообщение подключённом игроку на всякий случай
+        //TODO: Вывести сообщение об отмене  подумать, всё ли обработал
+    }
+
+    private static void CancelWaiting() //TODO: Досрочный выход из поиска
+    {
+        _searching = false;
+    }
+
+    private static void ClearOpponentInfo()
+    {
+        _opponent.Client.Close();
+        _opponent = null;
     }
 
     public static bool AddMessageToPlayerBuffer()
