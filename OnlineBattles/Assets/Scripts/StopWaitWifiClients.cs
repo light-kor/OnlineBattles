@@ -13,7 +13,7 @@ public class StopWaitWifiClients : MonoBehaviour, IPointerClickHandler
 
     void Start()
     {
-        _myColor = GetComponent<Image>();
+        _myColor = transform.GetChild(0).GetComponent<Image>();
     }
 
     void Update()

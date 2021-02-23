@@ -103,7 +103,10 @@ public static class Network
         if (DataHolder.Connected)
         {
             TcpConnectionIsDone?.Invoke();
-            DataHolder.ClientTCP.CanStartReconnect = true;
+            if (DataHolder.ClientTCP != null)
+            {
+                DataHolder.ClientTCP.CanStartReconnect = true; //TODO: Чёт здесь какая-то фигня
+            }
         }
     }
 
