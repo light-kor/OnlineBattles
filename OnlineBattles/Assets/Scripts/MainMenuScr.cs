@@ -80,7 +80,15 @@ public class MainMenuScr : MonoBehaviour
         }
         else if (DataHolder.GameType == 2)
         {
-
+            if (WifiServer_Host.OpponentIsReady == false)
+            {
+                ShowGameNotification?.Invoke("Ожидайте второго игрока", 1);
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene("lvl" + lvlNum);
+                //TODO: Отправить инфу второму игроку
+            }
         }
         else if (DataHolder.GameType == 3)
         {

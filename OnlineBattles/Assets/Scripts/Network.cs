@@ -71,7 +71,7 @@ public static class Network
     public static void ConnectionLifeSupport()
     {        
         // Поддержание жизни соединения с сервером.
-        if (DataHolder.ClientTCP != null && (DateTime.UtcNow - DataHolder.LastSend).TotalMilliseconds > 3000)
+        if (DataHolder.ClientTCP != null && DataHolder.Connected == false && (DateTime.UtcNow - DataHolder.LastSend).TotalMilliseconds > 3000)
             DataHolder.ClientTCP.SendMessage("Check");
     }
 

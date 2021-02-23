@@ -7,18 +7,19 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 public static class WifiServer_Host
-{  
-    private const int UpdateRate = 50; // Отправка UDP инфы каждые UpdateRate мс    
-    private static TcpListener _listener { get; set; } = null;
-    private static NetworkStream _streamGame { get; set; } = null;
-
-    public static Opponent_Info _opponent = null;
-
+{
     public static event DataHolder.GameNotification FoundOnePlayer;
     public static event DataHolder.Notification CleanHostingUI;
     public static event DataHolder.Notification AcceptOpponent;
-    public static string OpponentStatus = null;
 
+    public static string OpponentStatus = null;
+    public static bool OpponentIsReady = false;
+
+    public static Opponent_Info _opponent { get; private set; } = null;
+    private const int UpdateRate = 50; // Отправка UDP инфы каждые UpdateRate мс    
+    private static TcpListener _listener { get; set; } = null;
+    private static NetworkStream _streamGame { get; set; } = null;
+     
     private static bool _searching;
 
     public static async void StartHosting()
@@ -47,6 +48,9 @@ public static class WifiServer_Host
                 {
                     Network.CloseWifiServerSearcher();
                     SendMessage("accept");
+                    DataHolder.WifiGameIp = ((IPEndPoint)(_opponent.Client.Client.RemoteEndPoint)).Address.ToString();
+                    Debug.Log(DataHolder.WifiGameIp);
+                    OpponentIsReady = true;
                     AcceptOpponent?.Invoke();
                 }
                 else if (myDecision == "denied")
