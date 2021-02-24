@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class MainMenuScr : MonoBehaviour
+public class MainMenu : MonoBehaviour
 {
     public static event DataHolder.GameNotification ShowGameNotification;
     [SerializeField] private Text _money, _id;
     [SerializeField] private TMP_Text _opponent;
     [SerializeField] private GameObject _mainPanel, _lvlPanel, _wifiPanel, _serverSearchPanel;
-    [SerializeField] private GameObject _serverPrefab, _waitingAnim;
+    [SerializeField] private GameObject _serverPrefab, _waitingAnim, _lvlChoseWaiting;
 
     private string _serverAnswer = null;
     private bool _canReadServerAnswer = false;
@@ -38,19 +39,23 @@ public class MainMenuScr : MonoBehaviour
             {
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[1]);
                 DataHolder.LobbyID = Convert.ToInt32(mes[2]);
-                UnityEngine.SceneManagement.SceneManager.LoadScene(lvlName);
+                SceneManager.LoadScene(lvlName);
                 DataHolder.NotifPanels.NotificatonMultyButton(0);
             }
             // Значит до этого игрок вылетел, и сейчас может восстановиться в игре
-            else if (mes[0] == "goto") //TODO: А вот это больше почему-то не работает.
+            else if (mes[0] == "goto")
             {
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[2]);
                 DataHolder.LobbyID = Convert.ToInt32(mes[3]);
                 DataHolder.SelectedServerGame = Convert.ToInt32(mes[1]);
                 if (DataHolder.SelectedServerGame == 2)
                 {                  
-                    UnityEngine.SceneManagement.SceneManager.LoadScene("lvl2");
+                    SceneManager.LoadScene("lvl2");
                 }                    
+            }
+            else if (mes[0] == "wifi_go")
+            {
+                SceneManager.LoadScene(mes[1]);
             }
             DataHolder.MessageTCPforGame.RemoveAt(0);
         }
@@ -76,7 +81,7 @@ public class MainMenuScr : MonoBehaviour
 
         if (DataHolder.GameType == 1)
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("TicTacToe_Single"); //TODO: Сделать по шаблону мультиплеера.
+            SceneManager.LoadScene("TicTacToe_Single"); //TODO: Сделать по шаблону мультиплеера.
         }
         else if (DataHolder.GameType == 2)
         {
@@ -86,7 +91,8 @@ public class MainMenuScr : MonoBehaviour
             }
             else
             {
-                UnityEngine.SceneManagement.SceneManager.LoadScene("lvl" + lvlNum);
+                WifiServer_Host.SendMessage("wifi_go " + "lvl" + lvlNum);
+                SceneManager.LoadScene("lvl" + lvlNum);
                 //TODO: Отправить инфу второму игроку
             }
         }
@@ -99,7 +105,7 @@ public class MainMenuScr : MonoBehaviour
         }
     }
 
-    
+
     /// <summary>
     /// Обработка кнопки и установка режима одиночной игры.
     /// </summary>
@@ -197,7 +203,11 @@ public class MainMenuScr : MonoBehaviour
         if (_serverAnswer == "denied")
             ActivateMenuPanel();
         else if (_serverAnswer == "accept")
+        {
             DeactivatePanels();
+            _lvlChoseWaiting.SetActive(true);
+        }
+            
 
         _serverAnswer = null;
     }
@@ -234,7 +244,7 @@ public class MainMenuScr : MonoBehaviour
 
     public void StopListener()
     {
-
+        
     }
 
 

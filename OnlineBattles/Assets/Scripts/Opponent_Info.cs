@@ -11,8 +11,8 @@ public class Opponent_Info
     public DateTime LastReciveTime { get; set; }
     public List<string> TcpMessages { get; set; } = new List<string>();
     public List<string> TcpGameMessages { get; set; } = new List<string>();
-    public long Ping { get; private set; } = 0;
-    private long StartPingTimeInTicks { get; set; } = 0;
+    public long Ping { get; set; } = 0;
+    public long StartPingTimeInTicks { get; set; } = 0;
 
     public Opponent_Info(TcpClient client, DateTime time)
     {

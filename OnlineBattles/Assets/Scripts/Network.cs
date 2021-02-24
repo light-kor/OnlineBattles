@@ -39,7 +39,7 @@ public static class Network
 
                     case "ping":
                         DataHolder.ClientTCP.SendMessage("ping");
-                        break;
+                        break;                   
 
                     case "time":
                         DataHolder.TimeDifferenceWithServer = Convert.ToInt64(mes[1]) - DateTime.UtcNow.Ticks;
@@ -47,12 +47,13 @@ public static class Network
 
                     case "denied":
                         CloseTcpConnection();
+                        DataHolder.NotifPanels.NotificatonMultyButton(1); // Выключаем панель ожидания
                         ShowGameNotification?.Invoke("Запрос отклонён", 1);
                         WifiServerAnswer?.Invoke("denied");
                         break;
 
                     case "accept":
-                        ShowGameNotification?.Invoke("Запрос принят", 1);
+                        DataHolder.NotifPanels.NotificatonMultyButton(1); // Выключаем панель ожидания
                         WifiServerAnswer?.Invoke("accept");
                         break;
 
@@ -217,10 +218,11 @@ public static class Network
     /// </summary>
     public static void CloseTcpConnection()
     {
+        DataHolder.ClientTCP.GetMessage -= MessageHandler;
         if (DataHolder.ClientTCP != null)
         {
             DataHolder.ClientTCP.CloseClient();
-            DataHolder.ClientTCP = null;
+            DataHolder.ClientTCP = null;            
         }
     }
 

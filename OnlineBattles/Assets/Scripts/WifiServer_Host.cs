@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -19,11 +20,15 @@ public static class WifiServer_Host
     private const int UpdateRate = 50; // Отправка UDP инфы каждые UpdateRate мс    
     private static TcpListener _listener { get; set; } = null;
     private static NetworkStream _streamGame { get; set; } = null;
-     
+    private static Thread receiveThread = new Thread(TcpMessageHandler);
+    private static bool _messageHandlerIsBusy = false;
     private static bool _searching;
 
     public static async void StartHosting()
     {
+        Network.CloseTcpConnection();
+        Network.CloseUdpConnection();
+
         CancelSarching();
         CleanHostingUI?.Invoke();
         //TODO: Когда начинаешь хостить, наверное надо самому отключиться от основного сервера
@@ -49,9 +54,9 @@ public static class WifiServer_Host
                     Network.CloseWifiServerSearcher();
                     SendMessage("accept");
                     DataHolder.WifiGameIp = ((IPEndPoint)(_opponent.Client.Client.RemoteEndPoint)).Address.ToString();
-                    Debug.Log(DataHolder.WifiGameIp);
                     OpponentIsReady = true;
-                    AcceptOpponent?.Invoke();
+                    AcceptOpponent?.Invoke();                    
+                    receiveThread.Start();
                 }
                 else if (myDecision == "denied")
                 {
@@ -195,87 +200,49 @@ public static class WifiServer_Host
         return true;
     }
 
-    //public void StartServer()
-    //{
-    //    Thread receiveThread = new Thread(UdpProcessing.ReceivingMessagesLoop);
-    //    receiveThread.Start();
+    private static void TcpMessageHandler()
+    {
+        AddMessageToPlayerBuffer();
 
-    //    //Создаём таймер для отправки данных игрокам UDP сервера
-    //    TimerCallback SendUdp = new TimerCallback(UdpProcessing.ResendUDPMessage);
-    //    Timer UdpSenderTimer = new Timer(SendUdp, null, 0, UpdateRate);
+        if (!_messageHandlerIsBusy)
+        {
+            _messageHandlerIsBusy = true;
+            while (DataHolder.MessageTCP.Count > 0)
+            {
+                string[] mes = DataHolder.MessageTCP[0].Split(' ');
+                switch (mes[0])
+                {
 
-    //    while (true)
-    //    {
-    //        TcpMessageHandling();
-    //        //TicTacToeLobby();
-    //    }
-    //}
+                    case "ping":
+                    case "start":
+                        CheckPing(mes);
+                        break;
 
-    ///// <summary>
-    ///// Обработка новых игроков. Добавляем из в лист MainClientsList из NewClients, далее:
-    ///// авторизация, регистрация, коннект к какой-либо игре или дисконнект.
-    ///// </summary>
-    //private void TcpMessageHandling()
-    //{
+                    case "leave":
 
-    //    // Проверяем поток клиента
-    //    if (!AddMessageToPlayerBuffer())
-    //    {
-    //        RemovingFromMain.Add(client); // Удаляем, если потеряли соединение с сокетом. //TODO: Сделать реконнект
-    //    }
+                        break;
 
-    //    bool chooselvl = false;
-    //    while (client.TcpMessages.Count > 0)
-    //    {
-    //        string[] mes = client.TcpMessages[0].Split(new char[] { ' ' });
+                    case "exit":
 
-    //        // Выбор игры.
-    //        if (mes[0] == "game")
-    //        {
-    //            if (client.ChosenGame == null)
-    //            {
-    //                if (mes[1] == "1")
-    //                    client.ChosenGame = forGame1;
-    //                else if (mes[1] == "2")
-    //                    client.ChosenGame = forGame2;
-    //                chooselvl = true;
-    //            }
-    //        }
-    //        // Проверка пинга и старт игры
-    //        else if (mes[0] == "ping" || mes[0] == "start") { client.StartGameAndCheckPing(mes); }
-    //        // Выход из начавшейся игры.
-    //        else if (mes[0] == "leave") { client.ThisGameLobby.EndOfGame(client); }
-    //        // Авторизация в системе. Принимаем keyid и возвращаем Игроку его ID и Money
-    //        else if (mes[0] == "login") { SearchForARegisteredUser(client, mes); } //TODO: Сначала он должен залогиниться, а потом уже всё остальное
-    //                                                                               // Регистрация новых пользователей
-    //        else if (mes[0] == "reg")
-    //        {
-    //            if (client.PlayerId != 0)
-    //                continue;
+                        break;
 
-    //            //                                                 
-    //        }
-    //        // Отмена поиска игры
-    //        else if (mes[0] == "CancelSearch") { client.ChosenGame = null; }
-    //        // Вышел из приложения через кнопку
-    //        else if (mes[0] == "exit") { RemovingFromMain.Add(client); }
-    //        // Поддержание жизни.
-    //        else if (mes[0] == "Check") { }
-    //        // Значит сообщение идёт в его игру
-    //        else { client.TcpGameMessages.Add(client.TcpMessages[0]); }
+                    case "Check":
 
-    //        client.TcpMessages.RemoveAt(0);
-    //    }
-    //    if (chooselvl)
-    //        client.ChosenGame.Add(client);
+                        break;
 
-    //}
 
-    ///// <summary>
-    ///// Ищем игрока среди всех подключённых пользователей.
-    ///// Логинем, отказваем во втором логине или востанавливаем Client, в случае необходимости.
-    ///// </summary>
-    //private void LoginOrReconnecting(ClientInfo ChosenClient)
+                    default:
+                        DataHolder.MessageTCPforGame.Add(DataHolder.MessageTCP[0]);
+                        break;
+
+                }
+                DataHolder.MessageTCP.RemoveAt(0);
+            }
+            _messageHandlerIsBusy = false;
+        }
+    }
+
+    //private static void LoginOrReconnecting(ClientInfo ChosenClient)
     //{
     //    ClientInfo found = AllClients.Find(item => item.PlayerId == ChosenClient.PlayerId);
     //    Console.WriteLine("eee");
@@ -284,7 +251,7 @@ public static class WifiServer_Host
     //        // Если игрок уже где-то подключён и это не тот же сокет, то отправлем прошлому, что он больше не в игре
     //        if (found.Client != ChosenClient.Client)
     //            SendMessage("_newLogin"); //TODO: Обработать на клиенте
-    //                                                           // Заменяем его экземпляр класса TcpClient, если зашёл с другого сокета
+    //                                      // Заменяем его экземпляр класса TcpClient, если зашёл с другого сокета
     //        found.ReplaceClient(ChosenClient.Client);
     //        SendMessage("login " + found.PlayerId + " " + found.Money);
     //        RemovingFromMain.Add(ChosenClient);
@@ -299,60 +266,13 @@ public static class WifiServer_Host
     //        SendMessage(ChosenClient, "login " + ChosenClient.PlayerId + " " + ChosenClient.Money);
     //}
 
-
-    //public static void SplitByLobby(List<ClientInfo> players, int GameType)
-    //{
-    //    List<ClientInfo> buff = new List<ClientInfo>();
-
-    //    // Если нечётное кол-во игроков, то отправляем последнего в следующую партию
-    //    if (players.Count % 2 != 0)
-    //    {
-    //        buff.Add(players[players.Count - 1]);
-    //        players.RemoveAt(players.Count - 1);
-    //    }
-
-    //    //Распределяем игроков по лобби
-    //    for (int i = 0; i < players.Count; i += 2)
-    //    {
-    //        bool one, two;
-    //        // Разрешить клиентам начать игру и кидаем их номер в этом матче
-    //        one = TcpProcessing.SendMessage(players[i], $"S 1 {IdLobbyCount}");
-    //        two = TcpProcessing.SendMessage(players[i + 1], $"S 2 {IdLobbyCount}");
-
-    //        // Проверить, отправилось ли сообщение
-    //        if (one && two)
-    //        {
-    //            if (GameType == 1)
-    //                Lobby_game1.Add(new LobbyInfo(players[i], players[i + 1], IdLobbyCount, DateTime.UtcNow, 1, 100));
-    //            else if (GameType == 2)
-    //                Lobby_game2.Add(new UdpLobby_2(players[i], players[i + 1], IdLobbyCount, DateTime.UtcNow, GameType, 100));
-    //            IdLobbyCount++;
-    //        }
-    //        else //TODO: Переосмыслить и перенастроить весь этот блок
-    //        {
-    //            // Если не получилось отправить кому-то сообщение, то его удаляем, а второй продолжает ждать новое лобби. Или обоих удалим  
-    //            if (one)
-    //            {
-    //                TcpProcessing.SendMessage(players[i], "R");
-    //                TcpProcessing.SendMessage(players[i + 1], "C");
-    //                buff.Add(players[i]);
-    //            }
-    //            else if (two)
-    //            {
-    //                TcpProcessing.SendMessage(players[i + 1], "R");
-    //                TcpProcessing.SendMessage(players[i], "C");
-    //                buff.Add(players[i + 1]);
-    //            }
-    //            else
-    //            {
-    //                TcpProcessing.SendMessage(players[i], "C");
-    //                TcpProcessing.SendMessage(players[i + 1], "C");
-    //            }
-    //        }
-    //    }
-    //    // Чистим лист этой игры, когда все зашли по лобби
-    //    players.Clear();
-    //    // Возвращаем одиночек на следующий круг
-    //    players.AddRange(buff);
-    //}
+    public static void CheckPing(string[] words)
+    {
+        if (words[0] == "ping")
+        {
+            _opponent.Ping = DateTime.UtcNow.Ticks - _opponent.StartPingTimeInTicks;
+            _opponent.StartPingTimeInTicks = 0;
+            SendMessage($"time {DateTime.UtcNow.Ticks + (_opponent.Ping / 2)}");
+        }
+    }
 }
