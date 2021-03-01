@@ -21,7 +21,7 @@ public class MainMenu : MonoBehaviour
     private void Start()
     {
         WifiServer_Host.AcceptOpponent += ShowOpponentName;
-        WifiServer_Host.CleanHostingUI += StopWaitingWifiPlayers;      
+        WifiServer_Host.CleanHostingUI += StopAnimWaitingWifiPlayers;      
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
         WifiServer_Connect.AddWifiServerToScreen += GetNewWifiServer;
         Network.WifiServerAnswer += WifiServerAnswerProcessing;
@@ -141,7 +141,7 @@ public class MainMenu : MonoBehaviour
         WifiServers.Add(text);
     }
 
-    private void StopWaitingWifiPlayers()
+    private void StopAnimWaitingWifiPlayers()
     {
         _waitingAnim.SetActive(false);
         _opponent.gameObject.SetActive(false);

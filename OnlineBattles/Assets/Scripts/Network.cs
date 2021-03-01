@@ -217,12 +217,12 @@ public static class Network
     /// Очистка и удаление ClientTCP и всего TCP соединения.
     /// </summary>
     public static void CloseTcpConnection()
-    {
-        DataHolder.ClientTCP.GetMessage -= MessageHandler;
+    {       
         if (DataHolder.ClientTCP != null)
         {
             DataHolder.ClientTCP.CloseClient();
-            DataHolder.ClientTCP = null;            
+            DataHolder.ClientTCP = null;
+            DataHolder.ClientTCP.GetMessage -= MessageHandler;
         }
     }
 

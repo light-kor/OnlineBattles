@@ -54,7 +54,9 @@ public static class WifiServer_Host
                     Network.CloseWifiServerSearcher();
                     SendMessage("accept");
                     DataHolder.WifiGameIp = ((IPEndPoint)(_opponent.Client.Client.RemoteEndPoint)).Address.ToString();
-                    OpponentIsReady = true;
+                    await Task.Run(() => CheckPing());
+                    Debug.Log(_opponent.Ping/10000);
+                    OpponentIsReady = true; //TODO: При дисконнеекте делать false
                     AcceptOpponent?.Invoke();                    
                     receiveThread.Start();
                 }
@@ -81,6 +83,30 @@ public static class WifiServer_Host
             else if (OpponentStatus == "denied")
                 return "denied";
         }
+    }
+
+    public static void CheckPing()
+    {
+        SendMessage("ping");
+        _opponent.StartPingTimeInTicks = DateTime.UtcNow.Ticks;
+        while (_searching)
+        {
+            AddMessageToPlayerBuffer();
+            if (_opponent.TcpMessages.Count > 0)
+            {
+                string[] mes = _opponent.TcpMessages[0].Split(' ');
+                if (mes[0] == "ping")
+                {
+                    _opponent.Ping = DateTime.UtcNow.Ticks - _opponent.StartPingTimeInTicks;
+                    _opponent.StartPingTimeInTicks = 0;
+                    SendMessage($"time {DateTime.UtcNow.Ticks + (_opponent.Ping / 2)}");
+                    _opponent.TcpMessages.RemoveAt(0);
+                    break;
+                }
+                _opponent.TcpMessages.RemoveAt(0);
+            }
+        }
+        
     }
 
     private static void WaitForConnections()
@@ -213,11 +239,6 @@ public static class WifiServer_Host
                 switch (mes[0])
                 {
 
-                    case "ping":
-                    case "start":
-                        CheckPing(mes);
-                        break;
-
                     case "leave":
 
                         break;
@@ -266,13 +287,5 @@ public static class WifiServer_Host
     //        SendMessage(ChosenClient, "login " + ChosenClient.PlayerId + " " + ChosenClient.Money);
     //}
 
-    public static void CheckPing(string[] words)
-    {
-        if (words[0] == "ping")
-        {
-            _opponent.Ping = DateTime.UtcNow.Ticks - _opponent.StartPingTimeInTicks;
-            _opponent.StartPingTimeInTicks = 0;
-            SendMessage($"time {DateTime.UtcNow.Ticks + (_opponent.Ping / 2)}");
-        }
-    }
+    
 }
