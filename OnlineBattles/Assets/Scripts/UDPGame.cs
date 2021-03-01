@@ -47,19 +47,29 @@ public class UDPGame : OnlineGameTemplate
     {
         if (DataHolder.MessageUDPget.Count > 1 && _gameOn)
         {
-            string[] frame1 = DataHolder.MessageUDPget[0].Split(' ');
+            string[] frame1 = DataHolder.MessageUDPget[0].Split(' ');          
             string[] frame2 = DataHolder.MessageUDPget[1].Split(' ');
+            if (frame1[0] != "g")
+            {
+                DataHolder.MessageUDPget.RemoveAt(0);
+                return;
+            }   
+            if (frame2[0] != "g")
+            {
+                DataHolder.MessageUDPget.RemoveAt(1);
+                return;
+            }
 
-            long time = Convert.ToInt64(frame1[0]);
-            long time2 = Convert.ToInt64(frame2[0]);
+            long time = Convert.ToInt64(frame1[1]);
+            long time2 = Convert.ToInt64(frame2[1]);
             long vrem = DateTime.UtcNow.Ticks + DataHolder.TimeDifferenceWithServer - _delay;
 
             if (time < vrem && vrem < time2)
             {
                 //normalized = (x - min(x)) / (max(x) - min(x));
                 float delta = (vrem - time) / (time2 - time);
-                me.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[1]), float.Parse(frame1[2])), new Vector2(float.Parse(frame2[1]), float.Parse(frame2[2])), delta);
-                enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[3]), float.Parse(frame1[4])), new Vector2(float.Parse(frame2[3]), float.Parse(frame2[4])), delta);
+                me.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[2]), float.Parse(frame1[3])), new Vector2(float.Parse(frame2[2]), float.Parse(frame2[3])), delta);
+                enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[4]), float.Parse(frame1[5])), new Vector2(float.Parse(frame2[4]), float.Parse(frame2[5])), delta);
             }
             else if (time > vrem) return;
 
@@ -74,7 +84,7 @@ public class UDPGame : OnlineGameTemplate
         buffY = joystick.Vertical;
         if (buffX != 0 && buffY != 0)
         {
-            DataHolder.ClientUDP.SendMessage($"{buffX} {buffY}", true); //TODO: Проверять на сервере, что число от 0 до 1
+            DataHolder.ClientUDP.SendMessage($"g {buffX} {buffY}", true); //TODO: Проверять на сервере, что число от 0 до 1           
         }
     }   
 }

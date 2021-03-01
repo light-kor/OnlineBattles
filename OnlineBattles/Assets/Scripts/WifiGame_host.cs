@@ -45,10 +45,16 @@ public class WifiGame_host : MonoBehaviour
         if (DataHolder.MessageUDPget.Count > 0)
         {
             string[] words = DataHolder.MessageUDPget[0].Split(' ');
+            if (words[0] != "g")
+            {
+                DataHolder.MessageUDPget.RemoveAt(0);
+                return;
+            }
+                
             try
             {
-                x2 += float.Parse(words[0]) / 10;
-                y2 += float.Parse(words[1]) / 10;
+                x2 += float.Parse(words[1]) / 10;
+                y2 += float.Parse(words[2]) / 10;
             }
             catch { }
             DataHolder.MessageUDPget.RemoveAt(0);
@@ -69,7 +75,7 @@ public class WifiGame_host : MonoBehaviour
                 EndOfGame(2);
         }
         CheckDisconnect();
-        DataHolder.ClientUDP.SendMessage($"{DateTime.UtcNow.Ticks} {x2} {y2} {x1} {y1}");
+        DataHolder.ClientUDP.SendMessage($"g {DateTime.UtcNow.Ticks} {x2} {y2} {x1} {y1}");
     }
 
     public void EndOfGame(int winClient)

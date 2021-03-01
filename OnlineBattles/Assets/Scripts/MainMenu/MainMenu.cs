@@ -270,6 +270,7 @@ public class MainMenu : MonoBehaviour
     }
     #endregion
 
+    //TODO: Добавил "g" к каждому игровому udp сообщению. НО НЕ УЧЁЛ ЭТО НА СЕРВЕРЕ!!!!
 
     //TODO: Сбрасывать значения в DataHolder после онлайн матча
 

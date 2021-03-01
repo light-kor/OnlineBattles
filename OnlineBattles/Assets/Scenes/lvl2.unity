@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 335943317}
   - component: {fileID: 335943316}
   m_Layer: 0
-  m_Name: WifiGameController
+  m_Name: WifHostGameController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -326,7 +326,7 @@ GameObject:
   - component: {fileID: 457828340}
   - component: {fileID: 457828339}
   m_Layer: 0
-  m_Name: MultiplayerGameController
+  m_Name: OnlineGameController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -640,8 +640,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _singleGame: {fileID: 2039919387}
-  _wifiGame: {fileID: 335943315}
-  _multiGame: {fileID: 457828338}
+  _wifiHost: {fileID: 335943315}
+  _onlineGame: {fileID: 457828338}
 --- !u!114 &1070158858
 MonoBehaviour:
   m_ObjectHideFlags: 0
