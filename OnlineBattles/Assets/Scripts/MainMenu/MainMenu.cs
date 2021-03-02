@@ -91,7 +91,7 @@ public class MainMenu : MonoBehaviour
             }
             else
             {
-                WifiServer_Host.SendMessage("wifi_go " + "lvl" + lvlNum);
+                WifiServer_Host.SendTcpMessage("wifi_go " + "lvl" + lvlNum);
                 SceneManager.LoadScene("lvl" + lvlNum);
                 //TODO: Отправить инфу второму игроку
             }

@@ -11,6 +11,8 @@ public class NotificationPanels : MonoBehaviour
     public static List<string> ListOfNotification = new List<string>();
     public static List<int> NumOfNotification = new List<int>();
 
+    private bool flag = false;
+
     private void Awake()
     {
         DataHolder.NotifPanels = this;
@@ -36,9 +38,18 @@ public class NotificationPanels : MonoBehaviour
         {
             ShowNotif(ListOfNotification[0], NumOfNotification[0]);           
         }
+
+        if (flag)
+        {
+            NotificatonMultyButton(1);
+            flag = false;
+        }
     }
 
-
+    public void CloseSimple()
+    {
+        flag = true;
+    }
 
     /// <summary>
     /// Функция закрытия всех типов уведомлений NotifPanel с последующей обработкой.
@@ -107,8 +118,11 @@ public class NotificationPanels : MonoBehaviour
         StopReconnectButton.SetActive(false);
         CancelSearchButton.SetActive(false);
         CloseEndGameButton.SetActive(false);
-        AcceptOpponent.SetActive(false);
-        CancelOpponent.SetActive(false);
+        if (AcceptOpponent != null) // Можно указать только один. Всё равно они вместе идут
+        {
+            AcceptOpponent.SetActive(false);
+            CancelOpponent.SetActive(false);
+        }
 
         if (caseNotif == 1)
             NotifButton.SetActive(true);

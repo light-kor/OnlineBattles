@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using UnityEngine;
 
 public static class Network
 {    
@@ -53,7 +54,7 @@ public static class Network
                         break;
 
                     case "accept":
-                        DataHolder.NotifPanels.NotificatonMultyButton(1); // Выключаем панель ожидания
+                        DataHolder.NotifPanels.CloseSimple(); // Выключаем панель ожидания
                         WifiServerAnswer?.Invoke("accept");
                         break;
 
@@ -70,10 +71,11 @@ public static class Network
 
     //TODO: Теперь это костыль тк надо привязать к открытым сценам юнити и + тепрь надо самому вставлять во все сцены. те пока пусть будет в NotificationPanels
     public static void ConnectionLifeSupport()
-    {        
+    {
         // Поддержание жизни соединения с сервером.
-        if (DataHolder.ClientTCP != null && DataHolder.Connected == false && (DateTime.UtcNow - DataHolder.LastSend).TotalMilliseconds > 3000)
+        if (DataHolder.ClientTCP != null && DataHolder.Connected == true && (DateTime.UtcNow - DataHolder.LastSend).TotalMilliseconds > 3000)
             DataHolder.ClientTCP.SendMessage("Check");
+            
     }
 
     /// <summary>

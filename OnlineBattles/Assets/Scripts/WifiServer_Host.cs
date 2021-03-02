@@ -12,7 +12,8 @@ public static class WifiServer_Host
     public static event DataHolder.GameNotification FoundOnePlayer;
     public static event DataHolder.Notification CleanHostingUI;
     public static event DataHolder.Notification AcceptOpponent;
-
+    public static event DataHolder.TextЕransmissionEnvent ClientDisconnect;
+    
     public static string OpponentStatus = null;
     public static bool OpponentIsReady = false;
 
@@ -21,8 +22,7 @@ public static class WifiServer_Host
     private static TcpListener _listener { get; set; } = null;
     private static NetworkStream _streamGame { get; set; } = null;
     private static Thread receiveThread = new Thread(TcpMessageHandler);
-    private static bool _messageHandlerIsBusy = false;
-    private static bool _searching;
+    private static bool _working;
 
     public static async void StartHosting()
     {
@@ -33,7 +33,7 @@ public static class WifiServer_Host
         CleanHostingUI?.Invoke();
         //TODO: Когда начинаешь хостить, наверное надо самому отключиться от основного сервера
 
-        _searching = true;
+        _working = true;
         Network.CreateWifiServerSearcher("spamming");       
         _listener = new TcpListener(IPAddress.Any, DataHolder.WifiPort);
         _listener.Start();
@@ -41,28 +41,27 @@ public static class WifiServer_Host
     StartSearch:
         await Task.Run(() => ListnerClientsTCP());
 
-        if (_searching)
+        if (_working)
         {
             await Task.Run(() => WaitForConnections());
 
-            if (_searching)
+            if (_working)
             {
                 string myDecision = await Task.Run(() => WaitPlayerAnswer());
                 OpponentStatus = null;
                 if (myDecision == "accept")
                 {
                     Network.CloseWifiServerSearcher();
-                    SendMessage("accept");
+                    SendTcpMessage("accept");
                     DataHolder.WifiGameIp = ((IPEndPoint)(_opponent.Client.Client.RemoteEndPoint)).Address.ToString();
                     await Task.Run(() => CheckPing());
-                    Debug.Log(_opponent.Ping/10000);
                     OpponentIsReady = true; //TODO: При дисконнеекте делать false
                     AcceptOpponent?.Invoke();                    
                     receiveThread.Start();
                 }
                 else if (myDecision == "denied")
                 {
-                    SendMessage("denied");
+                    SendTcpMessage("denied");
                     ClearOpponentInfo();
                     goto StartSearch;
                 }
@@ -87,9 +86,9 @@ public static class WifiServer_Host
 
     public static void CheckPing()
     {
-        SendMessage("ping");
+        SendTcpMessage("ping");
         _opponent.StartPingTimeInTicks = DateTime.UtcNow.Ticks;
-        while (_searching)
+        while (_working)
         {
             AddMessageToPlayerBuffer();
             if (_opponent.TcpMessages.Count > 0)
@@ -99,7 +98,7 @@ public static class WifiServer_Host
                 {
                     _opponent.Ping = DateTime.UtcNow.Ticks - _opponent.StartPingTimeInTicks;
                     _opponent.StartPingTimeInTicks = 0;
-                    SendMessage($"time {DateTime.UtcNow.Ticks + (_opponent.Ping / 2)}");
+                    SendTcpMessage($"time {DateTime.UtcNow.Ticks + (_opponent.Ping / 2)}");
                     _opponent.TcpMessages.RemoveAt(0);
                     break;
                 }
@@ -111,7 +110,7 @@ public static class WifiServer_Host
 
     private static void WaitForConnections()
     {
-        while (_searching)
+        while (_working)
         {
             AddMessageToPlayerBuffer();
             if (_opponent.TcpMessages.Count > 0)
@@ -130,7 +129,7 @@ public static class WifiServer_Host
     }
     public static void ListnerClientsTCP()
     {
-        while (_searching)
+        while (_working)
         {
             if (_listener.Pending())
             {
@@ -140,7 +139,7 @@ public static class WifiServer_Host
         }
     }
 
-    public static bool SendMessage(string mes)
+    public static bool SendTcpMessage(string mes)
     {
         //Обязательно добавляем "|" на конце каждого сообщения, чтоб делить их на отдельные в потоке
         mes += "|";
@@ -177,7 +176,7 @@ public static class WifiServer_Host
 
     public static void CancelWaiting() //TODO: Досрочный выход из поиска
     {
-        _searching = false;
+        _working = false;
         CleanHostingUI?.Invoke();
     }
 
@@ -228,14 +227,13 @@ public static class WifiServer_Host
 
     private static void TcpMessageHandler()
     {
-        AddMessageToPlayerBuffer();
-
-        if (!_messageHandlerIsBusy)
+        while (_working)
         {
-            _messageHandlerIsBusy = true;
-            while (DataHolder.MessageTCP.Count > 0)
+            AddMessageToPlayerBuffer();
+
+            if (_opponent.TcpMessages.Count > 0)
             {
-                string[] mes = DataHolder.MessageTCP[0].Split(' ');
+                string[] mes = _opponent.TcpMessages[0].Split(' ');
                 switch (mes[0])
                 {
 
@@ -248,19 +246,26 @@ public static class WifiServer_Host
                         break;
 
                     case "Check":
-
+                        _opponent.LastReciveTime = DateTime.UtcNow;
                         break;
 
 
                     default:
-                        DataHolder.MessageTCPforGame.Add(DataHolder.MessageTCP[0]);
+
                         break;
 
                 }
-                DataHolder.MessageTCP.RemoveAt(0);
+                _opponent.TcpMessages.RemoveAt(0);
             }
-            _messageHandlerIsBusy = false;
+
+            CheckDisconnect();
         }
+    }
+
+    public static void CheckDisconnect()
+    {
+        if ((DateTime.UtcNow - _opponent.LastReciveTime).TotalSeconds > 5)
+            ClientDisconnect?.Invoke("lose"); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
     }
 
     //private static void LoginOrReconnecting(ClientInfo ChosenClient)
@@ -287,5 +292,5 @@ public static class WifiServer_Host
     //        SendMessage(ChosenClient, "login " + ChosenClient.PlayerId + " " + ChosenClient.Money);
     //}
 
-    
+
 }

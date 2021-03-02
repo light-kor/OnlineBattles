@@ -13,7 +13,10 @@ public class UDPGame : OnlineGameTemplate
     protected override void Start()
     {
         base.Start();
-        InvokeRepeating("SendJoy", 1.0f, UpdateRate);
+        if (DataHolder.GameType == 3)
+            InvokeRepeating("SendJoy", 1.0f, UpdateRate);
+        else
+            InvokeRepeating("SendJoyWifi", 1.0f, UpdateRate);
     }
 
 
@@ -86,5 +89,15 @@ public class UDPGame : OnlineGameTemplate
         {
             DataHolder.ClientUDP.SendMessage($"g {buffX} {buffY}", true); //TODO: Проверять на сервере, что число от 0 до 1           
         }
-    }   
+    }
+
+    void SendJoyWifi()
+    {
+        buffX = joystick.Horizontal;
+        buffY = joystick.Vertical;
+        if (buffX != 0 && buffY != 0)
+        {
+            DataHolder.ClientUDP.SendMessage($"g {buffX} {buffY}"); //TODO: Проверять на сервере, что число от 0 до 1           
+        }
+    }
 }

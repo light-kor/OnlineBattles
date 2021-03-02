@@ -8,10 +8,10 @@ public class WifiGame_host : MonoBehaviour
     public GameObject me, enemy;
     public float UpdateRate = 0.05f;
     private float x1 = -1.5f, y1 = 0.2f, x2 = 1.5f, y2 = 0.2f;
-    Opponent_Info client = WifiServer_Host._opponent;
 
     private void Start()
-    {     
+    {
+        WifiServer_Host.ClientDisconnect += EndOfGame;
         Network.CreateUDP();
         DataHolder.MessageUDPget.Clear();
         DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
@@ -31,7 +31,7 @@ public class WifiGame_host : MonoBehaviour
 
     private void GiveUp()
     {
-        EndOfGame(2);
+        EndOfGame("win");
     }
 
     private void CloseAll()
@@ -68,38 +68,34 @@ public class WifiGame_host : MonoBehaviour
         if (x1 < -3 || x1 > 3 || x2 < -3 || x2 > 3)
         {
             if ((x1 < -3 || x1 > 3) && (x2 < -3 || x2 > 3))
-                EndOfGame(-1);
+                EndOfGame("drawn");
             else if (x1 < -3 || x1 > 3)
-                EndOfGame(1);
+                EndOfGame("lose");
             else if (x2 < -3 || x2 > 3)
-                EndOfGame(2);
+                EndOfGame("win");
         }
-        CheckDisconnect();
         DataHolder.ClientUDP.SendMessage($"g {DateTime.UtcNow.Ticks} {x2} {y2} {x1} {y1}");
     }
 
-    public void EndOfGame(int winClient)
+    public void EndOfGame(string opponentStatus)
     {
-        if (winClient == -1)
-        {
-            SendMessage("drawn");
-            EndOfGameEvent?.Invoke("drawn", 1);
+        WifiServer_Host.SendTcpMessage(opponentStatus);
+        Debug.Log(opponentStatus);
+        if (opponentStatus == "drawn")
+        {            
+            EndOfGameEvent?.Invoke(opponentStatus, 1);
         }
-        else if (winClient == 1)
+        else if (opponentStatus == "lose")
         {
-            SendMessage("lose");
             EndOfGameEvent?.Invoke("lose", 1);
         }
-        else if (winClient == 2)
+        else if (opponentStatus == "win")
         {
-            SendMessage("win");
-            EndOfGameEvent?.Invoke("win", 1);
+            EndOfGameEvent?.Invoke("lose", 1);
         }
+
+        //TODO: На клиенте сработает завершение игры для мультиплеера, надо настроить под wifi
     }
 
-    public void CheckDisconnect()
-    {
-        if ((DateTime.UtcNow - client.LastReciveTime).TotalSeconds > 5)
-            EndOfGame(1); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
-    }
+    
 }
