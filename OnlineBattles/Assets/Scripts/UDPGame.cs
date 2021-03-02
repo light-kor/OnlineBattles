@@ -38,7 +38,8 @@ public class UDPGame : OnlineGameTemplate
 
         if (_finishTheGame)
         {
-            CloseAll();
+            DataHolder.StartMenuView = "WifiClient";
+            CloseAll();            
             _finishTheGame = false;
         }
             

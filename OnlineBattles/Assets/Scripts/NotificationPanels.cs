@@ -20,6 +20,7 @@ public class NotificationPanels : MonoBehaviour
         Network.ShowGameNotification += AddNotificationToQueue;
         MainMenu.ShowGameNotification += AddNotificationToQueue;
         WifiServer_Host.FoundOnePlayer += AddNotificationToQueue;
+        WifiServer_Host.EndOfGameEvent += AddNotificationToQueue;
         //TODO: Следующие две строчки - это костыль от Таблички "Поиск новый игры" 
         //в начале сцены тк запрос с опоздание переходит с прошлой сцены в эту, если игра нашлась слишком быстро
         ListOfNotification.Clear();

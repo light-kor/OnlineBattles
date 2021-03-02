@@ -15,6 +15,7 @@ public static class DataHolder
     public static DateTime LastSend { get; set; } = DateTime.UtcNow;
     public static string KeyCodeName { get; set; } = "123";
     public static string NickName { get; set; } = "Mihuil";
+    public static string StartMenuView { get; set; } = null;
     public static bool Connected { get; set; } = false;
     public static bool CanMove { get; set; } = false;
     public static long TimeDifferenceWithServer { get; set; }

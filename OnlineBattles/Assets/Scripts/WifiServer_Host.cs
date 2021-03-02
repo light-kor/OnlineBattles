@@ -12,8 +12,9 @@ public static class WifiServer_Host
     public static event DataHolder.GameNotification FoundOnePlayer;
     public static event DataHolder.Notification CleanHostingUI;
     public static event DataHolder.Notification AcceptOpponent;
-    public static event DataHolder.TextЕransmissionEnvent ClientDisconnect;
-    
+    public static event DataHolder.GameNotification EndOfGameEvent;
+    public static event DataHolder.Notification OpponentLeaveTheGame;
+
     public static string OpponentStatus = null;
     public static bool OpponentIsReady = false;
 
@@ -21,7 +22,7 @@ public static class WifiServer_Host
     private const int UpdateRate = 50; // Отправка UDP инфы каждые UpdateRate мс    
     private static TcpListener _listener { get; set; } = null;
     private static NetworkStream _streamGame { get; set; } = null;
-    private static Thread receiveThread = new Thread(TcpMessageHandler);
+    private static Thread receiveThread = null;
     private static bool _working;
 
     public static async void StartHosting()
@@ -56,7 +57,8 @@ public static class WifiServer_Host
                     DataHolder.WifiGameIp = ((IPEndPoint)(_opponent.Client.Client.RemoteEndPoint)).Address.ToString();
                     await Task.Run(() => CheckPing());
                     OpponentIsReady = true; //TODO: При дисконнеекте делать false
-                    AcceptOpponent?.Invoke();                    
+                    AcceptOpponent?.Invoke();
+                    receiveThread = new Thread(TcpMessageHandler);
                     receiveThread.Start();
                 }
                 else if (myDecision == "denied")
@@ -154,6 +156,7 @@ public static class WifiServer_Host
 
     private static void CancelSarching()
     {
+        _working = false;
         Network.CloseWifiServerSearcher();
         ClearOpponentInfo();
 
@@ -238,7 +241,7 @@ public static class WifiServer_Host
                 {
 
                     case "leave":
-
+                        OpponentLeaveTheGame?.Invoke();
                         break;
 
                     case "exit":
@@ -265,32 +268,31 @@ public static class WifiServer_Host
     public static void CheckDisconnect()
     {
         if ((DateTime.UtcNow - _opponent.LastReciveTime).TotalSeconds > 5)
-            ClientDisconnect?.Invoke("lose"); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
+        {
+            OpponentLeaveTheGame?.Invoke();
+            CancelSarching();
+            UnityEngine.SceneManagement.SceneManager.LoadScene("mainMenu");
+            EndOfGameEvent?.Invoke("Игрок покинул игру", 1); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
+        }
     }
 
-    //private static void LoginOrReconnecting(ClientInfo ChosenClient)
-    //{
-    //    ClientInfo found = AllClients.Find(item => item.PlayerId == ChosenClient.PlayerId);
-    //    Console.WriteLine("eee");
-    //    if (found != null && found.Client != ChosenClient.Client)
-    //    {
-    //        // Если игрок уже где-то подключён и это не тот же сокет, то отправлем прошлому, что он больше не в игре
-    //        if (found.Client != ChosenClient.Client)
-    //            SendMessage("_newLogin"); //TODO: Обработать на клиенте
-    //                                      // Заменяем его экземпляр класса TcpClient, если зашёл с другого сокета
-    //        found.ReplaceClient(ChosenClient.Client);
-    //        SendMessage("login " + found.PlayerId + " " + found.Money);
-    //        RemovingFromMain.Add(ChosenClient);
+    public static void EndOfGame(string opponentStatus)
+    {
+        DataHolder.StartMenuView = "WifiHost";
+        SendTcpMessage(opponentStatus);
+        if (opponentStatus == "drawn")
+        {
+            EndOfGameEvent?.Invoke("Игра завершена\r\n" + opponentStatus, 4);
+        }
+        else if (opponentStatus == "lose")
+        {
+            EndOfGameEvent?.Invoke("Игра завершена\r\nwin", 4);
+        }
+        else if (opponentStatus == "win")
+        {
+            EndOfGameEvent?.Invoke("Игра завершена\r\nlose", 4);
+        }
 
-    //        if (found.ThisGameLobby != null)
-    //        {
-    //            SendMessage($"goto {found.ThisGameLobby.gameType} {found.ThisGameId} {found.ThisGameLobby.lobbyId}");
-    //            SendMessage($"info {((UdpLobby_2)found.ThisGameLobby).GetInfo(found.ThisGameId)}");
-    //        }
-    //    }
-    //    else
-    //        SendMessage(ChosenClient, "login " + ChosenClient.PlayerId + " " + ChosenClient.Money);
-    //}
-
-
+        //TODO: На клиенте сработает завершение игры для мультиплеера, надо настроить под wifi
+    }
 }

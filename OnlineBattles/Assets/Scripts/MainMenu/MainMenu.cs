@@ -25,7 +25,8 @@ public class MainMenu : MonoBehaviour
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
         WifiServer_Connect.AddWifiServerToScreen += GetNewWifiServer;
         Network.WifiServerAnswer += WifiServerAnswerProcessing;
-        ActivateMenuPanel();
+
+        ChoseStartView();       
     }
 
     private void Update()
@@ -105,6 +106,24 @@ public class MainMenu : MonoBehaviour
         }
     }
 
+    public void ChoseStartView()
+    {
+        DeactivatePanels();
+
+        if (DataHolder.StartMenuView == "WifiHost")
+        {
+            ShowOpponentName();
+            ActivatePanel(_lvlPanel);
+        }
+        else if (DataHolder.StartMenuView == "WifiClient")
+        {            
+            _lvlChoseWaiting.SetActive(true);
+        }
+        else 
+            ActivateMenuPanel();
+
+        DataHolder.StartMenuView = null;
+    }
 
     /// <summary>
     /// Обработка кнопки и установка режима одиночной игры.
@@ -208,7 +227,6 @@ public class MainMenu : MonoBehaviour
             _lvlChoseWaiting.SetActive(true);
         }
             
-
         _serverAnswer = null;
     }
 

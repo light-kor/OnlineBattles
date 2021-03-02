@@ -11,9 +11,12 @@ public class OnlineGameTemplate : MonoBehaviour
         Network.EndOfGame += FinishTheGame;
         Network.CreateUDP();
         DataHolder.MessageUDPget.Clear();
-        DataHolder.ClientTCP.SendMessage("start");
+
         if (DataHolder.GameType == 3)
+        {
+            DataHolder.ClientTCP.SendMessage("start");
             DataHolder.ClientUDP.SendMessage("sss", true); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
+        }
         else
             DataHolder.ClientUDP.SendMessage("sss");
     }
