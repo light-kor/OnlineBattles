@@ -9,10 +9,14 @@ public class WifiGame_host : MonoBehaviour
     private float UpdateRate = 0.05f;
     private float x1 = -1.5f, y1 = 0.2f, x2 = 1.5f, y2 = 0.2f;
     private bool _finishTheGame = false;
+    protected bool _fastLeave = false;
+
 
     private void Start()
     {
         WifiServer_Host.OpponentLeaveTheGame += FinishGame;
+        LeaveGameButton.WantLeaveTheGame += GiveUp;
+
         Network.CreateUDP();
         DataHolder.MessageUDPget.Clear();
         DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
@@ -21,6 +25,7 @@ public class WifiGame_host : MonoBehaviour
 
     private void Update()
     {
+        //TODO: Если не отпускать джойстик, то можно играть даже после включения уведомления и щита
         x1 += joystick.Horizontal / 30;
         y1 += joystick.Vertical / 30;
         GetMessage();
@@ -34,13 +39,19 @@ public class WifiGame_host : MonoBehaviour
             CloseAll();
             WifiServer_Host.EndOfGame("lose");           
         }
+
+        if (_fastLeave)
+        {
+            _fastLeave = false;
+            CloseAll();
+            WifiServer_Host.EndOfGame("win");
+        }
     }
 
 
-    public void GiveUp()
+    private void GiveUp()
     {
-        CloseAll();
-        WifiServer_Host.EndOfGame("win");
+        _fastLeave = true;
     }
 
     public void FinishGame()
