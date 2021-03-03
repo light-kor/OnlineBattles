@@ -12,7 +12,7 @@ public class GameTypeHandler : MonoBehaviour
 
         if (DataHolder.GameType == 1)
             _singleGame.SetActive(true);
-        if (DataHolder.GameType == 2 && DataHolder.ClientTCP == null)
+        else if (DataHolder.GameType == 22)
             _wifiHost.SetActive(true);
         else
             _onlineGame.SetActive(true);

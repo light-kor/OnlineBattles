@@ -27,7 +27,7 @@ public class UDPConnect
             _port = DataHolder.RemoteServerPort;
             _client = new UdpClient(_ip, _port);
         }
-        else if (DataHolder.GameType == 2)
+        else
         {
             _ip = DataHolder.WifiGameIp;
             _port = DataHolder.WifiPort;

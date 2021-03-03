@@ -8,7 +8,7 @@ public class MainMenu : MonoBehaviour
     public GameObject _serverSearchPanel, _waitingAnim, _lvlChoseWaiting;
 
     [SerializeField] 
-    private GameObject _mainPanel, _lvlPanel, _wifiPanel; 
+    private GameObject _mainPanel, _lvlPanel, _wifiPanel, _multiBackButton; 
    
     private string lvlName { get; set; } = "";
 
@@ -59,7 +59,7 @@ public class MainMenu : MonoBehaviour
         {
             SceneManager.LoadScene("TicTacToe_Single"); //TODO: Сделать по шаблону мультиплеера.
         }
-        else if (DataHolder.GameType == 2)
+        else if (DataHolder.GameType == 22)
         {
             if (WifiServer_Host.OpponentIsReady == false)
             {
@@ -113,8 +113,7 @@ public class MainMenu : MonoBehaviour
     /// Обработка кнопки и установка режима игры по wifi.
     /// </summary>
     public void SelectWifiGame()
-    {
-        DataHolder.GameType = 2;        
+    {             
         ActivatePanel(_wifiPanel);
     }
 
@@ -154,7 +153,8 @@ public class MainMenu : MonoBehaviour
     }   
 
     public void SetHost()
-    {        
+    {
+        DataHolder.GameType = 22;
         WifiServer_Host.StartHosting();
         _waitingAnim.SetActive(true);
         ActivatePanel(_lvlPanel);
@@ -162,9 +162,23 @@ public class MainMenu : MonoBehaviour
 
     public void ConnectToWifi()
     {
+        DataHolder.GameType = 2;
         DestroyAllWifiServersIcons();
         WifiServer_Connect.StartSearching();
         ActivatePanel(_serverSearchPanel);
+    }
+
+    public void MultiBackButton()
+    {
+        if (DataHolder.GameType == 2)
+        {
+            Network.CloseWifiServerSearcher();
+
+            if (DataHolder.Connected)
+                Network.CloseTcpConnection();
+        }
+
+        ActivateMenuPanel();
     }
 
     public void StopListener()
@@ -178,10 +192,14 @@ public class MainMenu : MonoBehaviour
     {
         DeactivatePanels();
         panel.SetActive(true);
+
+        if (DataHolder.GameType != 22)
+            _multiBackButton.SetActive(true);
     }
 
     public void ActivateMenuPanel() // В основном для кнопки Back в меню
     {
+        DataHolder.GameType = 0;
         DeactivatePanels();
         _mainPanel.SetActive(true);
     }
@@ -192,6 +210,8 @@ public class MainMenu : MonoBehaviour
         _lvlPanel.SetActive(false);
         _wifiPanel.SetActive(false);
         _serverSearchPanel.SetActive(false);
+
+        _multiBackButton.SetActive(false);
     }
     #endregion
 
