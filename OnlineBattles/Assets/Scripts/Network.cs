@@ -224,7 +224,6 @@ public static class Network
         {
             DataHolder.ClientTCP.CloseClient();
             DataHolder.ClientTCP = null;
-            DataHolder.ClientTCP.GetMessage -= MessageHandler;
         }
     }
 

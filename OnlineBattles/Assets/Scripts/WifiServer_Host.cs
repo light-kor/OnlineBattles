@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
 
 public static class WifiServer_Host
 {
@@ -23,7 +22,7 @@ public static class WifiServer_Host
        
     private static TcpListener _listener = null;
     private static NetworkStream _streamGame = null;
-    private static Thread receiveThread = new Thread(TcpMessageHandler);
+    private static Thread receiveThread;
     private static bool _searching, _working;
 
     public static async void StartHosting()
@@ -71,7 +70,9 @@ public static class WifiServer_Host
 
             OpponentIsReady = true; //TODO: При дисконнеекте делать false. Переделать бы на подтверждение выбора карты.
             AcceptOpponent?.Invoke();
+            receiveThread = new Thread(TcpMessageHandler);
             receiveThread.Start();
+            DataHolder.StartMenuView = "WifiHost";
         }
         else if (myDecision == "denied")
         {
@@ -236,7 +237,6 @@ public static class WifiServer_Host
     
     public static void EndOfGame(string opponentStatus)
     {
-        DataHolder.StartMenuView = "WifiHost"; //TODO: Найти расположение получше
         SendTcpMessage(opponentStatus);
         if (opponentStatus == "drawn")
         {
@@ -290,6 +290,7 @@ public static class WifiServer_Host
         }
 
         OpponentStatus = null;
+        
         //TODO: Мб Отправить сообщение подключённом игроку на всякий случай
         //TODO: Вернуть в самое начало меню
     }
