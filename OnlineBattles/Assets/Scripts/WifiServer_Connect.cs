@@ -21,7 +21,6 @@ public static class WifiServer_Connect
             Network.CloseTcpConnection();
 
             Network.CreateTCP();
-        //TODO: Проконтролировать, что будет, если будет несколько перезаходов и прочего. Почему-то если первый раз отклонили, то и последующие кикнут
     }
 
     private static void AddServerToList()

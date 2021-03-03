@@ -162,7 +162,9 @@ public class MainMenu : MonoBehaviour
 
     private void StopAnimWaitingWifiPlayers()
     {
-        _waitingAnim.SetActive(false);
+        if (_waitingAnim.activeSelf == true) 
+            _waitingAnim.SetActive(false); //TODO: Мб бахнуть проверку на ноль
+
         _opponent.gameObject.SetActive(false);
         ActivateMenuPanel();
     }

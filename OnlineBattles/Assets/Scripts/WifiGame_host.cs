@@ -3,35 +3,37 @@ using UnityEngine;
 
 public class WifiGame_host : MonoBehaviour
 {
-    
-    public Joystick joystick;
-    public GameObject me, enemy;
-    private float UpdateRate = 0.05f;
+    [SerializeField] private Joystick joystick;
+    [SerializeField] private GameObject me, enemy;
+
     private float x1 = -1.5f, y1 = 0.2f, x2 = 1.5f, y2 = 0.2f;
     private bool _finishTheGame = false;
-    protected bool _fastLeave = false;
-
+    private bool _fastLeave = false;
+    private bool _gameOn = true;
 
     private void Start()
     {
         WifiServer_Host.OpponentLeaveTheGame += FinishGame;
         LeaveGameButton.WantLeaveTheGame += GiveUp;
 
-        Network.CreateUDP();
         DataHolder.MessageUDPget.Clear();
+        Network.CreateUDP();        
         DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
-        InvokeRepeating("GameProcess", 0f, UpdateRate);
+        InvokeRepeating("GameProcess", 0f, WifiServer_Host.UpdateRate);
     }
 
     private void Update()
     {
-        //TODO: Если не отпускать джойстик, то можно играть даже после включения уведомления и щита
-        x1 += joystick.Horizontal / 30;
-        y1 += joystick.Vertical / 30;
-        GetMessage();
+        if (_gameOn)
+        {
+            //TODO: Если не отпускать джойстик, то можно играть даже после включения уведомления и щита
+            x1 += joystick.Horizontal / 30;
+            y1 += joystick.Vertical / 30;
+            GetMessage();
 
-        me.transform.position = new Vector2(x1, y1);
-        enemy.transform.position = new Vector2(x2, y2);
+            me.transform.position = new Vector2(x1, y1);
+            enemy.transform.position = new Vector2(x2, y2);
+        }
 
         if (_finishTheGame)
         {
@@ -47,26 +49,7 @@ public class WifiGame_host : MonoBehaviour
             WifiServer_Host.EndOfGame("win");
         }
     }
-
-
-    private void GiveUp()
-    {
-        _fastLeave = true;
-    }
-
-    public void FinishGame()
-    {
-        _finishTheGame = true;
-    }
-
-    private void CloseAll()
-    {
-        CancelInvoke();
-        Network.CloseUdpConnection();
-    }
-
-
-
+       
     public void GetMessage()
     {
         if (DataHolder.MessageUDPget.Count > 0)
@@ -88,7 +71,6 @@ public class WifiGame_host : MonoBehaviour
         }
     }
 
-
     public void GameProcess()
     {
         // Чекаем конец игры
@@ -107,7 +89,20 @@ public class WifiGame_host : MonoBehaviour
             DataHolder.ClientUDP.SendMessage($"g {DateTime.UtcNow.Ticks} {x2} {y2} {x1} {y1}");
     }
 
-    
+    private void GiveUp()
+    {
+        _fastLeave = true;
+    }
 
-    
+    private void FinishGame()
+    {
+        _finishTheGame = true;
+    }
+
+    private void CloseAll()
+    {
+        _gameOn = false;
+        CancelInvoke();
+        Network.CloseUdpConnection();
+    }
 }

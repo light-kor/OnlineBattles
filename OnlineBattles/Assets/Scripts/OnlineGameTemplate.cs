@@ -10,6 +10,7 @@ public class OnlineGameTemplate : MonoBehaviour
     {
         Network.EndOfGame += FinishTheGame;
         LeaveGameButton.WantLeaveTheGame += GiveUp;
+
         Network.CreateUDP();
         DataHolder.MessageUDPget.Clear();
 
