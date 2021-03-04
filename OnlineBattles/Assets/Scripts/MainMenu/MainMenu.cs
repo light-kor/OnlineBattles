@@ -6,10 +6,10 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     public static event DataHolder.GameNotification ShowGameNotification;
-    public GameObject _serverSearchPanel, _waitingAnim, _lvlChoseWaiting, _multiBackButton;
+    public GameObject _serverSearchPanel, _waitingAnim, _lvlChoseWaiting;
 
     [SerializeField] 
-    private GameObject _mainPanel, _lvlPanel, _wifiPanel; 
+    private GameObject _mainPanel, _lvlPanel, _wifiPanel, _multiBackButton; 
    
     private string lvlName { get; set; } = "";
 
@@ -101,8 +101,7 @@ public class MainMenu : MonoBehaviour
         else if (DataHolder.StartMenuView == "WifiClient")
         {            
             _lvlChoseWaiting.SetActive(true);
-            _multiBackButton.GetComponentInChildren<Text>().text = "Disconnect";
-            _multiBackButton.SetActive(true);
+            ShowMultiBackButton("Disconnect");
         }
         else 
             ActivateMenuPanel();
@@ -215,12 +214,10 @@ public class MainMenu : MonoBehaviour
 
         if (!(DataHolder.GameType == 22 && WifiServer_Host._opponent == null))
         {
-            _multiBackButton.SetActive(true);
-
             if (DataHolder.GameType == 2)
-                _multiBackButton.GetComponentInChildren<Text>().text = "Cancel";
+                ShowMultiBackButton("Cancel");
             else
-                _multiBackButton.GetComponentInChildren<Text>().text = "Back";
+                ShowMultiBackButton("Back");
         }
             
     }
@@ -230,6 +227,12 @@ public class MainMenu : MonoBehaviour
         DataHolder.GameType = 0;
         DeactivatePanels();
         _mainPanel.SetActive(true);
+    }
+
+    public void ShowMultiBackButton(string text)
+    {
+        _multiBackButton.GetComponentInChildren<Text>().text = text;
+        _multiBackButton.SetActive(true);
     }
 
     public void DeactivatePanels()
@@ -242,7 +245,6 @@ public class MainMenu : MonoBehaviour
         _multiBackButton.SetActive(false);
     }
     #endregion
-
 
     //TODO: Добавил "g" к каждому игровому udp сообщению. НО НЕ УЧЁЛ ЭТО НА СЕРВЕРЕ!!!!
 
