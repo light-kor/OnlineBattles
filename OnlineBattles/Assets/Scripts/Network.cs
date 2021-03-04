@@ -48,7 +48,7 @@ public static class Network
 
                     case "denied":
                         CloseTcpConnection();
-                        DataHolder.NotifPanels.NotificatonMultyButton(1); // Выключаем панель ожидания
+                        DataHolder.NotifPanels.CloseSimple(); // Выключаем панель ожидания
                         ShowGameNotification?.Invoke("Запрос отклонён", 1);
                         WifiServerAnswer?.Invoke("denied");
                         break;
@@ -56,7 +56,7 @@ public static class Network
                     case "accept":
                         DataHolder.NotifPanels.CloseSimple(); // Выключаем панель ожидания
                         WifiServerAnswer?.Invoke("accept");
-                        break;
+                        break;                   
 
                     default:
                         DataHolder.MessageTCPforGame.Add(DataHolder.MessageTCP[0]);

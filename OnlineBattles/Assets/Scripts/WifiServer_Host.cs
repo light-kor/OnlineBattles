@@ -98,9 +98,9 @@ public static class WifiServer_Host
                         OpponentLeaveTheGame?.Invoke();
                         break;
 
-                    case "exit":
-                        //TODO: Обработать и в играх, и в главном меню
-                        break;
+                    case "disconnect":
+                        Disconnect();
+                        return;
 
                     case "Check":
 
@@ -256,12 +256,18 @@ public static class WifiServer_Host
     {
         if ((DateTime.UtcNow - _opponent.LastReciveTime).TotalSeconds > 5)
         {
-            OpponentLeaveTheGame?.Invoke();
-            CloseAll();
-            DataHolder.StartMenuView = null;
-            ShowGameNotification?.Invoke("Игрок покинул игру", 4); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
+            Disconnect();
         }
     }
+
+    private static void Disconnect()
+    {
+        OpponentLeaveTheGame?.Invoke();
+        CloseAll();
+        DataHolder.StartMenuView = null;
+        ShowGameNotification?.Invoke("Игрок отключился", 4); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
+    }
+
 
     public static void CancelWaiting()
     {
@@ -269,7 +275,7 @@ public static class WifiServer_Host
         CleanHostingUI?.Invoke();
     }
 
-    private static void CloseAll()
+    public static void CloseAll()
     {
         _searching = false;
         _working = false;

@@ -1,14 +1,15 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
     public static event DataHolder.GameNotification ShowGameNotification;
-    public GameObject _serverSearchPanel, _waitingAnim, _lvlChoseWaiting;
+    public GameObject _serverSearchPanel, _waitingAnim, _lvlChoseWaiting, _multiBackButton;
 
     [SerializeField] 
-    private GameObject _mainPanel, _lvlPanel, _wifiPanel, _multiBackButton; 
+    private GameObject _mainPanel, _lvlPanel, _wifiPanel; 
    
     private string lvlName { get; set; } = "";
 
@@ -46,6 +47,13 @@ public class MainMenu : MonoBehaviour
             else if (mes[0] == "wifi_go")
             {
                 SceneManager.LoadScene(mes[1]);
+            }
+            else if (mes[0] == "disconnect")
+            {
+                Network.CloseTcpConnection();
+                _lvlChoseWaiting.SetActive(false);
+                ActivateMenuPanel();
+                ShowGameNotification?.Invoke("Сервер отключён", 1);
             }
             DataHolder.MessageTCPforGame.RemoveAt(0);
         }                          
@@ -93,6 +101,8 @@ public class MainMenu : MonoBehaviour
         else if (DataHolder.StartMenuView == "WifiClient")
         {            
             _lvlChoseWaiting.SetActive(true);
+            _multiBackButton.GetComponentInChildren<Text>().text = "Disconnect";
+            _multiBackButton.SetActive(true);
         }
         else 
             ActivateMenuPanel();
@@ -168,14 +178,24 @@ public class MainMenu : MonoBehaviour
         ActivatePanel(_serverSearchPanel);
     }
 
-    public void MultiBackButton()
+    public void MultiBackButton() //TODO: !!Добавить кнопку и завершение всех соединений на момент, когда ты уже имеешь подключённого чела и хочешь выйти!!
     {
         if (DataHolder.GameType == 2)
         {
             Network.CloseWifiServerSearcher();
+            _lvlChoseWaiting.SetActive(false);
 
-            if (DataHolder.Connected)
+            if (DataHolder.ClientTCP != null)
+            {
+                DataHolder.ClientTCP.SendMessage("disconnect");
                 Network.CloseTcpConnection();
+            }                           
+        }
+        else if (DataHolder.GameType == 22 && WifiServer_Host._opponent != null)
+        {
+            WifiServer_Host.SendTcpMessage("disconnect");
+            WifiServer_Host.CloseAll();
+            GetComponent<WifiUIComponents>().HideOpponentName();           
         }
 
         ActivateMenuPanel();
@@ -193,8 +213,16 @@ public class MainMenu : MonoBehaviour
         DeactivatePanels();
         panel.SetActive(true);
 
-        if (DataHolder.GameType != 22)
+        if (!(DataHolder.GameType == 22 && WifiServer_Host._opponent == null))
+        {
             _multiBackButton.SetActive(true);
+
+            if (DataHolder.GameType == 2)
+                _multiBackButton.GetComponentInChildren<Text>().text = "Cancel";
+            else
+                _multiBackButton.GetComponentInChildren<Text>().text = "Back";
+        }
+            
     }
 
     public void ActivateMenuPanel() // В основном для кнопки Back в меню
@@ -214,8 +242,6 @@ public class MainMenu : MonoBehaviour
         _multiBackButton.SetActive(false);
     }
     #endregion
-
-
 
 
     //TODO: Добавил "g" к каждому игровому udp сообщению. НО НЕ УЧЁЛ ЭТО НА СЕРВЕРЕ!!!!

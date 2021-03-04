@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WifiUIComponents : MonoBehaviour
 {
@@ -41,6 +42,8 @@ public class WifiUIComponents : MonoBehaviour
             MenuScr._waitingAnim.SetActive(false);
             _opponent.gameObject.SetActive(true);
             _opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
+            MenuScr._multiBackButton.SetActive(true);
+            MenuScr._multiBackButton.GetComponentInChildren<Text>().text = "Disconnect";
             _showOpponentName = false;
         }
 
@@ -85,6 +88,11 @@ public class WifiUIComponents : MonoBehaviour
         _showOpponentName = true;
     }
 
+    public void HideOpponentName()
+    {
+        _opponent.gameObject.SetActive(false);
+    }
+
     private void WifiServerAnswerProcessing(string text)
     {
         _serverAnswer = text;
@@ -99,6 +107,8 @@ public class WifiUIComponents : MonoBehaviour
         {
             MenuScr.DeactivatePanels();
             MenuScr._lvlChoseWaiting.SetActive(true);
+            MenuScr._multiBackButton.SetActive(true);
+            MenuScr._multiBackButton.GetComponentInChildren<Text>().text = "Disconnect";
         }
 
         _serverAnswer = null;
