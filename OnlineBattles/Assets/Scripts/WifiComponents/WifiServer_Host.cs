@@ -61,6 +61,7 @@ public static class WifiServer_Host
             Network.CloseWifiServerSearcher();
             SendTcpMessage("accept");
 
+            await Task.Delay(1000); // Чтоб всё прогрузилось на клиенте, перед запросом пинга
             await Task.Run(() => CheckPing());
             if (!_searching)
             {
@@ -233,24 +234,7 @@ public static class WifiServer_Host
             _opponent.TcpMessages.Add(messList[i]);
             _opponent.LastReciveTime = DateTime.UtcNow;
         }
-    }
-    
-    public static void EndOfGame(string opponentStatus)
-    {
-        SendTcpMessage(opponentStatus);
-        if (opponentStatus == "drawn")
-        {
-            ShowGameNotification?.Invoke("Игра завершена\r\ndrawn", 4);
-        }
-        else if (opponentStatus == "lose")
-        {
-            ShowGameNotification?.Invoke("Игра завершена\r\nwin", 4);
-        }
-        else if (opponentStatus == "win")
-        {
-            ShowGameNotification?.Invoke("Игра завершена\r\nlose", 4);
-        }
-    }
+    }   
 
     public static void CheckDisconnect()
     {

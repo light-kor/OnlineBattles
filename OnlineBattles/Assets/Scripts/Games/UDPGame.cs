@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class UDPGame : OnlineGameTemplate
+public class UDPGame : GameTemplate_Online
 {
     
     public Joystick joystick;
@@ -13,36 +13,27 @@ public class UDPGame : OnlineGameTemplate
     protected override void Start()
     {
         base.Start();
-        if (DataHolder.GameType == 3)
-            InvokeRepeating("SendJoy", 1.0f, UpdateRate);
-        else
-            InvokeRepeating("SendJoyWifi", 1.0f, UpdateRate);
+        InvokeRepeating("SendJoy", 0.5f, UpdateRate);
     }
 
 
-    private void Update()
+    protected override void Update()
     {
-        BaseOnlineFunctions();
+        base.Update();
 
-        if (DataHolder.MessageTCPforGame.Count > 0 && _gameOn)
-        {
-            string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
-            if (mes[0] == "info")
-            {
-                me.transform.position = new Vector2(float.Parse(mes[2]), float.Parse(mes[3]));
-                enemy.transform.position = new Vector2(float.Parse(mes[4]), float.Parse(mes[5]));
-            }
+        //TODO: Это для мультплеера, для wifi бесполезно
+        //if (DataHolder.MessageTCPforGame.Count > 0 && _gameOn)
+        //{
+        //    string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
+        //    if (mes[0] == "info")
+        //    {
+        //        me.transform.position = new Vector2(float.Parse(mes[2]), float.Parse(mes[3]));
+        //        enemy.transform.position = new Vector2(float.Parse(mes[4]), float.Parse(mes[5]));
+        //    }
                        
-            DataHolder.MessageTCPforGame.RemoveAt(0);
-        }
-
-        if (_finishTheGame)
-        {
-            DataHolder.StartMenuView = "WifiClient";
-            CloseAll();            
-            _finishTheGame = false;
-        }
-            
+        //    DataHolder.MessageTCPforGame.RemoveAt(0);
+        //}
+        
         UpdateThread();
     }
 
@@ -51,22 +42,13 @@ public class UDPGame : OnlineGameTemplate
     {
         if (DataHolder.MessageUDPget.Count > 1 && _gameOn)
         {
-            string[] frame1 = DataHolder.MessageUDPget[0].Split(' ');          
-            string[] frame2 = DataHolder.MessageUDPget[1].Split(' ');
-            if (frame1[0] != "g")
-            {
-                DataHolder.MessageUDPget.RemoveAt(0);
+            if (!SplitFramesAndChechTrash())
                 return;
-            }   
-            if (frame2[0] != "g")
-            {
-                DataHolder.MessageUDPget.RemoveAt(1);
-                return;
-            }
 
             long time = Convert.ToInt64(frame1[1]);
             long time2 = Convert.ToInt64(frame2[1]);
-            long vrem = DateTime.UtcNow.Ticks + DataHolder.TimeDifferenceWithServer - _delay;
+            //long vrem = DateTime.UtcNow.Ticks + DataHolder.TimeDifferenceWithServer - _delay;
+            long vrem = DateTime.UtcNow.Ticks - _delay;
 
             if (time < vrem && vrem < time2)
             {
@@ -81,18 +63,7 @@ public class UDPGame : OnlineGameTemplate
         }
     }
 
-
     void SendJoy()
-    {
-        buffX = joystick.Horizontal;
-        buffY = joystick.Vertical;
-        if (buffX != 0 && buffY != 0)
-        {
-            DataHolder.ClientUDP.SendMessage($"g {buffX} {buffY}", true); //TODO: Проверять на сервере, что число от 0 до 1           
-        }
-    }
-
-    void SendJoyWifi()
     {
         buffX = joystick.Horizontal;
         buffY = joystick.Vertical;

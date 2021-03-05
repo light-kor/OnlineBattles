@@ -39,25 +39,20 @@ public class UDPConnect
         _receiveThread.Start();
     }
 
-    public void SendMessage(string mes)
-    {
-        try
-        {
-            byte[] data = Encoding.UTF8.GetBytes(mes);
-            _client.Send(data, data.Length);
-        }
-        catch { TryReconnect(); }
-    }
-
     /// <summary>
     /// Отправка пользовательских UDP сообщений с добавлением "метаданных".
     /// </summary>
     /// <param name="mes">Текст сообщения.</param>
-    public void SendMessage(string mes, bool online)
+    public void SendMessage(string mes)
     {
+        byte[] data = null;
         try
         {
-            byte[] data = Encoding.UTF8.GetBytes($"{DataHolder.SelectedServerGame} {DataHolder.LobbyID} {DataHolder.IDInThisGame} " + mes);
+            if (DataHolder.GameType == 3)
+                data = Encoding.UTF8.GetBytes($"{DataHolder.SelectedServerGame} {DataHolder.LobbyID} {DataHolder.IDInThisGame} " + mes);
+            else
+                data = Encoding.UTF8.GetBytes(mes);
+
             _client.Send(data, data.Length);
         }
         catch { TryReconnect(); }
