@@ -61,7 +61,7 @@ public static class WifiServer_Host
             Network.CloseWifiServerSearcher();
             SendTcpMessage("accept");
 
-            await Task.Delay(1000); // Чтоб всё прогрузилось на клиенте, перед запросом пинга
+            await Task.Delay(500); // Чтоб всё прогрузилось на клиенте, перед запросом пинга
             await Task.Run(() => CheckPing());
             if (!_searching)
             {

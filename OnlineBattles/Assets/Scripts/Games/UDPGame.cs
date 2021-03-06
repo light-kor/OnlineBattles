@@ -14,6 +14,7 @@ public class UDPGame : GameTemplate_Online
     {
         base.Start();
         InvokeRepeating("SendJoy", 0.5f, UpdateRate);
+
     }
 
 
@@ -48,7 +49,7 @@ public class UDPGame : GameTemplate_Online
             long time = Convert.ToInt64(frame1[1]);
             long time2 = Convert.ToInt64(frame2[1]);
             //long vrem = DateTime.UtcNow.Ticks + DataHolder.TimeDifferenceWithServer - _delay;
-            long vrem = DateTime.UtcNow.Ticks - _delay;
+            long vrem = DateTime.UtcNow.Ticks + DataHolder.TimeDifferenceWithServer;
 
             if (time < vrem && vrem < time2)
             {

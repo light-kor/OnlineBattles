@@ -14,7 +14,7 @@ public class GameTypeHandler : MonoBehaviour
             _singleGame.SetActive(true);
         else if (DataHolder.GameType == 22)
             _wifiHost.SetActive(true);
-        else
+        else if (DataHolder.GameType == 2 || DataHolder.GameType == 3)
             _onlineGame.SetActive(true);
 
         GetComponent<GameTypeHandler>().enabled = false;

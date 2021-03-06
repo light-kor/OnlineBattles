@@ -65,8 +65,7 @@ public class GameTemplate_Online : MonoBehaviour
     protected void CloseAll()
     {
         _gameOn = false;
-        CancelInvoke(); //TODO: Временное решение для первой игры
-
+        CancelInvoke(); //TODO: Временное решение для первой игры       
         // Там автоматически после GameOn = false вызовется CloseClient()
         Network.CloseUdpConnection();
     }

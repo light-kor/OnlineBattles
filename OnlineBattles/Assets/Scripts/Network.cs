@@ -44,7 +44,6 @@ public static class Network
 
                     case "time":
                         DataHolder.TimeDifferenceWithServer = DateTime.UtcNow.Ticks - Convert.ToInt64(mes[1]);
-                        Debug.Log(DataHolder.TimeDifferenceWithServer);
                         break;
 
                     case "denied":
