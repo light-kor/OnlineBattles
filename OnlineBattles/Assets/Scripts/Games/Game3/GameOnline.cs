@@ -7,7 +7,7 @@ public class GameOnline : GameTemplate_Online
     [SerializeField] private Joystick _joystick;
     [SerializeField] private GameObject _me, _enemy, _pointPref;
     private GameObject _maze, _points;
-    private Vector2 _lastMove;
+    private Vector2 _lastMove = Vector2.zero;
     private bool _getBigMessage = false;
     private const int Scale = 2;
 
@@ -19,7 +19,6 @@ public class GameOnline : GameTemplate_Online
         base.Start();       
     }
 
-    // Update is called once per frame
     protected override void Update()
     {
         base.Update();
@@ -86,7 +85,8 @@ public class GameOnline : GameTemplate_Online
         Vector2 move = new Vector2(_joystick.Horizontal, _joystick.Vertical);
         if (move != _lastMove)
         {
-            DataHolder.ClientTCP.SendMessage($"move {move.x} {move.y}");         
+            DataHolder.ClientTCP.SendMessage($"move {move.x} {move.y}");
+            _lastMove = move;
         }
     }
 

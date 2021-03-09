@@ -74,8 +74,7 @@ public static class Network
     {
         // Поддержание жизни соединения с сервером.
         if (DataHolder.ClientTCP != null && DataHolder.Connected == true && (DateTime.UtcNow - DataHolder.LastSend).TotalMilliseconds > 3000)
-            DataHolder.ClientTCP.SendMessage("Check");
-            
+            DataHolder.ClientTCP.SendMessage("Check");           
     }
 
     /// <summary>

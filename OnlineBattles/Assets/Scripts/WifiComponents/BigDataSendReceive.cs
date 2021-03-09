@@ -8,7 +8,10 @@ public class BigDataSendReceive<T>
     public static void SendBigMessage(T data)
     {
         BinaryFormatter formatter = new BinaryFormatter();
-        NetworkStream stream = WifiServer_Host._opponent.Client.GetStream();
+        NetworkStream stream = null;
+        if (WifiServer_Host._opponent != null)
+            stream = WifiServer_Host._opponent.Client.GetStream();
+        else return;
 
         using (var ms = new MemoryStream())
         {
@@ -18,7 +21,6 @@ public class BigDataSendReceive<T>
             stream.Write(sizeInByte, 0, sizeInByte.Length);
             stream.Write(bytedMaze, 0, bytedMaze.Length);
         }
-        stream.Close();
     }
 
     public static T GetBigMessage()

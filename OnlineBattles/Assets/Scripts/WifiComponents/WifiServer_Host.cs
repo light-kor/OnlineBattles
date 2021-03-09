@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
 public static class WifiServer_Host
 {
@@ -107,7 +108,7 @@ public static class WifiServer_Host
                         break;
 
                     default:
-                        DataHolder.MessageTCPforGame.Add(DataHolder.MessageTCP[0]);
+                        _opponent.MessageTCPforGame.Add(_opponent.TcpMessages[0]);
                         break;
 
                 }
@@ -225,7 +226,6 @@ public static class WifiServer_Host
         string message = Encoding.UTF8.GetString(buffer.ToArray());
         _opponent.TcpMessages.Add(message);
         _opponent.LastReciveTime = DateTime.UtcNow;
-
     }
 
     private static void CheckStream(List<byte> Buffer)
@@ -245,6 +245,7 @@ public static class WifiServer_Host
         if ((DateTime.UtcNow - _opponent.LastReciveTime).TotalSeconds > 5)
         {
             Disconnect();
+            Debug.Log("dis");
         }
     }
 

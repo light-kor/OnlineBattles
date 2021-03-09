@@ -24,6 +24,7 @@ public class GameTemplate_Online : MonoBehaviour
     protected virtual void Update()
     {
         Network.ConnectionLifeSupport();
+        Debug.Log("send");
 
         if (_finishTheGame)
         {
