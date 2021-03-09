@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 
+[Serializable]
 public class MazeGeneratorCell
 {
     public int X, Y;
@@ -13,8 +15,13 @@ public class MazeGeneratorCell
 
 public class MazeGenerator
 {
-    public int Width = 19;
-    public int Height = 19;
+    public int Width, Height;
+
+    public MazeGenerator(int Width, int Height)
+    {
+        this.Width = Width;
+        this.Height = Height;
+    }
 
     public MazeGeneratorCell[,] GenerateMaze()
     {

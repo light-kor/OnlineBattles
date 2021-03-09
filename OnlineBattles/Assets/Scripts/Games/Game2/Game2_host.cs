@@ -12,6 +12,7 @@ public class Game2_host : GameTemplate_WifiHost
     protected override void Start()
     {
         base.Start();
+        StartUdpConnection();
         InvokeRepeating("GameProcess", 0f, WifiServer_Host.UpdateRate);
     }
 

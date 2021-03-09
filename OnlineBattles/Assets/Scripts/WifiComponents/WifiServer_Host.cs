@@ -104,11 +104,10 @@ public static class WifiServer_Host
                         return;
 
                     case "Check":
-
                         break;
 
                     default:
-
+                        DataHolder.MessageTCPforGame.Add(DataHolder.MessageTCP[0]);
                         break;
 
                 }
@@ -127,6 +126,7 @@ public static class WifiServer_Host
             if (_listener.Pending())
             {
                 _opponent = new Opponent_Info(_listener.AcceptTcpClient(), DateTime.UtcNow);
+                _streamGame = _opponent.Client.GetStream();
                 break;
             }
         }
@@ -194,47 +194,51 @@ public static class WifiServer_Host
     
     #endregion
 
-    public static void SendTcpMessage(string mes)
+    public static void SendTcpMessage(string message)
     {
-        mes += "|";
-        byte[] Buffer = Encoding.UTF8.GetBytes((mes).ToCharArray());
+        byte[] buffer = Encoding.UTF8.GetBytes(message);
+        byte[] sizeInByte = BitConverter.GetBytes(buffer.Length);
         try
         {
-            _opponent.Client.GetStream().Write(Buffer, 0, Buffer.Length);
+            _opponent.Client.GetStream().Write(sizeInByte, 0, sizeInByte.Length);
+            _opponent.Client.GetStream().Write(buffer, 0, buffer.Length);
         }
         catch { } //TODO: Тут могут быть какие-то проблемы типо реконнекта как на клиенте?
     }
-     
-    private static void GetTcpMessageFromStream()
+
+    private static void GetTcpMessageFromStream() //TODO: Мб сделать в отдельном потоке
     {
         List<byte> buffer = new List<byte>();
         try
         {
-            _streamGame = _opponent.Client.GetStream();
-            if (_streamGame.DataAvailable)
-            {
-                while (_streamGame.DataAvailable)
-                {
-                    int ReadByte = _streamGame.ReadByte();
-                    if (ReadByte != -1)
-                    {
-                        buffer.Add((byte)ReadByte);
-                    }
-                }               
-            }
-            else return;
+            while (buffer.Count < 4)
+                CheckStream(buffer);
+
+            int mesCount = BitConverter.ToInt32(buffer.ToArray(), 0);
+            buffer.Clear();
+
+            while (buffer.Count < mesCount)
+                CheckStream(buffer);
         }
         catch { return; }
 
-        string[] message = (Encoding.UTF8.GetString(buffer.ToArray())).Split('|');
-        List<string> messList = new List<string>(message);
-        messList.Remove("");
-        for (int i = 0; i < messList.Count; i++)
+        string message = Encoding.UTF8.GetString(buffer.ToArray());
+        _opponent.TcpMessages.Add(message);
+        _opponent.LastReciveTime = DateTime.UtcNow;
+
+    }
+
+    private static void CheckStream(List<byte> Buffer)
+    {
+        if (_streamGame.DataAvailable)
         {
-            _opponent.TcpMessages.Add(messList[i]);
-            _opponent.LastReciveTime = DateTime.UtcNow;
+            int ReadByte = _streamGame.ReadByte();
+            if (ReadByte > -1)
+            {
+                Buffer.Add((byte)ReadByte);
+            }
         }
-    }   
+    }
 
     public static void CheckDisconnect()
     {

@@ -7,6 +7,7 @@ using System.Threading;
 public class TcpConnect
 {
     public event DataHolder.Notification GetMessage;
+    public event DataHolder.Notification GetBigMessage;
 
     private const int WaitForConnection = 3000;
 
@@ -68,17 +69,15 @@ public class TcpConnect
         }
     }
 
-    /// <summary>
-    /// Отправка TCP-сообщения на сервер с добавлением разделительного знака "|".
-    /// </summary>
-    /// <param name="message">Текст сообщения.</param>
-    public void SendMessage(string message)
+    public void SendMessage(string message) //TODO: На сервере я ничего подобного не делал
     {
         try
         {
-            message += "|";
-            byte[] Buffer = Encoding.UTF8.GetBytes((message).ToCharArray());
-            _client.GetStream().Write(Buffer, 0, Buffer.Length);
+            byte[] buffer = Encoding.UTF8.GetBytes(message);
+            byte[] sizeInByte = BitConverter.GetBytes(buffer.Length);
+
+            _client.GetStream().Write(sizeInByte, 0, sizeInByte.Length);
+            _client.GetStream().Write(buffer, 0, buffer.Length);
             DataHolder.LastSend = DateTime.UtcNow;
         }
         catch { TryStartReconnect(); }
@@ -92,38 +91,47 @@ public class TcpConnect
     {
         _NS = _client.GetStream();
         while (_working)
-        {           
-            List<byte> Buffer = new List<byte>();
+        {
+            List<byte> buffer = new List<byte>();
             try
-            {                              
-                while (_NS.DataAvailable)
-                {
-                    int ReadByte = _NS.ReadByte();
-                    if (ReadByte > -1)
-                    {
-                        Buffer.Add((byte)ReadByte);
-                    }
-                }
+            {
+                while (buffer.Count < 4)
+                    CheckStream(buffer);
+
+                int mesCount = BitConverter.ToInt32(buffer.ToArray(), 0);
+                buffer.Clear();
+
+                while (buffer.Count < mesCount)
+                    CheckStream(buffer);
             }
             catch
             {
                 TryStartReconnect();
                 break;
-            }            
-            
-            if (Buffer.Count > 0 && DataHolder.Connected)
+            }
+
+            if (buffer.Count < 500)
             {
-                string[] words = Encoding.UTF8.GetString(Buffer.ToArray()).Split(new char[] { '|' });
-
-                // Удаляем последний пустой элемент
-                List<string> messList = new List<string>(words);
-                messList.Remove("");
-
-                for (int i = 0; i < messList.Count; i++)
-                {
-                    DataHolder.MessageTCP.Add(messList[i]);
-                    GetMessage?.Invoke();
-                }               
+                string message = Encoding.UTF8.GetString(buffer.ToArray());
+                DataHolder.MessageTCP.Add(message);
+                GetMessage?.Invoke();
+            }
+            else
+            {
+                DataHolder.BigArray = buffer;
+                GetBigMessage?.Invoke();
+            }
+        }
+    }
+   
+    private void CheckStream(List<byte> Buffer)
+    {
+        if (_NS.DataAvailable)
+        {
+            int ReadByte = _NS.ReadByte();
+            if (ReadByte > -1)
+            {
+                Buffer.Add((byte)ReadByte);
             }
         }
     }

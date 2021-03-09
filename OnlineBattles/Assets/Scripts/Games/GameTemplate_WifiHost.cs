@@ -11,11 +11,14 @@ public class GameTemplate_WifiHost : MonoBehaviour
     protected virtual void Start()
     {
         WifiServer_Host.OpponentLeaveTheGame += FinishGame;
-        LeaveGameButton.WantLeaveTheGame += GiveUp;
+        LeaveGameButton.WantLeaveTheGame += GiveUp;                
+    }
 
+    protected void StartUdpConnection()
+    {
         DataHolder.MessageUDPget.Clear();
-        Network.CreateUDP();        
-        DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес        
+        Network.CreateUDP();
+        DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес       
     }
 
     protected virtual void Update()

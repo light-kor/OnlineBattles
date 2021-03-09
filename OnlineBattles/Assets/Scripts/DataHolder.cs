@@ -8,6 +8,7 @@ public static class DataHolder
     public static List<string> MessageTCPforGame { get; set; } = new List<string>();
     public static List<string> MessageUDPget { get; set; } = new List<string>();
     public static NotificationPanels NotifPanels { get; set; } = null;
+    public static List<byte> BigArray { get; set; } = new List<byte>();
     public static TcpConnect ClientTCP { get; set; } = null;
     public static UDPConnect ClientUDP { get; set; } = null;
     public static WifiServer_Searcher ServerSearcher { get; set; } = null;
