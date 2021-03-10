@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -8,7 +6,7 @@ using UnityEngine.UI;
 public class ManualCreateMapButton : MonoBehaviour, IPointerClickHandler
 {
     public static event DataHolder.Notification Click;
-    private float _timer = 9f;
+    private float _timer = 10f;
     private Text _time;
     private bool _waiting = false;
 
@@ -19,18 +17,18 @@ public class ManualCreateMapButton : MonoBehaviour, IPointerClickHandler
             Click?.Invoke();
             _waiting = true;
             GetComponent<Button>().interactable = false;
-            _timer = 9f;
+            _timer = 10f;
             _time.gameObject.SetActive(true);
         }
     }
 
-    void Start()
+    private void Start()
     {
         _time = GetComponentInChildren<Text>();
         _time.gameObject.SetActive(false);
     }
 
-    void Update()
+    private void Update()
     {
         if (_waiting)
         {
@@ -43,7 +41,6 @@ public class ManualCreateMapButton : MonoBehaviour, IPointerClickHandler
 
             _timer -= Time.deltaTime;
             _time.text = Math.Round(_timer).ToString();
-
         }
     }
 }

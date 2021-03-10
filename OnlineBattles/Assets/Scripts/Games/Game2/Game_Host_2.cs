@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Game2_host : GameTemplate_WifiHost
+public class Game_Host_2 : GameTemplate_WifiHost
 {
     [SerializeField] private Joystick joystick;
     [SerializeField] private GameObject me, enemy;

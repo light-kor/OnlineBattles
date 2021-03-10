@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class GameOnline : GameTemplate_Online
+public class Game_Online_3 : GameTemplate_Online
 {
     [SerializeField] private Cell _cellPrefab;
     [SerializeField] private Joystick _joystick;
@@ -14,6 +14,12 @@ public class GameOnline : GameTemplate_Online
     protected override void Start()
     {
         _points = new GameObject("Points");
+
+        //Чтоб коллизии не мешались
+        Cell cell = _cellPrefab.GetComponent<Cell>();
+        cell.WallLeft.GetComponent<EdgeCollider2D>().enabled = false;
+        cell.WallBottom.GetComponent<EdgeCollider2D>().enabled = false;
+
         DataHolder.ClientTCP.GetBigMessage += GetBigMessage;
         ManualCreateMapButton.Click += SendChangeMazeRequest; 
         base.Start();       

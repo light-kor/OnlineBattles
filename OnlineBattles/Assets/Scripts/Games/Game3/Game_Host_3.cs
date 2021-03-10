@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Game_host : GameTemplate_WifiHost
+public class Game_Host_3 : GameTemplate_WifiHost
 {
     [SerializeField] private Cell _cellPrefab;
     [SerializeField] private Joystick _joystick;
@@ -113,10 +113,10 @@ public class Game_host : GameTemplate_WifiHost
             {
                 float X = (x - (float)(Width / 2)) / Scale;
                 float Y = (y - (float)(Height / 2)) / Scale;
-                Cell c = Instantiate(_cellPrefab, new Vector2(X, Y), Quaternion.identity, _maze.transform).GetComponent<Cell>();
+                Cell cell = Instantiate(_cellPrefab, new Vector2(X, Y), Quaternion.identity, _maze.transform).GetComponent<Cell>();
 
-                c.WallLeft.SetActive(maze[x, y].WallLeft);
-                c.WallBottom.SetActive(maze[x, y].WallBottom);
+                cell.WallLeft.SetActive(maze[x, y].WallLeft);
+                cell.WallBottom.SetActive(maze[x, y].WallBottom);
             }
         }
     }

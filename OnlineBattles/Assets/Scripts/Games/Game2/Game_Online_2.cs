@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class UDPGame : GameTemplate_Online
+public class Game_Online_2 : GameTemplate_Online
 {
     
     public Joystick joystick;
