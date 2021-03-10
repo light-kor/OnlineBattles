@@ -53,8 +53,7 @@ public class Game_Online_3 : GameTemplate_Online
                 }
                 DataHolder.MessageTCPforGame.RemoveAt(0);
             }
-        }
-        
+        }        
     }
 
     private void UpdateThread()

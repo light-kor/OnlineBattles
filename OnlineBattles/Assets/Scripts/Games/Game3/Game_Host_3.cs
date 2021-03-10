@@ -22,6 +22,10 @@ public class Game_Host_3 : GameTemplate_WifiHost
         base.Start();
         StartUdpConnection();
 
+        Cell cell = _cellPrefab.GetComponent<Cell>();
+        cell.WallLeft.GetComponent<EdgeCollider2D>().enabled = true;
+        cell.WallBottom.GetComponent<EdgeCollider2D>().enabled = true;
+
         ManualCreateMapButton.Click += CreateMap;
         PointEnterHandler.Catch += GetPoint;
 
@@ -43,9 +47,7 @@ public class Game_Host_3 : GameTemplate_WifiHost
         base.Update();
 
         if (_gameOn)
-        {
-            CheckEndOfGame();
-
+        {          
             if (WifiServer_Host._opponent.MessageTCPforGame.Count > 0)
             {
                 string[] mes = WifiServer_Host._opponent.MessageTCPforGame[0].Split(' ');
@@ -66,6 +68,8 @@ public class Game_Host_3 : GameTemplate_WifiHost
 
             if (_lastChangeMazeTime > 5f)
                 CreateMap();
+
+            CheckEndOfGame();
         }
     }
 
@@ -133,6 +137,8 @@ public class Game_Host_3 : GameTemplate_WifiHost
         if (_myPoints > 5 || _enemyPoints > 5)
         {
             CloseAll();
+            _myVelocity = Vector2.zero;
+            _enemyVelocity = Vector2.zero;
 
             if (_myPoints > 5 && _enemyPoints > 5)
                 EndOfGame("drawn");
