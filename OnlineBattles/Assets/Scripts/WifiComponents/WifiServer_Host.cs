@@ -9,7 +9,7 @@ using UnityEngine;
 
 public static class WifiServer_Host
 {
-    public const float UpdateRate = 0.05f; // Отправка UDP инфы каждые UpdateRate мс 
+    public const float UpdateRate = 0.03125f; // Отправка UDP инфы каждые UpdateRate мс 
 
     public static event DataHolder.GameNotification ShowGameNotification;
     public static event DataHolder.Notification CleanHostingUI;
@@ -184,7 +184,7 @@ public static class WifiServer_Host
                 if (mes[0] == "ping")
                 {
                     _opponent.Ping = DateTime.UtcNow.Ticks - StartPingTimeInTicks;
-                    SendTcpMessage($"time {DateTime.UtcNow.Ticks + (_opponent.Ping / 2)}");
+                    SendTcpMessage($"time {DateTime.UtcNow.Ticks - (_opponent.Ping / 2)}");
                     _opponent.TcpMessages.RemoveAt(0);
                     return;
                 }

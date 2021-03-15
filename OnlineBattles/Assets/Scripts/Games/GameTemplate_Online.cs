@@ -2,10 +2,10 @@
 
 public class GameTemplate_Online : MonoBehaviour
 {
-    protected const int _delay = 100 * 10000; // 100ms для интерполяции
+    protected const int _delay = 3125 * 100; // 31.25 ms для интерполяции
     protected bool _finishTheGame = false;
     protected bool _gameOn = true;
-    protected string[] frame1 = null, frame2 = null;
+    protected string[] frame = null, frame2 = null;
 
     protected virtual void Start()
     {
@@ -45,10 +45,10 @@ public class GameTemplate_Online : MonoBehaviour
 
     protected bool SplitFramesAndChechTrash()
     {
-        frame1 = DataHolder.MessageUDPget[0].Split(' ');
+        frame = DataHolder.MessageUDPget[0].Split(' ');
         frame2 = DataHolder.MessageUDPget[1].Split(' ');
 
-        if (frame1[0] != "g")
+        if (frame[0] != "g")
         {
             DataHolder.MessageUDPget.RemoveAt(0);
             return false;

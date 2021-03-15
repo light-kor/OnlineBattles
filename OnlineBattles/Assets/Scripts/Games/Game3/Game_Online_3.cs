@@ -36,8 +36,8 @@ public class Game_Online_3 : GameTemplate_Online
                 _getBigMessage = false;
             }
 
-            UpdateThread();
-            SendJoy();
+            //UpdateThread();
+            //SendJoy();
 
             if (DataHolder.MessageTCPforGame.Count > 0)
             {
@@ -53,31 +53,62 @@ public class Game_Online_3 : GameTemplate_Online
                 }
                 DataHolder.MessageTCPforGame.RemoveAt(0);
             }
+
+            UpdateThread();
         }        
     }
 
-    private void UpdateThread()
+    private void UpdateThreadOld()
     {
         if (DataHolder.MessageUDPget.Count > 1)
         {
             if (!SplitFramesAndChechTrash())
                 return;
 
-            long time = Convert.ToInt64(frame1[1]);
+            long time = Convert.ToInt64(frame[1]);
             long time2 = Convert.ToInt64(frame2[1]);
-            long vrem = DateTime.UtcNow.Ticks + DataHolder.TimeDifferenceWithServer - _delay;
+            long vrem = DateTime.UtcNow.Ticks - DataHolder.TimeDifferenceWithServer / 2 - _delay; //TODO: Так вроде нормально, но чёт нелогично
+            //long vrem = DateTime.UtcNow.Ticks - _delay;
 
-            if (time < vrem && vrem < time2)
+            if (vrem >= time2)
+            {
+                DataHolder.MessageUDPget.RemoveAt(0);
+                UpdateThread(); // Чтоб в этом кадре тоже что-то показали
+            }                
+            else if (time <= vrem && vrem < time2)
             {
                 //normalized = (x - min(x)) / (max(x) - min(x));
                 float delta = (vrem - time) / (time2 - time);
-                _me.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[2]), float.Parse(frame1[3])), new Vector2(float.Parse(frame2[2]), float.Parse(frame2[3])), delta);
-                _enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[4]), float.Parse(frame1[5])), new Vector2(float.Parse(frame2[4]), float.Parse(frame2[5])), delta);
-            }
-            else if (time > vrem) return;
 
-            DataHolder.MessageUDPget.RemoveAt(0);
+                _me.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame[2]), float.Parse(frame[3])), new Vector2(float.Parse(frame2[2]), float.Parse(frame2[3])), delta);
+                _enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame[4]), float.Parse(frame[5])), new Vector2(float.Parse(frame2[4]), float.Parse(frame2[5])), delta);
+            }
+            //else if (time > vrem) return; //По идее это бессмысленная строчка            
         }
+    }
+
+    private void UpdateThread()
+    {
+        if (DataHolder.MessageUDPget.Count > 0)
+        {
+            frame = DataHolder.MessageUDPget[0].Split(' ');
+            if (frame[0] != "g")
+            {
+                DataHolder.MessageUDPget.RemoveAt(0);
+                return;
+            }
+
+            _me.transform.position = Vector2.MoveTowards(_me.transform.position, new Vector2(float.Parse(frame[2]), float.Parse(frame[3])), 1.0f);
+            _enemy.transform.position = Vector2.MoveTowards(_enemy.transform.position, new Vector2(float.Parse(frame[4]), float.Parse(frame[5])), 1.0f);
+
+            DataHolder.MessageUDPget.RemoveAt(0);      
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        //UpdateThread();
+        SendJoy();
     }
 
     private void SendChangeMazeRequest()

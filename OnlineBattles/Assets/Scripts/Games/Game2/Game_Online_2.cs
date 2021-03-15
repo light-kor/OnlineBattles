@@ -46,7 +46,7 @@ public class Game_Online_2 : GameTemplate_Online
             if (!SplitFramesAndChechTrash())
                 return;
 
-            long time = Convert.ToInt64(frame1[1]);
+            long time = Convert.ToInt64(frame[1]);
             long time2 = Convert.ToInt64(frame2[1]);
             //long vrem = DateTime.UtcNow.Ticks + DataHolder.TimeDifferenceWithServer - _delay;
             long vrem = DateTime.UtcNow.Ticks + DataHolder.TimeDifferenceWithServer;
@@ -55,8 +55,8 @@ public class Game_Online_2 : GameTemplate_Online
             {
                 //normalized = (x - min(x)) / (max(x) - min(x));
                 float delta = (vrem - time) / (time2 - time);
-                me.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[2]), float.Parse(frame1[3])), new Vector2(float.Parse(frame2[2]), float.Parse(frame2[3])), delta);
-                enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame1[4]), float.Parse(frame1[5])), new Vector2(float.Parse(frame2[4]), float.Parse(frame2[5])), delta);
+                me.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame[2]), float.Parse(frame[3])), new Vector2(float.Parse(frame2[2]), float.Parse(frame2[3])), delta);
+                enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame[4]), float.Parse(frame[5])), new Vector2(float.Parse(frame2[4]), float.Parse(frame2[5])), delta);
             }
             else if (time > vrem) return;
 

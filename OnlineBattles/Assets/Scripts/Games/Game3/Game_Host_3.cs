@@ -10,7 +10,7 @@ public class Game_Host_3 : GameTemplate_WifiHost
     private Vector2 _myVelocity, _enemyVelocity;
     private Rigidbody2D _myRB, _enemyRB;
     private int _myPoints = 0, _enemyPoints = 0;
-    
+    private object locker = new object();
     private float _lastChangeMazeTime = 0f;
 
     private const int Scale = 2;
@@ -83,17 +83,20 @@ public class Game_Host_3 : GameTemplate_WifiHost
 
     public void CreateMap()
     {
-        if (_maze != null)
-            Destroy(_maze);
+        lock (locker)
+        {
+            if (_maze != null)
+                Destroy(_maze);
 
-        _maze = new GameObject("Cells");
-        Create();
-        _lastChangeMazeTime = 0f;
+            _maze = new GameObject("Cells");
+            Create();
+            _lastChangeMazeTime = 0f;
 
-        Vector2 pointPos = RandomPositionOnMap();
-        Instantiate(_pointPref, pointPos, Quaternion.identity, _points.transform);
-        WifiServer_Host.SendTcpMessage($"point {pointPos.x} {pointPos.y}");
-        //TODO: Карта меняется сама каждые 3 секунды, но каждый может изменить карту сам раз в 5 секунд. Это навык каждого
+            Vector2 pointPos = RandomPositionOnMap();
+            Instantiate(_pointPref, pointPos, Quaternion.identity, _points.transform);
+            WifiServer_Host.SendTcpMessage($"point {pointPos.x} {pointPos.y}");
+            //TODO: Карта меняется сама каждые 3 секунды, но каждый может изменить карту сам раз в 5 секунд. Это навык каждого
+        }
     }
 
     private Vector2 RandomPositionOnMap()
@@ -125,6 +128,7 @@ public class Game_Host_3 : GameTemplate_WifiHost
         }
     }
     //TODO: попробовать брать не 1 длину линий, а рандомную, тогда будут появляться доп проходы
+    //TODO: Можно сделать только прямолинейное движение. Всё равно в лабиринте можно ходить только ровно по двум осям
 
     private void FixedUpdate()
     {
