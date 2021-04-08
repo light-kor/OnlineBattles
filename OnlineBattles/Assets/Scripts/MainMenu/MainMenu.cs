@@ -11,7 +11,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] 
     private GameObject _mainPanel, _lvlPanel, _wifiPanel, _multiBackButton; 
    
-    private string lvlName { get; set; } = "";
+    private string _lvlName { get; set; } = "";
 
     private void Start()
     {                
@@ -30,7 +30,7 @@ public class MainMenu : MonoBehaviour
             {
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[1]);
                 DataHolder.LobbyID = Convert.ToInt32(mes[2]);
-                SceneManager.LoadScene(lvlName);
+                SceneManager.LoadScene(_lvlName);
                 DataHolder.NotifPanels.NotificatonMultyButton(0);
             }
             // Значит до этого игрок вылетел, и сейчас может восстановиться в игре
@@ -84,7 +84,7 @@ public class MainMenu : MonoBehaviour
         {
             //TODO: Добавить анимацию ожидания.
             ShowGameNotification?.Invoke("Поиск игры", 3);
-            lvlName = "lvl" + lvlNum;
+            _lvlName = "lvl" + lvlNum;
             DataHolder.ClientTCP.SendMessage($"game {lvlNum}");           
         }
     }
