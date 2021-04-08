@@ -19,7 +19,7 @@ public class MainPanelAnimation : MonoBehaviour, IPointerClickHandler
     
     void Start()
     {
-        MainButtonTrigger.MyTriggerEnter += ChangeDirection;
+        BorderTrigger.MyTriggerEnter += ChangeDirection;
         _leftBox = _leftLine.GetComponent<BoxCollider2D>();
         _rightBox = _rightLine.GetComponent<BoxCollider2D>();
         _mainButtons.SetActive(true);
