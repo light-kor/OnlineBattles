@@ -8,7 +8,7 @@ public class MainPanelAnimation : MonoBehaviour, IPointerClickHandler
     [SerializeField] private GameObject _mainButtons, _flyingBall;
     [SerializeField] private GameObject _leftLine, _rightLine;
     private BoxCollider2D _leftBox, _rightBox;
-    private readonly int _rangeX = 500, _rangeY = 240, _linesX = 480;
+    private readonly int _rangeX = 500, _rangeY = 240, _linesX = 410;
     private Vector2 _startPosition, _targetPosition;
     private Vector2 _leftStart, _rightStart;
     private float _time = 0f, _speed = 1;
