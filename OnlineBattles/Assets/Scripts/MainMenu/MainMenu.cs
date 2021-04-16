@@ -1,4 +1,5 @@
 ﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -101,7 +102,7 @@ public class MainMenu : MonoBehaviour
         else if (DataHolder.StartMenuView == "WifiClient")
         {            
             _lvlChoseWaiting.SetActive(true);
-            ShowMultiBackButton("Disconnect");
+            ShowMultiBackButton("Отключиться");
         }
         else 
             ActivateMenuPanel();
@@ -215,9 +216,9 @@ public class MainMenu : MonoBehaviour
         if (!(DataHolder.GameType == 22 && WifiServer_Host._opponent == null))
         {
             if (DataHolder.GameType == 2)
-                ShowMultiBackButton("Cancel");
+                ShowMultiBackButton("Отмена");
             else
-                ShowMultiBackButton("Back");
+                ShowMultiBackButton("Назад");
         }
             
     }
@@ -231,7 +232,7 @@ public class MainMenu : MonoBehaviour
 
     public void ShowMultiBackButton(string text)
     {
-        _multiBackButton.GetComponentInChildren<Text>().text = text;
+        _multiBackButton.GetComponentInChildren<TMP_Text>().text = text;
         _multiBackButton.SetActive(true);
     }
 

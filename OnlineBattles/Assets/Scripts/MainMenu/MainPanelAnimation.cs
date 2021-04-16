@@ -7,7 +7,6 @@ public class MainPanelAnimation : MonoBehaviour, IPointerClickHandler
 
     [SerializeField] private GameObject _mainButtons, _flyingBall;
     [SerializeField] private GameObject _leftLine, _rightLine;
-    private BoxCollider2D _leftBox, _rightBox;
     private readonly int _rangeX = 500, _rangeY = 240, _linesX = 410;
     private Vector2 _startPosition, _targetPosition;
     private Vector2 _leftStart, _rightStart;
@@ -16,12 +15,9 @@ public class MainPanelAnimation : MonoBehaviour, IPointerClickHandler
     private bool _zipMenu = false;
     private Coroutine _zoomAnimation = null;
 
-    
     void Start()
     {
         BorderTrigger.MyTriggerEnter += ChangeDirection;
-        _leftBox = _leftLine.GetComponent<BoxCollider2D>();
-        _rightBox = _rightLine.GetComponent<BoxCollider2D>();
         _mainButtons.SetActive(true);
         _flyingBall.SetActive(false);
 
@@ -32,7 +28,7 @@ public class MainPanelAnimation : MonoBehaviour, IPointerClickHandler
     }
 
     
-    void Update()
+    void FixedUpdate()
     {
         if (_time < 1f)
         {
@@ -67,13 +63,15 @@ public class MainPanelAnimation : MonoBehaviour, IPointerClickHandler
 
     private void ChangeDirection()
     {
-        StartCoroutine(DisableTriggerForAWhile());
-        _time = 0f;
-        _startPosition = _mainButtons.transform.localPosition;
-        _dir *= -1;
-        _targetPosition = new Vector3(_rangeX * _dir, Random.Range(-_rangeY, _rangeY), 0);
-        _leftStart = _leftLine.transform.localPosition;
-        _rightStart = _rightLine.transform.localPosition;
+        if (_time > 0.3f) // Костыль, чтоб при увеличении не ударился несколько раз за мгновение
+        {
+            _time = 0f;
+            _startPosition = _mainButtons.transform.localPosition;
+            _dir *= -1;
+            _targetPosition = new Vector3(_rangeX * _dir, Random.Range(-_rangeY, _rangeY), 0);
+            _leftStart = _leftLine.transform.localPosition;
+            _rightStart = _rightLine.transform.localPosition;
+        }
     }
 
     private IEnumerator ZoomAnimation()
@@ -110,21 +108,5 @@ public class MainPanelAnimation : MonoBehaviour, IPointerClickHandler
             _mainButtons.SetActive(!_zipMenu);
             _flyingBall.SetActive(_zipMenu);
         }
-    }
-
-    private IEnumerator DisableTriggerForAWhile()
-    {
-        _leftBox.enabled = false;
-        _rightBox.enabled = false;
-
-        float waitTime = 0;
-        while (waitTime < 1f)
-        {
-            waitTime += Time.deltaTime;
-            yield return null;
-        }
-
-        _leftBox.enabled = true;
-        _rightBox.enabled = true;
     }
 }

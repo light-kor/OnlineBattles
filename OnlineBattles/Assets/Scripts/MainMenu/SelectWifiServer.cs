@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class WifiServerSelect : MonoBehaviour, IPointerClickHandler
+public class SelectWifiServer : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] private TMP_Text _serverNameText;
 

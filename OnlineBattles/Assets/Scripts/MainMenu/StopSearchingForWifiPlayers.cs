@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class StopWaitWifiClients : MonoBehaviour, IPointerClickHandler
+public class StopSearchingForWifiPlayers : MonoBehaviour, IPointerClickHandler
 {
     Image _myColor;
 

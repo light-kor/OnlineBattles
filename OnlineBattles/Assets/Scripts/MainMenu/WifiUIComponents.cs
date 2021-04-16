@@ -42,7 +42,7 @@ public class WifiUIComponents : MonoBehaviour
             MenuScr._waitingAnim.SetActive(false);
             _opponent.gameObject.SetActive(true);
             _opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
-            MenuScr.ShowMultiBackButton("Disconnect");
+            MenuScr.ShowMultiBackButton("Отключиться");
             _showOpponentName = false;
         }
 
@@ -79,7 +79,7 @@ public class WifiUIComponents : MonoBehaviour
         }
         GameObject pref = Instantiate(_serverPrefab, MenuScr._serverSearchPanel.transform);
         pref.transform.localPosition = new Vector3(x, y, 0);
-        pref.GetComponent<WifiServerSelect>().SetNameAndIP(text);
+        pref.GetComponent<SelectWifiServer>().SetNameAndIP(text);
     }
 
     public void ShowOpponentName()
@@ -106,7 +106,7 @@ public class WifiUIComponents : MonoBehaviour
         {
             MenuScr.DeactivatePanels();
             MenuScr._lvlChoseWaiting.SetActive(true);
-            MenuScr.ShowMultiBackButton("Disconnect");
+            MenuScr.ShowMultiBackButton("Отключиться");
         }
 
         _serverAnswer = null;
