@@ -7,7 +7,7 @@ public class MainPanelAnimation : MonoBehaviour, IPointerClickHandler
 
     [SerializeField] private GameObject _mainButtons, _flyingBall;
     [SerializeField] private GameObject _leftLine, _rightLine;
-    private readonly int _rangeX = 500, _rangeY = 240, _linesX = 410;
+    private readonly float _rangeX = 420f, _rangeY = 240f;
     private Vector2 _startPosition, _targetPosition;
     private Vector2 _leftStart, _rightStart;
     private float _time = 0f, _speed = 1;
@@ -36,12 +36,12 @@ public class MainPanelAnimation : MonoBehaviour, IPointerClickHandler
             _flyingBall.transform.localPosition = _mainButtons.transform.localPosition;
             if (_dir == 1)
             {
-                _rightLine.transform.localPosition = Vector3.Lerp(_rightStart, new Vector3(_linesX, _targetPosition.y), _time);
+                _rightLine.transform.localPosition = Vector3.Lerp(_rightStart, new Vector3(_rangeX, _targetPosition.y), _time);
                 _leftLine.transform.localPosition = Vector3.Lerp(_leftStart, new Vector3(_leftStart.x, Mathf.PingPong(Time.time, _rangeY * 2) - _rangeY, 0), _time);
             }
             else
             {
-                _leftLine.transform.localPosition = Vector3.Lerp(_leftStart, new Vector3(-_linesX, _targetPosition.y), _time);
+                _leftLine.transform.localPosition = Vector3.Lerp(_leftStart, new Vector3(-_rangeX, _targetPosition.y), _time);
                 _rightLine.transform.localPosition = Vector3.Lerp(_rightStart, new Vector3(_rightStart.x, Mathf.PingPong(Time.time, _rangeY * 2) - _rangeY, 0), _time);
             }
 
