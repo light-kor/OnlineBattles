@@ -21,7 +21,7 @@ public class UDPConnect
     private void CreateClass()
     {
         Working = true;
-        if (DataHolder.GameType == 3)
+        if (DataHolder.GameType == "Multiplayer")
         {
             _ip = DataHolder.ServerIp;
             _port = DataHolder.RemoteServerPort;
@@ -48,7 +48,7 @@ public class UDPConnect
         byte[] data = null;
         try
         {
-            if (DataHolder.GameType == 3)
+            if (DataHolder.GameType == "Multiplayer")
                 data = Encoding.UTF8.GetBytes($"{DataHolder.SelectedServerGame} {DataHolder.LobbyID} {DataHolder.IDInThisGame} " + mes);
             else
                 data = Encoding.UTF8.GetBytes(mes);

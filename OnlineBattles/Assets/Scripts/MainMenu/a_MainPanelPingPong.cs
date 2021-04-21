@@ -2,12 +2,12 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class MainPanelAnimation : MonoBehaviour, IPointerClickHandler
+public class a_MainPanelPingPong : MonoBehaviour, IPointerClickHandler
 {
 
     [SerializeField] private GameObject _mainButtons, _flyingBall;
     [SerializeField] private GameObject _leftLine, _rightLine;
-    private readonly float _rangeX = 420f, _rangeY = 240f;
+    [SerializeField] private float _rangeX = 420f, _rangeY = 240f;
     private Vector2 _startPosition, _targetPosition;
     private Vector2 _leftStart, _rightStart;
     private float _time = 0f, _speed = 1;
@@ -17,7 +17,7 @@ public class MainPanelAnimation : MonoBehaviour, IPointerClickHandler
 
     void Start()
     {
-        BorderTrigger.MyTriggerEnter += ChangeDirection;
+        PingPongLinesTrigger.MyTriggerEnter += ChangeDirection;
         _mainButtons.SetActive(true);
         _flyingBall.SetActive(false);
 

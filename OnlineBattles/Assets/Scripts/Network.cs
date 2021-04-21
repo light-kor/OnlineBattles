@@ -116,7 +116,7 @@ public static class Network
     {
         CloseTcpConnection();
 
-        if (DataHolder.GameType == 3)
+        if (DataHolder.GameType == "Multiplayer")
         {
             if (!await Task.Run(() => CheckForInternetConnection()))
             {
@@ -152,9 +152,9 @@ public static class Network
     /// </summary>
     private static void LoginInServerSystem()
     {
-        if (DataHolder.GameType == 3)
+        if (DataHolder.GameType == "Multiplayer")
             DataHolder.ClientTCP.SendMessage("login " + DataHolder.KeyCodeName);
-        else if (DataHolder.GameType == 2)
+        else if (DataHolder.GameType == "WifiClient")
         {
             DataHolder.ClientTCP.SendMessage("name " + DataHolder.NickName);
             return;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class LoadingAnim : MonoBehaviour
+public class a_Rotation : MonoBehaviour
 {
     [SerializeField] private float _rotationSpeed = -1f;
     private void Update()

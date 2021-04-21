@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ScoreAnimation : MonoBehaviour
+public class a_ScoreFlicker : MonoBehaviour
 {
     [SerializeField] private GameObject _leftNumber1, _leftNumber2, _rightNumber1, _rightNumber2;
     private Image _leftNumber1_image, _leftNumber2_image, _rightNumber1_image, _rightNumber2_image;

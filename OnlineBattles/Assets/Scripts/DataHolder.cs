@@ -20,7 +20,7 @@ public static class DataHolder
     public static bool Connected { get; set; } = false;
     public static bool CanMove { get; set; } = false;
     public static long TimeDifferenceWithServer { get; set; }
-    public static int GameType { get; set; } = -1;
+    public static string GameType { get; set; } = null;
     public static int SelectedServerGame { get; set; } = -1;           
     public static int MyServerID { get; set; }  = -1;   
     public static int LobbyID { get; set; } = -1;   

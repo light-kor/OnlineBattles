@@ -15,7 +15,7 @@ public class GameTemplate_Online : MonoBehaviour
         Network.CreateUDP();
         DataHolder.MessageUDPget.Clear();
 
-        if (DataHolder.GameType == 3)
+        if (DataHolder.GameType == "Multiplayer")
             DataHolder.ClientTCP.SendMessage("start");
 
         DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес

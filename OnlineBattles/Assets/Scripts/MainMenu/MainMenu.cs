@@ -7,15 +7,15 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     public static event DataHolder.GameNotification ShowGameNotification;
-    public GameObject _serverSearchPanel, _waitingAnim, _lvlChoseWaiting;
+    public GameObject _lvlChoseWaiting, _lvlPanel;
+    [SerializeField] private GameObject _mainPanel, _wifiPanel, _multiBackButton;
 
-    [SerializeField] 
-    private GameObject _mainPanel, _lvlPanel, _wifiPanel, _multiBackButton; 
-   
+    private WifiMenuComponents WifiMenu;
     private string _lvlName { get; set; } = "";
 
     private void Start()
-    {                
+    {
+        WifiMenu = GetComponent<WifiMenuComponents>();
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
         ChoseStartView();       
     }
@@ -64,11 +64,11 @@ public class MainMenu : MonoBehaviour
     {
         DataHolder.SelectedServerGame = lvlNum;
 
-        if (DataHolder.GameType == 1)
+        if (DataHolder.GameType == "OnPhone")
         {
             SceneManager.LoadScene("TicTacToe_Single"); //TODO: Сделать по шаблону мультиплеера.
         }
-        else if (DataHolder.GameType == 22)
+        else if (DataHolder.GameType == "WifiServer")
         {
             if (WifiServer_Host.OpponentIsReady == false)
             {
@@ -81,7 +81,7 @@ public class MainMenu : MonoBehaviour
                 //TODO: Отправить инфу второму игроку
             }
         }
-        else if (DataHolder.GameType == 3)
+        else if (DataHolder.GameType == "Multiplayer")
         {
             //TODO: Добавить анимацию ожидания.
             ShowGameNotification?.Invoke("Поиск игры", 3);
@@ -96,7 +96,7 @@ public class MainMenu : MonoBehaviour
 
         if (DataHolder.StartMenuView == "WifiHost")
         {
-            GetComponent<WifiUIComponents>().ShowOpponentName();
+            WifiMenu.WriteOpponentName();
             ActivatePanel(_lvlPanel);
         }
         else if (DataHolder.StartMenuView == "WifiClient")
@@ -115,7 +115,7 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     public void SelectSingleGame()
     {
-        DataHolder.GameType = 1;
+        DataHolder.GameType = "OnPhone";
         ActivatePanel(_lvlPanel);
     }
 
@@ -132,55 +132,27 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     public void SelectMultiplayerGame()
     {
-        DataHolder.GameType = 3;
+        DataHolder.GameType = "Multiplayer";
         if (!DataHolder.Connected)
             Network.CreateTCP();
 
         TcpConnectionIsReady();
     }
        
-    /// <summary>
-    /// Переход в меню выбора мультиплеерных игр, показ money и id в UI.
-    /// </summary>
     public void TcpConnectionIsReady()
     {
         if (DataHolder.Connected)
         {           
             DataHolder.NotifPanels.NotificatonMultyButton(1);
 
-            if (DataHolder.GameType == 3)
+            if (DataHolder.GameType == "Multiplayer")
                 ActivatePanel(_lvlPanel);
         }
-    }
- 
-    void DestroyAllWifiServersIcons()
-    {
-        foreach (Transform g in _serverSearchPanel.GetComponentsInChildren<Transform>())
-        {
-            if (g.name.Contains("ServerSelect"))
-                Destroy(g.gameObject);
-        }
-    }   
-
-    public void SetHost()
-    {
-        DataHolder.GameType = 22;
-        WifiServer_Host.StartHosting();
-        _waitingAnim.SetActive(true);
-        ActivatePanel(_lvlPanel);
-    }
-
-    public void ConnectToWifi()
-    {
-        DataHolder.GameType = 2;
-        DestroyAllWifiServersIcons();
-        WifiServer_Connect.StartSearching();
-        ActivatePanel(_serverSearchPanel);
-    }
+    }  
 
     public void MultiBackButton() //TODO: !!Добавить кнопку и завершение всех соединений на момент, когда ты уже имеешь подключённого чела и хочешь выйти!!
     {
-        if (DataHolder.GameType == 2)
+        if (DataHolder.GameType == "WifiClient")
         {
             Network.CloseWifiServerSearcher();
             _lvlChoseWaiting.SetActive(false);
@@ -191,13 +163,19 @@ public class MainMenu : MonoBehaviour
                 Network.CloseTcpConnection();
             }                           
         }
-        else if (DataHolder.GameType == 22 && WifiServer_Host._opponent != null)
+        else if (DataHolder.GameType == "WifiServer")
         {
-            WifiServer_Host.SendTcpMessage("disconnect");
-            WifiServer_Host.CloseAll();
-            GetComponent<WifiUIComponents>().HideOpponentName();           
+            if (WifiServer_Host._opponent != null)
+            {
+                WifiServer_Host.SendTcpMessage("disconnect");
+                WifiServer_Host.CloseAll();
+                WifiMenu.HideOpponentName();
+            }
+            else
+            {
+                WifiServer_Host.CancelWaiting();
+            }
         }
-
         ActivateMenuPanel();
     }
 
@@ -206,26 +184,21 @@ public class MainMenu : MonoBehaviour
         
     }
 
-
     #region ActivatePanels
     public void ActivatePanel(GameObject panel) // В основном для кнопки Back в меню
     {
         DeactivatePanels();
         panel.SetActive(true);
 
-        if (!(DataHolder.GameType == 22 && WifiServer_Host._opponent == null))
-        {
-            if (DataHolder.GameType == 2)
-                ShowMultiBackButton("Отмена");
-            else
-                ShowMultiBackButton("Назад");
-        }
-            
+        if ((DataHolder.GameType == "WifiServer" && WifiServer_Host._opponent == null) || DataHolder.GameType == "WifiClient")
+            ShowMultiBackButton("Отмена");
+        else
+            ShowMultiBackButton("Назад");           
     }
 
     public void ActivateMenuPanel() // В основном для кнопки Back в меню
     {
-        DataHolder.GameType = 0;
+        DataHolder.GameType = null;
         DeactivatePanels();
         _mainPanel.SetActive(true);
     }
@@ -241,11 +214,15 @@ public class MainMenu : MonoBehaviour
         _mainPanel.SetActive(false);
         _lvlPanel.SetActive(false);
         _wifiPanel.SetActive(false);
-        _serverSearchPanel.SetActive(false);
+        WifiMenu.DeactivateServerSearchPanel();
 
         _multiBackButton.SetActive(false);
     }
     #endregion
+
+    //TODO: Настроить диапазон пикселей для появления серверов
+
+    //TODO: Отключить кликабельность меню во время изменения размера
 
     //TODO: Добавил "g" к каждому игровому udp сообщению. НО НЕ УЧЁЛ ЭТО НА СЕРВЕРЕ!!!!
 

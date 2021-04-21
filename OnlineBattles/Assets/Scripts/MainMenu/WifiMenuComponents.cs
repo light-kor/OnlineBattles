@@ -3,26 +3,24 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WifiUIComponents : MonoBehaviour
+public class WifiMenuComponents : MonoBehaviour
 {
     [SerializeField] private TMP_Text _opponent;
-    [SerializeField] private GameObject _serverPrefab;
+    [SerializeField] private GameObject _wifiServerPrefab, _serverSearchPanel;
     private List<string> WifiServers = new List<string>();
     private MainMenu MenuScr;
     private string _serverAnswer = null;
-    private bool _canReadServerAnswer = false, _showOpponentName = false, _stopAnimWaiting = false;
+    private bool _canReadServerAnswer = false, _writeOpponentName = false, _hideOpponentName = false, _showOpponentNameObj = false;
 
-    // Start is called before the first frame update
     void Start()
     {
         MenuScr = GetComponent<MainMenu>();
         WifiServer_Connect.AddWifiServerToScreen += GetNewWifiServer;
-        WifiServer_Host.CleanHostingUI += StopAnimWaitingWifiPlayers;
-        WifiServer_Host.AcceptOpponent += ShowOpponentName;
+        WifiServer_Host.CleanHostingUI += HideOpponentName;
+        WifiServer_Host.AcceptOpponent += WriteOpponentName;
         Network.WifiServerAnswer += WifiServerAnswerProcessing;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (WifiServers.Count > 0)
@@ -37,21 +35,50 @@ public class WifiUIComponents : MonoBehaviour
             _canReadServerAnswer = false;
         }
 
-        if (_showOpponentName)
+        if (_showOpponentNameObj)
         {
-            MenuScr._waitingAnim.SetActive(false);
+            _opponent.text = "Ожидание игроков...";
             _opponent.gameObject.SetActive(true);
-            _opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
-            MenuScr.ShowMultiBackButton("Отключиться");
-            _showOpponentName = false;
+            _showOpponentNameObj = false;
         }
 
-        if (_stopAnimWaiting)
+        //TODO: Когда игрок отключится, или ты закроешь сервер, надо сделать WifiServer_Host._opponent.PlayerName = null
+        if (_writeOpponentName)
         {
-            MenuScr._waitingAnim.SetActive(false);
+            _opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
+            MenuScr.ShowMultiBackButton("Отключиться");
+            _writeOpponentName = false;
+        }
+
+        if (_hideOpponentName)
+        {
             _opponent.gameObject.SetActive(false);
-            MenuScr.ActivateMenuPanel();
-            _stopAnimWaiting = false;
+            _hideOpponentName = false;
+        }
+    }
+
+    public void Wifi_SetHost()
+    {
+        DataHolder.GameType = "WifiServer";
+        WifiServer_Host.StartHosting();
+        ShowOpponentNameObj();
+        MenuScr.ActivatePanel(MenuScr._lvlPanel);
+    }
+
+    public void Wifi_ConnectHost()
+    {
+        DataHolder.GameType = "WifiClient";
+        DestroyAllWifiServersIcons();
+        WifiServer_Connect.StartSearching();
+        MenuScr.ActivatePanel(_serverSearchPanel);
+    }
+
+    private void DestroyAllWifiServersIcons()
+    {
+        foreach (Transform g in _serverSearchPanel.GetComponentsInChildren<Transform>())
+        {
+            if (g.name.Contains("ServerSelect"))
+                Destroy(g.gameObject);
         }
     }
 
@@ -59,12 +86,7 @@ public class WifiUIComponents : MonoBehaviour
     {
         WifiServers.Add(text);
     }
-
-    private void StopAnimWaitingWifiPlayers()
-    {       
-        _stopAnimWaiting = true;
-    }
-
+    
     private void CreateWifiServerCopy(string text)
     {
         float x = 0, y = 0;
@@ -77,20 +99,10 @@ public class WifiUIComponents : MonoBehaviour
         {
             y = Random.Range(-640, 640);
         }
-        GameObject pref = Instantiate(_serverPrefab, MenuScr._serverSearchPanel.transform);
+        GameObject pref = Instantiate(_wifiServerPrefab, _serverSearchPanel.transform);
         pref.transform.localPosition = new Vector3(x, y, 0);
         pref.GetComponent<SelectWifiServer>().SetNameAndIP(text);
-    }
-
-    public void ShowOpponentName()
-    {
-        _showOpponentName = true;
-    }
-
-    public void HideOpponentName()
-    {
-        _opponent.gameObject.SetActive(false);
-    }
+    }    
 
     private void WifiServerAnswerProcessing(string text)
     {
@@ -110,5 +122,25 @@ public class WifiUIComponents : MonoBehaviour
         }
 
         _serverAnswer = null;
+    }
+
+    public void DeactivateServerSearchPanel()
+    {
+        _serverSearchPanel.SetActive(false);
+    }
+
+    public void HideOpponentName()
+    {
+        _hideOpponentName = true;
+    }
+
+    public void WriteOpponentName()
+    {
+        _writeOpponentName = true;
+    }
+
+    public void ShowOpponentNameObj()
+    {
+        _showOpponentNameObj = true;
     }
 }

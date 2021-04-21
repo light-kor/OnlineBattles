@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WifiSearchingAnimation : MonoBehaviour
+public class a_WifiSearching : MonoBehaviour
 {
 
     [SerializeField] private GameObject _circle1, _circle2, _circle3, _circle4;

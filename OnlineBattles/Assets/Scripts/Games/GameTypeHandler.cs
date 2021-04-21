@@ -10,11 +10,11 @@ public class GameTypeHandler : MonoBehaviour
         _wifiHost.SetActive(false);
         _onlineGame.SetActive(false);
 
-        if (DataHolder.GameType == 1)
+        if (DataHolder.GameType == "OnPhone")
             _singleGame.SetActive(true);
-        else if (DataHolder.GameType == 22)
+        else if (DataHolder.GameType == "WifiServer")
             _wifiHost.SetActive(true);
-        else if (DataHolder.GameType == 2 || DataHolder.GameType == 3)
+        else if (DataHolder.GameType == "WifiClient" || DataHolder.GameType == "Multiplayer")
             _onlineGame.SetActive(true);
 
         GetComponent<GameTypeHandler>().enabled = false;

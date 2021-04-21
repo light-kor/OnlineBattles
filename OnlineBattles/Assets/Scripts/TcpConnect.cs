@@ -32,12 +32,12 @@ public class TcpConnect
         string ip = null;
         int _port = 0;
 
-        if (DataHolder.GameType == 3)
+        if (DataHolder.GameType == "Multiplayer")
         {
             ip = DataHolder.ServerIp;
             _port = DataHolder.RemoteServerPort;
         }
-        else if (DataHolder.GameType == 2)
+        else if (DataHolder.GameType == "WifiClient")
         {
             ip = DataHolder.WifiGameIp;
             _port = DataHolder.WifiPort;
