@@ -14,10 +14,12 @@ public class a_MainPanelPingPong : MonoBehaviour, IPointerClickHandler
     private int _dir = 1;
     private bool _zipMenu = false;
     private Coroutine _zoomAnimation = null;
+    private CanvasGroup _buttonsGroup;
 
     void Start()
     {
         PingPongLinesTrigger.MyTriggerEnter += ChangeDirection;
+        _buttonsGroup = _mainButtons.GetComponent<CanvasGroup>();
         _mainButtons.SetActive(true);
         _flyingBall.SetActive(false);
 
@@ -63,7 +65,7 @@ public class a_MainPanelPingPong : MonoBehaviour, IPointerClickHandler
 
     private void ChangeDirection()
     {
-        if (_time > 0.3f) // Костыль, чтоб при увеличении не ударился несколько раз за мгновение
+        if (_time > 0.1f) // Костыль, чтоб при увеличении не ударился несколько раз за мгновение
         {
             _time = 0f;
             _startPosition = _mainButtons.transform.localPosition;
@@ -76,10 +78,11 @@ public class a_MainPanelPingPong : MonoBehaviour, IPointerClickHandler
 
     private IEnumerator ZoomAnimation()
     {
+        _buttonsGroup.interactable = false;
         if (!_zipMenu)
         {
-            _mainButtons.SetActive(!_zipMenu);
-            _flyingBall.SetActive(_zipMenu);
+            _mainButtons.SetActive(true);
+            _flyingBall.SetActive(false);
         }
 
         Vector3 startScale = _mainButtons.transform.localScale;
@@ -105,8 +108,9 @@ public class a_MainPanelPingPong : MonoBehaviour, IPointerClickHandler
 
         if (_zipMenu)
         {
-            _mainButtons.SetActive(!_zipMenu);
-            _flyingBall.SetActive(_zipMenu);
+            _mainButtons.SetActive(false);
+            _flyingBall.SetActive(true);
         }
+        _buttonsGroup.interactable = true;
     }
 }
