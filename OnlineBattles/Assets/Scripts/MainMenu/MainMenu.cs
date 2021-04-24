@@ -66,7 +66,7 @@ public class MainMenu : MonoBehaviour
 
         if (DataHolder.GameType == "OnPhone")
         {
-            SceneManager.LoadScene("TicTacToe_Single"); //TODO: Сделать по шаблону мультиплеера.
+            SceneManager.LoadScene("lvl" + lvlNum);
         }
         else if (DataHolder.GameType == "WifiServer")
         {

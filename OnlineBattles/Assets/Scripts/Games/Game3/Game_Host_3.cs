@@ -3,43 +3,19 @@ using UnityEngine;
 
 public class Game_Host_3 : GameTemplate_WifiHost
 {
-    [SerializeField] private Cell _cellPrefab;
-    [SerializeField] private Joystick _joystick;
-    [SerializeField] private GameObject _me, _enemy, _pointPref;
-    private GameObject _maze, _points;
-    private Vector2 _myVelocity, _enemyVelocity;
-    private Rigidbody2D _myRB, _enemyRB;
-    private int _myPoints = 0, _enemyPoints = 0;
-    private object locker = new object();
-    private float _lastChangeMazeTime = 0f;
-
-    private const int Scale = 2;
-    private const int Width = 19;
-    private const int Height = 19;
+    private GameResources_3 GR;
 
     protected override void Start()
     {
+        ManualCreateMapButton.Click += CreateMap;
+        GR = transform.parent.GetComponent<GameResources_3>();
         base.Start();
         StartUdpConnection();
 
-        Cell cell = _cellPrefab.GetComponent<Cell>();
-        cell.WallLeft.GetComponent<EdgeCollider2D>().enabled = true;
-        cell.WallBottom.GetComponent<EdgeCollider2D>().enabled = true;
-
-        ManualCreateMapButton.Click += CreateMap;
-        PointEnterHandler.Catch += GetPoint;
-
-        _myRB = _me.GetComponent<Rigidbody2D>();
-        _enemyRB = _enemy.GetComponent<Rigidbody2D>();
-
-        _points = new GameObject("Points");
+        GR.StartInHost();
         CreateMap();        
         InvokeRepeating("SendAllChanges", 0f, WifiServer_Host.UpdateRate);
-
-        _me.transform.position = RandomPositionOnMap();
-        _enemy.transform.position = RandomPositionOnMap();
-
-        WifiServer_Host.SendTcpMessage($"position {_enemy.transform.position.x} {_enemy.transform.position.y} {_me.transform.position.x} {_me.transform.position.y}");
+        WifiServer_Host.SendTcpMessage($"position {GR._enemy.transform.position.x} {GR._enemy.transform.position.y} {GR._me.transform.position.x} {GR._me.transform.position.y}");
     }    
 
     protected override void Update()
@@ -53,7 +29,7 @@ public class Game_Host_3 : GameTemplate_WifiHost
                 string[] mes = WifiServer_Host._opponent.MessageTCPforGame[0].Split(' ');
                 if (mes[0] == "move")
                 {
-                    _enemyVelocity = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
+                    GR._enemyVelocity = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
                 }
                 else if (mes[0] == "change")
                 {
@@ -62,99 +38,66 @@ public class Game_Host_3 : GameTemplate_WifiHost
                 WifiServer_Host._opponent.MessageTCPforGame.RemoveAt(0);
             }
 
-            _myVelocity = new Vector2(_joystick.Horizontal, _joystick.Vertical);
+            GR._myVelocity = new Vector2(GR._firstJoystick.Horizontal, GR._firstJoystick.Vertical);
 
-            _lastChangeMazeTime += Time.deltaTime;
+            GR._lastChangeMazeTime += Time.deltaTime;
 
-            if (_lastChangeMazeTime > 5f)
+            if (GR._lastChangeMazeTime > 5f)
                 CreateMap();
 
             CheckEndOfGame();
         }
     }
 
-    private void GetPoint(GameObject player)
+    private void FixedUpdate()
     {
-        if (player == _me)
-            _myPoints++;
-        else if (player == _enemy)
-            _enemyPoints++;
+        GR._myRB.MovePosition(GR._myRB.position + GR._myVelocity * Time.fixedDeltaTime * GR._speed);
+        GR._enemyRB.MovePosition(GR._enemyRB.position + GR._enemyVelocity * Time.fixedDeltaTime * GR._speed);
     }
 
     public void CreateMap()
     {
-        lock (locker)
+        if (!GR._lock)
         {
-            if (_maze != null)
-                Destroy(_maze);
+            GR._lock = true;
+            if (GR._maze != null)
+                Destroy(GR._maze);
 
-            _maze = new GameObject("Cells");
-            Create();
-            _lastChangeMazeTime = 0f;
+            GR._maze = new GameObject("Cells");           
+            MazeGenerator generator = new MazeGenerator(GR.Width, GR.Height);
+            MazeGeneratorCell[,] maze = generator.GenerateMaze();
+            BigDataSendReceive<MazeGeneratorCell[,]>.SendBigMessage(maze);
+            GR.BuildMaze(maze);
 
-            Vector2 pointPos = RandomPositionOnMap();
-            Instantiate(_pointPref, pointPos, Quaternion.identity, _points.transform);
+            GR._lastChangeMazeTime = 0f;
+
+            Vector2 pointPos = GR.RandomPositionOnMap();
+            Instantiate(GR._pointPref, pointPos, Quaternion.identity, GR._points.transform);
             WifiServer_Host.SendTcpMessage($"point {pointPos.x} {pointPos.y}");
             //TODO: Карта меняется сама каждые 3 секунды, но каждый может изменить карту сам раз в 5 секунд. Это навык каждого
+            GR._lock = false;
         }
-    }
-
-    private Vector2 RandomPositionOnMap()
-    {
-        float X = UnityEngine.Random.Range(-Width / 2, Width / 2) + 0.5f;
-        float Y = UnityEngine.Random.Range(-Height / 2, Height / 2) + 0.5f;
-
-        return new Vector2(X / Scale, Y / Scale);
-    }
-
-
-    private void Create()
-    {
-        MazeGenerator generator = new MazeGenerator(Width, Height);
-        MazeGeneratorCell[,] maze = generator.GenerateMaze();
-        BigDataSendReceive<MazeGeneratorCell[,]>.SendBigMessage(maze);
-
-        for (int x = 0; x < Width; x++)
-        {
-            for (int y = 0; y < Height; y++)
-            {
-                float X = (x - (float)(Width / 2)) / Scale;
-                float Y = (y - (float)(Height / 2)) / Scale;
-                Cell cell = Instantiate(_cellPrefab, new Vector2(X, Y), Quaternion.identity, _maze.transform).GetComponent<Cell>();
-
-                cell.WallLeft.SetActive(maze[x, y].WallLeft);
-                cell.WallBottom.SetActive(maze[x, y].WallBottom);
-            }
-        }
-    }
-    //TODO: попробовать брать не 1 длину линий, а рандомную, тогда будут появляться доп проходы
-    //TODO: Можно сделать только прямолинейное движение. Всё равно в лабиринте можно ходить только ровно по двум осям
-
-    private void FixedUpdate()
-    {
-        _myRB.MovePosition(_myRB.position + _myVelocity * Time.fixedDeltaTime * 3);
-        _enemyRB.MovePosition(_enemyRB.position + _enemyVelocity * Time.fixedDeltaTime * 3);
     }
 
     public void CheckEndOfGame()
     {
-        if (_myPoints > 5 || _enemyPoints > 5)
+        if (GR._myPoints > GR.WinScore || GR._enemyPoints > GR.WinScore)
         {
             CloseAll();
-            _myVelocity = Vector2.zero;
-            _enemyVelocity = Vector2.zero;
+            GR._myVelocity = Vector2.zero;
+            GR._enemyVelocity = Vector2.zero;
 
-            if (_myPoints > 5 && _enemyPoints > 5)
+            if (GR._myPoints > GR.WinScore && GR._enemyPoints > GR.WinScore)
                 EndOfGame("drawn");
-            else if (_myPoints > 5)
+            else if (GR._myPoints > GR.WinScore)
                 EndOfGame("lose");
-            else if (_enemyPoints > 5)
+            else if (GR._enemyPoints > GR.WinScore)
                 EndOfGame("win");
         }
     }
 
     public void SendAllChanges()
     {
-        DataHolder.ClientUDP.SendMessage($"g {DateTime.UtcNow.Ticks} {_enemy.transform.position.x} {_enemy.transform.position.y} {_me.transform.position.x} {_me.transform.position.y}");
+        DataHolder.ClientUDP.SendMessage($"g {DateTime.UtcNow.Ticks} {GR._enemy.transform.position.x} {GR._enemy.transform.position.y} {GR._me.transform.position.x} {GR._me.transform.position.y}");
     }
 }
