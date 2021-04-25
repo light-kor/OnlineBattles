@@ -185,7 +185,7 @@ EdgeCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3473207661483958661}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 328c867b9dd408c498aa75bc0f33cbd2, type: 2}
   m_IsTrigger: 0
@@ -338,7 +338,7 @@ EdgeCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3473207661955425413}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 328c867b9dd408c498aa75bc0f33cbd2, type: 2}
   m_IsTrigger: 0

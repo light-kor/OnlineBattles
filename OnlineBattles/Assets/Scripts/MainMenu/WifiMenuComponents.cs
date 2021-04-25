@@ -143,4 +143,12 @@ public class WifiMenuComponents : MonoBehaviour
     {
         _showOpponentNameObj = true;
     }
+
+    private void OnDestroy()
+    {
+        WifiServer_Connect.AddWifiServerToScreen -= GetNewWifiServer;
+        WifiServer_Host.CleanHostingUI -= HideOpponentName;
+        WifiServer_Host.AcceptOpponent -= WriteOpponentName;
+        Network.WifiServerAnswer -= WifiServerAnswerProcessing;
+    }
 }

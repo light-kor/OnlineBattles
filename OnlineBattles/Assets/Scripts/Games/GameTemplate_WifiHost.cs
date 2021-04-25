@@ -82,4 +82,10 @@ public class GameTemplate_WifiHost : MonoBehaviour
         CancelInvoke();
         Network.CloseUdpConnection();
     }
+
+    private void OnDestroy()
+    {
+        WifiServer_Host.OpponentLeaveTheGame -= FinishGame;
+        LeaveGameButton.WantLeaveTheGame -= GiveUp;
+    }
 }

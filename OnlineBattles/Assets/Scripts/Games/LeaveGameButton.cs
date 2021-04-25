@@ -9,7 +9,7 @@ public class LeaveGameButton : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         if (DataHolder.GameType == "OnPhone")
-            SceneManager.LoadScene("MainMenu"); //TODO: Ћ”чше конечно возвращать в меню выбора уровн€
+            SceneManager.LoadScene(0); //TODO: Ћ”чше конечно возвращать в меню выбора уровн€
         else
              WantLeaveTheGame?.Invoke();
     }

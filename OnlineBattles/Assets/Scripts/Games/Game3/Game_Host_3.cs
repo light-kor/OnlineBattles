@@ -42,7 +42,7 @@ public class Game_Host_3 : GameTemplate_WifiHost
 
             GR._lastChangeMazeTime += Time.deltaTime;
 
-            if (GR._lastChangeMazeTime > 5f)
+            if (GR._lastChangeMazeTime > GR.MazeUpdateTime)
                 CreateMap();
 
             CheckEndOfGame();
@@ -51,8 +51,8 @@ public class Game_Host_3 : GameTemplate_WifiHost
 
     private void FixedUpdate()
     {
-        GR._myRB.MovePosition(GR._myRB.position + GR._myVelocity * Time.fixedDeltaTime * GR._speed);
-        GR._enemyRB.MovePosition(GR._enemyRB.position + GR._enemyVelocity * Time.fixedDeltaTime * GR._speed);
+        GR._myRB.MovePosition(GR._myRB.position + GR._myVelocity * Time.fixedDeltaTime * GR.PlayersSpeed);
+        GR._enemyRB.MovePosition(GR._enemyRB.position + GR._enemyVelocity * Time.fixedDeltaTime * GR.PlayersSpeed);
     }
 
     public void CreateMap()
@@ -99,5 +99,10 @@ public class Game_Host_3 : GameTemplate_WifiHost
     public void SendAllChanges()
     {
         DataHolder.ClientUDP.SendMessage($"g {DateTime.UtcNow.Ticks} {GR._enemy.transform.position.x} {GR._enemy.transform.position.y} {GR._me.transform.position.x} {GR._me.transform.position.y}");
+    }
+
+    private void OnDestroy()
+    {
+        ManualCreateMapButton.Click -= CreateMap;
     }
 }

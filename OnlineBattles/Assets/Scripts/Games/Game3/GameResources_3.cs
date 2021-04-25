@@ -14,8 +14,9 @@ public class GameResources_3 : MonoBehaviour
     [HideInInspector] public Rigidbody2D _myRB, _enemyRB;
     [HideInInspector] public float _lastChangeMazeTime = 0f;
     [HideInInspector] public bool _lock = false;
-    [HideInInspector] public int _speed = 2;
 
+    public readonly float PlayersSpeed = 1.5f;
+    public readonly float MazeUpdateTime = 8f;
     public readonly int Scale = 4;
     public readonly int Width = 15;
     public readonly int Height = 25;
@@ -23,8 +24,8 @@ public class GameResources_3 : MonoBehaviour
 
     private void Start()
     {
-        PointEnterHandler.Catch += GetPoint;
-
+        PointEnterHandler.Catch += UpdateScore;
+        UpdateScore(null); // ”становить счЄт 0 - 0, если в редакторе случайно изменю что-то
         if (DataHolder.GameType == "OnPhone")
         {
             _mazeCreateButton2.SetActive(true);
@@ -98,17 +99,22 @@ public class GameResources_3 : MonoBehaviour
     //TODO: попробовать брать не 1 длину линий, а рандомную, тогда будут по€вл€тьс€ доп проходы
     //TODO: ћожно сделать только пр€молинейное движение. ¬сЄ равно в лабиринте можно ходить только ровно по двум ос€м
 
-    private void GetPoint(GameObject player)
+    private void UpdateScore(GameObject player)
     {
         if (player == _me)
         {
             _myPoints++;
-            _firstScore.text = _myPoints.ToString();
         }
         else if (player == _enemy)
         {
-            _enemyPoints++;
-            _secondScore.text = _myPoints.ToString();
+            _enemyPoints++;           
         }
+        _firstScore.text = _myPoints.ToString();
+        _secondScore.text = _enemyPoints.ToString();
+    }
+
+    private void OnDestroy()
+    {
+        PointEnterHandler.Catch -= UpdateScore;
     }
 }

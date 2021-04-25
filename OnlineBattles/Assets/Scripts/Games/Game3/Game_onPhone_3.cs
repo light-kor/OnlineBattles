@@ -24,7 +24,7 @@ public class Game_onPhone_3 : MonoBehaviour
 
             GR._lastChangeMazeTime += Time.deltaTime;
 
-            if (GR._lastChangeMazeTime > 5f)
+            if (GR._lastChangeMazeTime > GR.MazeUpdateTime)
                 CreateMap();
 
             CheckEndOfGame();
@@ -33,8 +33,8 @@ public class Game_onPhone_3 : MonoBehaviour
 
     private void FixedUpdate()
     {
-        GR._myRB.MovePosition(GR._myRB.position + GR._myVelocity * Time.fixedDeltaTime * GR._speed);
-        GR._enemyRB.MovePosition(GR._enemyRB.position + GR._enemyVelocity * Time.fixedDeltaTime * GR._speed);
+        GR._myRB.MovePosition(GR._myRB.position + GR._myVelocity * Time.fixedDeltaTime * GR.PlayersSpeed);
+        GR._enemyRB.MovePosition(GR._enemyRB.position + GR._enemyVelocity * Time.fixedDeltaTime * GR.PlayersSpeed);
     }
 
     public void CreateMap()
@@ -63,18 +63,23 @@ public class Game_onPhone_3 : MonoBehaviour
 
     public void CheckEndOfGame()
     {
-        if (GR._myPoints == GR.WinScore || GR._enemyPoints == GR.WinScore)
+        if (GR._myPoints >= GR.WinScore || GR._enemyPoints >= GR.WinScore)
         {
             _gameOn = false;
             GR._myVelocity = Vector2.zero;
             GR._enemyVelocity = Vector2.zero;
 
-            if (GR._myPoints == GR.WinScore && GR._enemyPoints == GR.WinScore)
-                ShowGameNotification?.Invoke("Игра завершена\r\ndrawn", 4);
-            else if (GR._myPoints == GR.WinScore)
-                ShowGameNotification?.Invoke("Игра завершена\r\nwin", 4);
-            else if (GR._enemyPoints == GR.WinScore)
-                ShowGameNotification?.Invoke("Игра завершена\r\nИгрок 2 выиграл", 4);
+            if (GR._myPoints == GR._enemyPoints)
+                ShowGameNotification?.Invoke("Ничья", 4);
+            else if (GR._myPoints > GR._enemyPoints)
+                ShowGameNotification?.Invoke("Синий победил", 4);
+            else if (GR._enemyPoints > GR._myPoints)
+                ShowGameNotification?.Invoke("Красный победил", 4);
         }
+    }
+
+    private void OnDestroy()
+    {
+        ManualCreateMapButton.Click -= CreateMap;
     }
 }

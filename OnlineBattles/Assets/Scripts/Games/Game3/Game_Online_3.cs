@@ -9,16 +9,16 @@ public class Game_Online_3 : GameTemplate_Online
 
     protected override void Start()
     {
+        DataHolder.ClientTCP.GetBigMessage += GetBigMessage;
+        ManualCreateMapButton.Click += SendChangeMazeRequest;
+
         GR = transform.parent.GetComponent<GameResources_3>();
         GR._points = new GameObject("Points");
 
         //Чтоб коллизии не мешались
         Cell cell = GR._cellPrefab.GetComponent<Cell>();
         cell.WallLeft.GetComponent<EdgeCollider2D>().enabled = false;
-        cell.WallBottom.GetComponent<EdgeCollider2D>().enabled = false;
-
-        DataHolder.ClientTCP.GetBigMessage += GetBigMessage;
-        ManualCreateMapButton.Click += SendChangeMazeRequest; 
+        cell.WallBottom.GetComponent<EdgeCollider2D>().enabled = false; 
         base.Start();       
     }
 
@@ -143,5 +143,11 @@ public class Game_Online_3 : GameTemplate_Online
     private void GetBigMessage()
     {
         _getBigMessage = true;
+    }
+
+    private void OnDestroy()
+    {
+        DataHolder.ClientTCP.GetBigMessage -= GetBigMessage;
+        ManualCreateMapButton.Click -= SendChangeMazeRequest;
     }
 }

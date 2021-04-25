@@ -220,6 +220,11 @@ public class MainMenu : MonoBehaviour
     }
     #endregion
 
+    private void OnDestroy()
+    {
+        Network.TcpConnectionIsDone -= TcpConnectionIsReady;
+    }
+
     //TODO: Настроить диапазон пикселей для появления серверов
 
     //TODO: Добавил "g" к каждому игровому udp сообщению. НО НЕ УЧЁЛ ЭТО НА СЕРВЕРЕ!!!!

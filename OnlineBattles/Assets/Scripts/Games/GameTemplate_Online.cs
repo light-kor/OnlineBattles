@@ -69,4 +69,10 @@ public class GameTemplate_Online : MonoBehaviour
         // Там автоматически после GameOn = false вызовется CloseClient()
         Network.CloseUdpConnection();
     }
+
+    private void OnDestroy()
+    {
+        Network.EndOfGame -= FinishTheGame;
+        LeaveGameButton.WantLeaveTheGame -= GiveUp;
+    }
 }

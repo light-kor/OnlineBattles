@@ -149,4 +149,12 @@ public class NotificationPanels : MonoBehaviour
     }
 
     //TODO: Отписаться от всех событий
+    private void OnDestroy()
+    {
+        Network.ShowGameNotification -= AddNotificationToQueue;
+        MainMenu.ShowGameNotification -= AddNotificationToQueue;
+        WifiServer_Host.ShowGameNotification -= AddNotificationToQueue;
+        GameTemplate_WifiHost.ShowGameNotification -= AddNotificationToQueue;
+        Game_onPhone_3.ShowGameNotification -= AddNotificationToQueue;
+    }   
 }

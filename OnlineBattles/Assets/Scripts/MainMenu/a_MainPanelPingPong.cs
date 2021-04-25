@@ -4,7 +4,6 @@ using UnityEngine.EventSystems;
 
 public class a_MainPanelPingPong : MonoBehaviour, IPointerClickHandler
 {
-
     [SerializeField] private GameObject _mainButtons, _flyingBall;
     [SerializeField] private GameObject _leftLine, _rightLine;
     [SerializeField] private float _rangeX = 420f, _rangeY = 240f;
@@ -112,5 +111,10 @@ public class a_MainPanelPingPong : MonoBehaviour, IPointerClickHandler
             _flyingBall.SetActive(true);
         }
         _buttonsGroup.interactable = true;
+    }
+
+    private void OnDestroy()
+    {
+        PingPongLinesTrigger.MyTriggerEnter -= ChangeDirection;
     }
 }
