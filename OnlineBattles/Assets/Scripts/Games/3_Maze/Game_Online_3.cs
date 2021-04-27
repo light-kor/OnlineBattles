@@ -7,7 +7,7 @@ public class Game_Online_3 : GameTemplate_Online
     private bool _getBigMessage = false;
     private GameResources_3 GR;
 
-    protected override void Start()
+    private void Start()
     {
         DataHolder.ClientTCP.GetBigMessage += GetBigMessage;
         ManualCreateMapButton.Click += SendChangeMazeRequest;
@@ -19,7 +19,7 @@ public class Game_Online_3 : GameTemplate_Online
         Cell cell = GR._cellPrefab.GetComponent<Cell>();
         cell.WallLeft.GetComponent<EdgeCollider2D>().enabled = false;
         cell.WallBottom.GetComponent<EdgeCollider2D>().enabled = false; 
-        base.Start();       
+        BaseStart("udp");       
     }
 
     protected override void Update()
@@ -102,12 +102,6 @@ public class Game_Online_3 : GameTemplate_Online
         }
     }
 
-    private void FixedUpdate()
-    {
-        //UpdateThread();
-        SendJoy();
-    }
-
     private void SendChangeMazeRequest()
     {
         DataHolder.ClientTCP.SendMessage("change");
@@ -130,7 +124,7 @@ public class Game_Online_3 : GameTemplate_Online
         }
     }
 
-    private void SendJoy()
+    public override void SendAllChanges()
     {
         Vector2 move = new Vector2(GR._firstJoystick.Horizontal, GR._firstJoystick.Vertical);
         if (move != _lastMove)

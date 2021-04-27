@@ -37,28 +37,24 @@ public class OnlineGameController : MonoBehaviour
 
                 case "E":
                     DataHolder.CanMove = false;
-                    DataHolder.TimerT.GetComponent<timer>().StopGameTimer();
                     endPanel.SetActive(true);
                     break;
 
                 case "A":
                     DataHolder.CanMove = false;
                     endText.text = "Победа, соперник вышел";
-                    DataHolder.TimerT.GetComponent<timer>().StopGameTimer();
                     endPanel.SetActive(true);
                     break;
 
                 case "V":
                     DataHolder.CanMove = false;
                     endText.text = "Техническое поражение";
-                    DataHolder.TimerT.GetComponent<timer>().StopGameTimer();
                     endPanel.SetActive(true);
                     break;
 
                 case "C":
                     DataHolder.CanMove = false;
                     endText.text = "Игра не началась";
-                    DataHolder.TimerT.GetComponent<timer>().StopGameTimer();
                     endPanel.SetActive(true);
                     break;
             }

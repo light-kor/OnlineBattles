@@ -9,10 +9,9 @@ public class Game_Host_2 : GameTemplate_WifiHost
     private float x1 = -1.5f, y1 = 0.2f, x2 = 1.5f, y2 = 0.2f;
 
 
-    protected override void Start()
+    private void Start()
     {
-        base.Start();
-        StartUdpConnection();
+        BaseStart("udp");
         InvokeRepeating("GameProcess", 0f, WifiServer_Host.UpdateRate);
     }
 

@@ -6,15 +6,17 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    public static event DataHolder.GameNotification ShowGameNotification;
     public GameObject _lvlChoseWaiting, _lvlPanel;
     [SerializeField] private GameObject _mainPanel, _wifiPanel, _multiBackButton;
 
+    private int _frameRate = 60;
     private WifiMenuComponents WifiMenu;
     private string _lvlName { get; set; } = "";
 
     private void Start()
     {
+		QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = _frameRate;
         WifiMenu = GetComponent<WifiMenuComponents>();
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
         ChoseStartView();       
@@ -32,7 +34,7 @@ public class MainMenu : MonoBehaviour
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[1]);
                 DataHolder.LobbyID = Convert.ToInt32(mes[2]);
                 SceneManager.LoadScene(_lvlName);
-                DataHolder.NotifPanels.NotificatonMultyButton(0);
+                NotificationPanels.NP.NotificatonMultyButton(0);
             }
             // Значит до этого игрок вылетел, и сейчас может восстановиться в игре
             else if (mes[0] == "goto")
@@ -54,7 +56,7 @@ public class MainMenu : MonoBehaviour
                 Network.CloseTcpConnection();
                 _lvlChoseWaiting.SetActive(false);
                 ActivateMenuPanel();
-                ShowGameNotification?.Invoke("Сервер отключён", 1);
+                NotificationPanels.NP.AddNotificationToQueue("Сервер отключён", 1);
             }
             DataHolder.MessageTCPforGame.RemoveAt(0);
         }                          
@@ -72,7 +74,7 @@ public class MainMenu : MonoBehaviour
         {
             if (WifiServer_Host.OpponentIsReady == false)
             {
-                ShowGameNotification?.Invoke("Ожидайте второго игрока", 1);
+                NotificationPanels.NP.AddNotificationToQueue("Ожидайте второго игрока", 1);
             }
             else
             {
@@ -84,7 +86,7 @@ public class MainMenu : MonoBehaviour
         else if (DataHolder.GameType == "Multiplayer")
         {
             //TODO: Добавить анимацию ожидания.
-            ShowGameNotification?.Invoke("Поиск игры", 3);
+            NotificationPanels.NP.AddNotificationToQueue("Поиск игры", 3);
             _lvlName = "lvl" + lvlNum;
             DataHolder.ClientTCP.SendMessage($"game {lvlNum}");           
         }
@@ -142,8 +144,8 @@ public class MainMenu : MonoBehaviour
     public void TcpConnectionIsReady()
     {
         if (DataHolder.Connected)
-        {           
-            DataHolder.NotifPanels.NotificatonMultyButton(1);
+        {
+            NotificationPanels.NP.NotificatonMultyButton(1);
 
             if (DataHolder.GameType == "Multiplayer")
                 ActivatePanel(_lvlPanel);

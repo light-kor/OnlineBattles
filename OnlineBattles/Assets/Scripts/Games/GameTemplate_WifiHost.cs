@@ -2,23 +2,21 @@ using UnityEngine;
 
 public class GameTemplate_WifiHost : MonoBehaviour
 {
-    public static event DataHolder.GameNotification ShowGameNotification;
     private bool _finishTheGame = false;
     private bool _fastLeave = false;
-    protected bool _gameOn = true;
+    protected bool _gameOn = false;
     protected string[] messege;
 
-    protected virtual void Start()
+    protected void BaseStart(string type)
     {
         WifiServer_Host.OpponentLeaveTheGame += FinishGame;
-        LeaveGameButton.WantLeaveTheGame += GiveUp;                
-    }
+        LeaveGameButton.WantLeaveTheGame += GiveUp;
 
-    protected void StartUdpConnection()
-    {
-        DataHolder.MessageUDPget.Clear();
-        Network.CreateUDP();
-        DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес       
+        if (type == "udp")
+        {
+            StartUdpConnection();
+            InvokeRepeating("SendAllChanges", 0f, WifiServer_Host.UpdateRate);
+        }
     }
 
     protected virtual void Update()
@@ -37,7 +35,14 @@ public class GameTemplate_WifiHost : MonoBehaviour
             EndOfGame("win");
         }
     }
-           
+
+    private void StartUdpConnection()
+    {
+        DataHolder.MessageUDPget.Clear();
+        Network.CreateUDP();
+        DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес       
+    }
+
     protected bool SplitFramesAndChechTrash()
     {
         messege = DataHolder.MessageUDPget[0].Split(' ');
@@ -49,21 +54,15 @@ public class GameTemplate_WifiHost : MonoBehaviour
         return true;
     }
 
-    public static void EndOfGame(string opponentStatus)
+    protected static void EndOfGame(string opponentStatus)
     {
         WifiServer_Host.SendTcpMessage(opponentStatus);
         if (opponentStatus == "drawn")
-        {
-            ShowGameNotification?.Invoke("Игра завершена\r\ndrawn", 4);
-        }
+            NotificationPanels.NP.AddNotificationToQueue("Ничья", 4);
         else if (opponentStatus == "lose")
-        {
-            ShowGameNotification?.Invoke("Игра завершена\r\nwin", 4);
-        }
+            NotificationPanels.NP.AddNotificationToQueue("Вы победили", 4);
         else if (opponentStatus == "win")
-        {
-            ShowGameNotification?.Invoke("Игра завершена\r\nlose", 4);
-        }
+            NotificationPanels.NP.AddNotificationToQueue("Вы проиграли", 4);
     }
 
     private void GiveUp()
@@ -81,6 +80,11 @@ public class GameTemplate_WifiHost : MonoBehaviour
         _gameOn = false;
         CancelInvoke();
         Network.CloseUdpConnection();
+    }
+
+    public virtual void SendAllChanges()
+    {
+
     }
 
     private void OnDestroy()

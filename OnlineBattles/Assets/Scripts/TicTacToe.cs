@@ -19,14 +19,12 @@ public class TicTacToe : MonoBehaviour
 
         // Начинаем
         DataHolder.CanMove = true;
-        DataHolder.TimerT = GameObject.FindGameObjectWithTag("Timer");
-        DataHolder.TimerT.GetComponent<timer>().StartTimer();
-        
+       
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0) && (DataHolder.CanMove == true) && DataHolder.TimerT.GetComponent<timer>().TimeLeftCheck())
+        if (Input.GetMouseButtonDown(0) && (DataHolder.CanMove == true))
         {
             Vector3 clickWorldPosition = mainCam.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int clickCellPosition = map.WorldToCell(clickWorldPosition);
@@ -46,7 +44,6 @@ public class TicTacToe : MonoBehaviour
                     DataHolder.ClientTCP.SendMessage(mes);
                     firstMove = true;
                     DataHolder.CanMove = false;
-                    DataHolder.TimerT.GetComponent<timer>().StopTimer();
                 }
             }
         }
@@ -73,7 +70,6 @@ public class TicTacToe : MonoBehaviour
                     if (DataHolder.WinFlag == 0)
                     {
                         DataHolder.CanMove = true;
-                        DataHolder.TimerT.GetComponent<timer>().StartTimer();
                     }                    
                     break;
             }

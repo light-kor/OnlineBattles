@@ -11,7 +11,6 @@ public static class WifiServer_Host
 {
     public const float UpdateRate = 0.03125f; // Отправка UDP инфы каждые UpdateRate мс 
 
-    public static event DataHolder.GameNotification ShowGameNotification;
     public static event DataHolder.Notification CleanHostingUI;
     public static event DataHolder.Notification AcceptOpponent;
     public static event DataHolder.Notification OpponentLeaveTheGame;
@@ -144,7 +143,7 @@ public static class WifiServer_Host
                 if (mes[0] == "name")
                 {
                     _opponent.PlayerName = mes[1];
-                    ShowGameNotification?.Invoke("Подключился игрок:\r\n" + _opponent.PlayerName, 5);
+                    NotificationPanels.NP.AddNotificationToQueue("Подключился игрок:\r\n" + _opponent.PlayerName, 5);
                     _opponent.TcpMessages.RemoveAt(0);
                     break;
                 }
@@ -254,7 +253,7 @@ public static class WifiServer_Host
         OpponentLeaveTheGame?.Invoke();
         CloseAll();
         DataHolder.StartMenuView = null;
-        ShowGameNotification?.Invoke("Игрок отключился", 4); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
+        NotificationPanels.NP.AddNotificationToQueue("Игрок отключился", 4); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
     }
 
 

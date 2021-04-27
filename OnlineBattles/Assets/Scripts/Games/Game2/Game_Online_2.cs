@@ -8,13 +8,12 @@ public class Game_Online_2 : GameTemplate_Online
     public GameObject me, enemy;
     public float UpdateRate = 0.05f; //TODO: Как часто клиенты должны слать свои изменения. Надо  как-то чекать это на стороне сервра. Чтоб нельзя было так читерить.
     private float buffX = 0, buffY = 0;
-    
-    
-    protected override void Start()
-    {
-        base.Start();
-        InvokeRepeating("SendJoy", 0.5f, UpdateRate);
 
+
+    private void Start()
+    {
+        BaseStart("udp");
+        InvokeRepeating("SendJoy", 0.5f, UpdateRate);
     }
 
 

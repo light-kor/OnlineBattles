@@ -7,12 +7,10 @@ public static class DataHolder
     public static List<string> MessageTCP { get; set; } = new List<string>();
     public static List<string> MessageTCPforGame { get; set; } = new List<string>();
     public static List<string> MessageUDPget { get; set; } = new List<string>();
-    public static NotificationPanels NotifPanels { get; set; } = null;
     public static List<byte> BigArray { get; set; } = new List<byte>();
     public static TcpConnect ClientTCP { get; set; } = null;
     public static UDPConnect ClientUDP { get; set; } = null;
     public static WifiServer_Searcher ServerSearcher { get; set; } = null;
-    public static GameObject TimerT { get; set; } = null;
     public static DateTime LastSend { get; set; } = DateTime.UtcNow;
     public static string KeyCodeName { get; set; } = "123";
     public static string NickName { get; set; } = "Mihuil";
@@ -29,7 +27,6 @@ public static class DataHolder
     public static int WinFlag { get; set; } = -1;
 
     public delegate void Notification();
-    public delegate void GameNotification(string text, int number);
     public delegate void TextЕransmissionEnvent(string text);
 
     //"127.0.0.1" - локальный; 188.134.87.78 - общий дом

@@ -7,7 +7,6 @@ public static class Network
 {    
     public static event DataHolder.Notification TcpConnectionIsDone;
     public static event DataHolder.Notification EndOfGame;
-    public static event DataHolder.GameNotification ShowGameNotification;
     public static event DataHolder.TextЕransmissionEnvent WifiServerAnswer;
 
     private const float TimeForWaitAnswer = 5f;
@@ -29,7 +28,7 @@ public static class Network
                     case "lose":
                     case "drawn":
                         EndOfGame?.Invoke();
-                        ShowGameNotification?.Invoke("Игра завершена\r\n" + mes[0], 4);
+                        NotificationPanels.NP.AddNotificationToQueue("Игра завершена\r\n" + mes[0], 4);
                         break;
 
                     case "login":
@@ -48,13 +47,13 @@ public static class Network
 
                     case "denied":
                         CloseTcpConnection();
-                        DataHolder.NotifPanels.CloseSimple(); // Выключаем панель ожидания
-                        ShowGameNotification?.Invoke("Запрос отклонён", 1);
+                        NotificationPanels.NP.CloseSimple(); // Выключаем панель ожидания
+                        NotificationPanels.NP.AddNotificationToQueue("Запрос отклонён", 1);
                         WifiServerAnswer?.Invoke("denied");
                         break;
 
                     case "accept":
-                        DataHolder.NotifPanels.CloseSimple(); // Выключаем панель ожидания
+                        NotificationPanels.NP.CloseSimple(); // Выключаем панель ожидания
                         WifiServerAnswer?.Invoke("accept");
                         break;                   
 
@@ -98,7 +97,7 @@ public static class Network
     public static void CreateTCP()
     {
         //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
-        ShowGameNotification?.Invoke("Ожидание подключения", 0);
+        NotificationPanels.NP.AddNotificationToQueue("Ожидание подключения", 0);
 
         TcpConnectionProcess(1);
 
@@ -120,7 +119,7 @@ public static class Network
         {
             if (!await Task.Run(() => CheckForInternetConnection()))
             {
-                ShowGameNotification?.Invoke("Отсутствует подключение к интернету.", num);
+                NotificationPanels.NP.AddNotificationToQueue("Отсутствует подключение к интернету.", num);
                 return;
             }
         }
@@ -132,17 +131,17 @@ public static class Network
         if (!DataHolder.Connected)
         {
             CloseTcpConnection();
-            ShowGameNotification?.Invoke("Сервер не доступен.", num);
+            NotificationPanels.NP.AddNotificationToQueue("Сервер не доступен.", num);
             return;
         }
 
-        ShowGameNotification?.Invoke("Ожидание ответа сервера", 0);
+        NotificationPanels.NP.AddNotificationToQueue("Ожидание ответа сервера", 0);
         await Task.Run(() => LoginInServerSystem());
 
         if (!DataHolder.Connected)
         {
             CloseTcpConnection();
-            ShowGameNotification?.Invoke("Ошибка доступа к серверу.", num);
+            NotificationPanels.NP.AddNotificationToQueue("Ошибка доступа к серверу.", num);
             return;
         }
     }
@@ -184,7 +183,7 @@ public static class Network
     public static void StartReconnect()
     {
         DataHolder.Connected = false;
-        ShowGameNotification?.Invoke("Разрыв соединения.\r\nПереподключение...", 2);
+        NotificationPanels.NP.AddNotificationToQueue("Разрыв соединения.\r\nПереподключение...", 2);
 
         while (TryRecconect)
         {
@@ -192,7 +191,7 @@ public static class Network
             if (DataHolder.Connected)
             {
                 // При полном успехе
-                DataHolder.NotifPanels.NotificatonMultyButton(10);
+                NotificationPanels.NP.NotificatonMultyButton(10);
                 DataHolder.ClientTCP.CanStartReconnect = true;
             }
         }

@@ -7,18 +7,20 @@ public class GameTemplate_Online : MonoBehaviour
     protected bool _gameOn = true;
     protected string[] frame = null, frame2 = null;
 
-    protected virtual void Start()
+    protected void BaseStart(string type)
     {
         Network.EndOfGame += FinishTheGame;
         LeaveGameButton.WantLeaveTheGame += GiveUp;
 
-        Network.CreateUDP();
-        DataHolder.MessageUDPget.Clear();
+        if (type == "udp")
+        {
+            Network.CreateUDP();
+            DataHolder.MessageUDPget.Clear();
+            DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
+        }
 
         if (DataHolder.GameType == "Multiplayer")
-            DataHolder.ClientTCP.SendMessage("start");
-
-        DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
+            DataHolder.ClientTCP.SendMessage("start");    
     }
 
     protected virtual void Update()
@@ -31,6 +33,8 @@ public class GameTemplate_Online : MonoBehaviour
             CloseAll();
             _finishTheGame = false;
         }
+
+        SendAllChanges();
     }
 
     private void FinishTheGame()
@@ -68,6 +72,11 @@ public class GameTemplate_Online : MonoBehaviour
         CancelInvoke(); //TODO: Временное решение для первой игры       
         // Там автоматически после GameOn = false вызовется CloseClient()
         Network.CloseUdpConnection();
+    }
+
+    public virtual void SendAllChanges()
+    {
+
     }
 
     private void OnDestroy()

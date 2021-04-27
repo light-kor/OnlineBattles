@@ -5,30 +5,25 @@ using UnityEngine.UI;
 
 public class NotificationPanels : MonoBehaviour
 {
-    public GameObject NotifPanel, NotifButton, StopReconnectButton, CancelSearchButton, CloseEndGameButton, AcceptOpponent, CancelOpponent;
-    public GameObject Shield; // Блокирует нажатия на все кнопки, кроме notifPanel
+    public static NotificationPanels NP;
+    [SerializeField] private GameObject NotifPanel, NotifButton, StopReconnectButton, CancelSearchButton, CloseEndGameButton, AcceptOpponent, CancelOpponent;
+    [SerializeField] private GameObject Shield; // Блокирует нажатия на все кнопки, кроме notifPanel
 
-    public static List<string> ListOfNotification = new List<string>();
-    public static List<int> NumOfNotification = new List<int>();
+    private static List<string> ListOfNotification = new List<string>();
+    private static List<int> NumOfNotification = new List<int>();
 
     private bool flag = false;
 
     private void Awake()
     {
-        DataHolder.NotifPanels = this;
-
-        Network.ShowGameNotification += AddNotificationToQueue;
-        MainMenu.ShowGameNotification += AddNotificationToQueue;
-        WifiServer_Host.ShowGameNotification += AddNotificationToQueue;
-        GameTemplate_WifiHost.ShowGameNotification += AddNotificationToQueue;
-        Game_onPhone_3.ShowGameNotification += AddNotificationToQueue;
+        NP = this;
         //TODO: Следующие две строчки - это костыль от Таблички "Поиск новый игры" 
         //в начале сцены тк запрос с опоздание переходит с прошлой сцены в эту, если игра нашлась слишком быстро
         ListOfNotification.Clear();
         NumOfNotification.Clear();
     }
 
-    private void AddNotificationToQueue(string notif, int caseNotif)
+    public void AddNotificationToQueue(string notif, int caseNotif)
     {
         ListOfNotification.Add(notif);
         NumOfNotification.Add(caseNotif);
@@ -147,14 +142,4 @@ public class NotificationPanels : MonoBehaviour
         ListOfNotification.RemoveAt(0);
         NumOfNotification.RemoveAt(0);
     }
-
-    //TODO: Отписаться от всех событий
-    private void OnDestroy()
-    {
-        Network.ShowGameNotification -= AddNotificationToQueue;
-        MainMenu.ShowGameNotification -= AddNotificationToQueue;
-        WifiServer_Host.ShowGameNotification -= AddNotificationToQueue;
-        GameTemplate_WifiHost.ShowGameNotification -= AddNotificationToQueue;
-        Game_onPhone_3.ShowGameNotification -= AddNotificationToQueue;
-    }   
 }

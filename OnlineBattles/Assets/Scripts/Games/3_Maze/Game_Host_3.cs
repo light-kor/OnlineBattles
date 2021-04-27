@@ -5,16 +5,14 @@ public class Game_Host_3 : GameTemplate_WifiHost
 {
     private GameResources_3 GR;
 
-    protected override void Start()
+    private void Start()
     {
         ManualCreateMapButton.Click += CreateMap;
         GR = transform.parent.GetComponent<GameResources_3>();
-        base.Start();
-        StartUdpConnection();
+        BaseStart("udp");
 
         GR.StartInHost();
         CreateMap();        
-        InvokeRepeating("SendAllChanges", 0f, WifiServer_Host.UpdateRate);
         WifiServer_Host.SendTcpMessage($"position {GR._enemy.transform.position.x} {GR._enemy.transform.position.y} {GR._me.transform.position.x} {GR._me.transform.position.y}");
     }    
 
@@ -96,7 +94,7 @@ public class Game_Host_3 : GameTemplate_WifiHost
         }
     }
 
-    public void SendAllChanges()
+    public override void SendAllChanges()
     {
         DataHolder.ClientUDP.SendMessage($"g {DateTime.UtcNow.Ticks} {GR._enemy.transform.position.x} {GR._enemy.transform.position.y} {GR._me.transform.position.x} {GR._me.transform.position.y}");
     }

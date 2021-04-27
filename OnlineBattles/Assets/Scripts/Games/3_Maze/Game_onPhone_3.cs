@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class Game_onPhone_3 : MonoBehaviour
 {
-    public static event DataHolder.GameNotification ShowGameNotification;
-
     private bool _gameOn = true;
     private GameResources_3 GR;   
 
@@ -37,7 +35,7 @@ public class Game_onPhone_3 : MonoBehaviour
         GR._enemyRB.MovePosition(GR._enemyRB.position + GR._enemyVelocity * Time.fixedDeltaTime * GR.PlayersSpeed);
     }
 
-    public void CreateMap()
+    private void CreateMap()
     {
         if (!GR._lock)
         {
@@ -61,7 +59,7 @@ public class Game_onPhone_3 : MonoBehaviour
         }
     }
 
-    public void CheckEndOfGame()
+    private void CheckEndOfGame()
     {
         if (GR._myPoints >= GR.WinScore || GR._enemyPoints >= GR.WinScore)
         {
@@ -70,11 +68,11 @@ public class Game_onPhone_3 : MonoBehaviour
             GR._enemyVelocity = Vector2.zero;
 
             if (GR._myPoints == GR._enemyPoints)
-                ShowGameNotification?.Invoke("Ничья", 4);
+                NotificationPanels.NP.AddNotificationToQueue("Ничья", 4);
             else if (GR._myPoints > GR._enemyPoints)
-                ShowGameNotification?.Invoke("Синий победил", 4);
+                NotificationPanels.NP.AddNotificationToQueue("Синий победил", 4);
             else if (GR._enemyPoints > GR._myPoints)
-                ShowGameNotification?.Invoke("Красный победил", 4);
+                NotificationPanels.NP.AddNotificationToQueue("Красный победил", 4);
         }
     }
 
