@@ -16,8 +16,7 @@ public static class WifiServer_Host
     public static event DataHolder.Notification OpponentLeaveTheGame;
 
     public static string OpponentStatus = null;
-    public static bool OpponentIsReady = false;
-
+    public static bool OpponentIsReady { get; private set; } = false;
     public static Opponent_Info _opponent { get; private set; } = null;
        
     private static TcpListener _listener = null;
@@ -170,7 +169,7 @@ public static class WifiServer_Host
         }
     }
 
-    public static void CheckPing()
+    private static void CheckPing()
     {
         SendTcpMessage("ping");
         long StartPingTimeInTicks = DateTime.UtcNow.Ticks;
@@ -239,7 +238,7 @@ public static class WifiServer_Host
         }
     }
 
-    public static void CheckDisconnect()
+    private static void CheckDisconnect()
     {
         if ((DateTime.UtcNow - _opponent.LastReciveTime).TotalSeconds > 5)
         {

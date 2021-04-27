@@ -9,8 +9,9 @@ public static class Network
     public static event DataHolder.Notification EndOfGame;
     public static event DataHolder.TextЕransmissionEnvent WifiServerAnswer;
 
-    private const float TimeForWaitAnswer = 5f;
-    public static bool TryRecconect { get; set; } = true;
+    public static bool TryRecconect = true;
+
+    private const float TimeForWaitAnswer = 5f;   
     private static bool WaitingForLogin = true;
     private static bool MessageHandlerIsBusy = false;
 
@@ -32,7 +33,7 @@ public static class Network
                         break;
 
                     case "login":
-                        DataHolder.MyServerID = Convert.ToInt32(mes[1]);
+                        DataHolder.MyIDInServerSystem = Convert.ToInt32(mes[1]);
                         DataHolder.Money = Convert.ToInt32(mes[2]);
                         WaitingForLogin = false;
                         break;

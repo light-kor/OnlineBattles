@@ -11,46 +11,6 @@ public class GameResources_1 : MonoBehaviour
     private readonly int FieldSize = 4;
     private readonly int WinRow = 3;
 
-    private void Start()
-    {
-        DataHolder.CanMove = true;
-    }
-
-    private void Update()
-    {
-        //if (Input.GetMouseButtonDown(0) && (DataHolder.CanMove == true))
-        //{
-        //    Vector3 clickWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //    Vector3Int clickCellPosition = _map.WorldToCell(clickWorldPosition);
-        //    if (_map.GetTile(clickCellPosition) == _mainTile)
-        //    {
-        //        _map.SetTile(clickCellPosition, _myTile);
-
-        //        if (firstMove)
-        //        {
-        //            _x1 = clickCellPosition.x;
-        //            _y1 = clickCellPosition.y;
-        //            firstMove = false;
-        //        }
-        //        else
-        //        {
-        //            string mes = $"1 {_x1} {_y1} {clickCellPosition.x} {clickCellPosition.y}";
-        //            DataHolder.ClientTCP.SendMessage(mes);
-        //            firstMove = true;
-        //            DataHolder.CanMove = false;
-        //        }
-        //    }
-        //}
-    }
-
-    // (-3 2) (2 2)
-    // (-3 -3) (2 -3)
-
-    /// <summary>
-    /// Победа в крестиках-ноликах. Возвращает: 0 - продолжить игру, 1 - победа, -1 - проигрыш, 2 - ничья 
-    /// </summary>
-    /// <param name="count">Размер выигрышной последовательности</param>
-    /// <param name="countFull">Размер игрового поля countFullХcountFull</param>
     public string CheckWin()
     {
         string winer = null;

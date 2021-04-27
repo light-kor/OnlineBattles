@@ -7,14 +7,14 @@ public class WifiMenuComponents : MonoBehaviour
 {
     [SerializeField] private TMP_Text _opponent;
     [SerializeField] private GameObject _wifiServerPrefab, _serverSearchPanel;
-    private List<string> WifiServers = new List<string>();
-    private MainMenu MenuScr;
+    private List<string> _wifiServers = new List<string>();
+    private MainMenu _menuScr;
     private string _serverAnswer = null;
     private bool _canReadServerAnswer = false, _writeOpponentName = false, _hideOpponentName = false, _showOpponentNameObj = false;
 
     void Start()
     {
-        MenuScr = GetComponent<MainMenu>();
+        _menuScr = GetComponent<MainMenu>();
         WifiServer_Connect.AddWifiServerToScreen += GetNewWifiServer;
         WifiServer_Host.CleanHostingUI += HideOpponentName;
         WifiServer_Host.AcceptOpponent += WriteOpponentName;
@@ -23,10 +23,10 @@ public class WifiMenuComponents : MonoBehaviour
 
     void Update()
     {
-        if (WifiServers.Count > 0)
+        if (_wifiServers.Count > 0)
         {
-            CreateWifiServerCopy(WifiServers[0]);
-            WifiServers.RemoveAt(0);
+            CreateWifiServerCopy(_wifiServers[0]);
+            _wifiServers.RemoveAt(0);
         }
 
         if (_canReadServerAnswer)
@@ -46,7 +46,7 @@ public class WifiMenuComponents : MonoBehaviour
         if (_writeOpponentName)
         {
             _opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
-            MenuScr.ShowMultiBackButton("Отключиться");
+            _menuScr.ShowMultiBackButton("Отключиться");
             _writeOpponentName = false;
         }
 
@@ -62,7 +62,7 @@ public class WifiMenuComponents : MonoBehaviour
         DataHolder.GameType = "WifiServer";
         WifiServer_Host.StartHosting();
         ShowOpponentNameObj();
-        MenuScr.ActivatePanel(MenuScr._lvlPanel);
+        _menuScr.ActivatePanel(_menuScr._lvlPanel);
     }
 
     public void Wifi_ConnectHost()
@@ -70,7 +70,7 @@ public class WifiMenuComponents : MonoBehaviour
         DataHolder.GameType = "WifiClient";
         DestroyAllWifiServersIcons();
         WifiServer_Connect.StartSearching();
-        MenuScr.ActivatePanel(_serverSearchPanel);
+        _menuScr.ActivatePanel(_serverSearchPanel);
     }
 
     private void DestroyAllWifiServersIcons()
@@ -84,7 +84,7 @@ public class WifiMenuComponents : MonoBehaviour
 
     private void GetNewWifiServer(string text)
     {
-        WifiServers.Add(text);
+        _wifiServers.Add(text);
     }
     
     private void CreateWifiServerCopy(string text)
@@ -113,12 +113,12 @@ public class WifiMenuComponents : MonoBehaviour
     private void WifiServerAnswerProcessing()
     {
         if (_serverAnswer == "denied")
-            MenuScr.ActivateMenuPanel();
+            _menuScr.ActivateMenuPanel();
         else if (_serverAnswer == "accept")
         {
-            MenuScr.DeactivatePanels();
-            MenuScr._lvlChoseWaiting.SetActive(true);
-            MenuScr.ShowMultiBackButton("Отключиться");
+            _menuScr.DeactivatePanels();
+            _menuScr._lvlChoseWaiting.SetActive(true);
+            _menuScr.ShowMultiBackButton("Отключиться");
         }
 
         _serverAnswer = null;

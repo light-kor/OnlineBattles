@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 public static class DataHolder
 {
@@ -16,15 +15,13 @@ public static class DataHolder
     public static string NickName { get; set; } = "Mihuil";
     public static string StartMenuView { get; set; } = null;
     public static bool Connected { get; set; } = false;
-    public static bool CanMove { get; set; } = false;
     public static long TimeDifferenceWithServer { get; set; }
     public static string GameType { get; set; } = null;
     public static int SelectedServerGame { get; set; } = -1;           
-    public static int MyServerID { get; set; }  = -1;   
+    public static int MyIDInServerSystem { get; set; }  = -1;   
     public static int LobbyID { get; set; } = -1;   
     public static int IDInThisGame { get; set; } = -1;
     public static int Money { get; set; } = -1;
-    public static int WinFlag { get; set; } = -1;
 
     public delegate void Notification();
     public delegate void TextЕransmissionEnvent(string text);
