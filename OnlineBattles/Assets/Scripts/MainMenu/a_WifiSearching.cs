@@ -21,6 +21,8 @@ public class a_WifiSearching : MonoBehaviour
         {
             _listOfCircleImages[i].color = buffer;
         }
+
+        _select = 0;
     }
 
     void Update()

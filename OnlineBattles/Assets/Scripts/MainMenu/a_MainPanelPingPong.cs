@@ -64,7 +64,7 @@ public class a_MainPanelPingPong : MonoBehaviour, IPointerClickHandler
 
     private void ChangeDirection()
     {
-        if (_time > 0.1f) // Костыль, чтоб при увеличении не ударился несколько раз за мгновение
+        if (_time > 0.2f) // Костыль, чтоб при увеличении не ударился несколько раз за мгновение
         {
             _time = 0f;
             _startPosition = _mainButtons.transform.localPosition;
