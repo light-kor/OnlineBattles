@@ -6,7 +6,7 @@ using UnityEngine;
 public static class Network
 {    
     public static event DataHolder.Notification TcpConnectionIsDone;
-    public static event DataHolder.Notification EndOfGame;
+    public static event DataHolder.TextЕransmissionEnvent EndOfGame;
     public static event DataHolder.TextЕransmissionEnvent WifiServerAnswer;
 
     public static bool TryRecconect = true;
@@ -28,8 +28,7 @@ public static class Network
                     case "win":
                     case "lose":
                     case "drawn":
-                        EndOfGame?.Invoke();
-                        NotificationPanels.NP.AddNotificationToQueue("Игра завершена\r\n" + mes[0], 4);
+                        EndOfGame?.Invoke(mes[0]);
                         break;
 
                     case "login":

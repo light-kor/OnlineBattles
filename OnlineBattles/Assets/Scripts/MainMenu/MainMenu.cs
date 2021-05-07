@@ -2,7 +2,6 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
@@ -226,6 +225,10 @@ public class MainMenu : MonoBehaviour
     {
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
     }
+
+    //TODO: Игрок должен посылать сообщение "Готов" после выхода из игры, что б сервер не смог начать новыую игру, пока игрок ещё не вышел из прошлой
+
+    //TODO: УБРАТЬ "g" к каждому игровому udp сообщению, ну или везде придумать общую систему.
 
     //TODO: Настроить диапазон пикселей для появления серверов
 

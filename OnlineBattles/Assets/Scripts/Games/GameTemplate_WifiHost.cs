@@ -2,17 +2,19 @@ using UnityEngine;
 
 public class GameTemplate_WifiHost : MonoBehaviour
 {
-    private bool _finishTheGame = false;
-    private bool _fastLeave = false;
-    protected bool _gameOn = false;
+    protected bool _gameOn = true;
     protected string[] messege;
+    private string _earlyOpponentStatus = null;
+    private string _gameType = null;
 
     protected void BaseStart(string type)
     {
-        WifiServer_Host.OpponentLeaveTheGame += FinishGame;
-        LeaveGameButton.WantLeaveTheGame += GiveUp;
+        WifiServer_Host.OpponentGaveUp += OpponentGiveUp;
+        LeaveGameButton.WantLeaveTheGame += IGiveUp;
+        DataHolder.StartMenuView = "WifiHost";
+        _gameType = type;
 
-        if (type == "udp")
+        if (_gameType == "udp")
         {
             StartUdpConnection();
             InvokeRepeating("SendAllChanges", 0f, WifiServer_Host.UpdateRate);
@@ -21,18 +23,11 @@ public class GameTemplate_WifiHost : MonoBehaviour
 
     protected virtual void Update()
     {        
-        if (_finishTheGame)
+        if (_earlyOpponentStatus != null)
         {
-            _finishTheGame = false;
             CloseAll();
-            EndOfGame("lose");           
-        }
-
-        if (_fastLeave)
-        {
-            _fastLeave = false;
-            CloseAll();
-            EndOfGame("win");
+            EndOfGame(_earlyOpponentStatus);
+            _earlyOpponentStatus = null;
         }
     }
 
@@ -54,6 +49,10 @@ public class GameTemplate_WifiHost : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Завершение игры. Вывод уведомления и отправка инфы противнику.
+    /// </summary>
+    /// <param name="opponentStatus">Статус противника.</param>
     protected static void EndOfGame(string opponentStatus)
     {
         WifiServer_Host.SendTcpMessage(opponentStatus);
@@ -65,23 +64,30 @@ public class GameTemplate_WifiHost : MonoBehaviour
             NotificationPanels.NP.AddNotificationToQueue("Вы проиграли", 4);
     }
 
-    private void GiveUp()
+    private void IGiveUp()
     {
-        _fastLeave = true;
+        _earlyOpponentStatus = "win";
     }
 
-    private void FinishGame()
+    private void OpponentGiveUp()
     {
-        _finishTheGame = true;
+        _earlyOpponentStatus = "lose";
     }
 
     protected void CloseAll()
     {
         _gameOn = false;
-        CancelInvoke();
-        Network.CloseUdpConnection();
+
+        if (_gameType == "udp")
+        {
+            CancelInvoke();
+            Network.CloseUdpConnection();
+        }
     }
 
+    /// <summary>
+    /// Регулярная отправка сообщений. Переопределяется в наследуемых классах.
+    /// </summary>
     public virtual void SendAllChanges()
     {
 
@@ -89,7 +95,7 @@ public class GameTemplate_WifiHost : MonoBehaviour
 
     private void OnDestroy()
     {
-        WifiServer_Host.OpponentLeaveTheGame -= FinishGame;
-        LeaveGameButton.WantLeaveTheGame -= GiveUp;
+        WifiServer_Host.OpponentGaveUp -= OpponentGiveUp;
+        LeaveGameButton.WantLeaveTheGame -= IGiveUp;
     }
 }

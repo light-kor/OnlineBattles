@@ -6,13 +6,17 @@ public class GameTemplate_Online : MonoBehaviour
     protected bool _finishTheGame = false;
     protected bool _gameOn = true;
     protected string[] frame = null, frame2 = null;
+    private string _gameType = null;
+    private string _endStatus = null;
 
     protected void BaseStart(string type)
     {
         Network.EndOfGame += FinishTheGame;
         LeaveGameButton.WantLeaveTheGame += GiveUp;
+        DataHolder.StartMenuView = "WifiClient";
+        _gameType = type;
 
-        if (type == "udp")
+        if (_gameType == "udp")
         {
             Network.CreateUDP();
             DataHolder.MessageUDPget.Clear();
@@ -29,22 +33,36 @@ public class GameTemplate_Online : MonoBehaviour
 
         if (_finishTheGame)
         {
-            DataHolder.StartMenuView = "WifiClient";
             CloseAll();
             _finishTheGame = false;
+            EndOfGame();
         }
 
         SendAllChanges();
     }
 
-    private void FinishTheGame()
+    private void FinishTheGame(string Status)
     {
+        _endStatus = Status;
         _finishTheGame = true;
+    }
+
+    /// <summary>
+    /// Завершение игры. Вывод уведомления.
+    /// </summary>
+    protected void EndOfGame()
+    {
+        if (_endStatus == "drawn")
+            NotificationPanels.NP.AddNotificationToQueue("Ничья", 4);
+        else if (_endStatus == "win")
+            NotificationPanels.NP.AddNotificationToQueue("Вы победили", 4);
+        else if (_endStatus == "lose")
+            NotificationPanels.NP.AddNotificationToQueue("Вы проиграли", 4);
     }
 
     private void GiveUp()
     {
-        DataHolder.ClientTCP.SendMessage("leave");
+        DataHolder.ClientTCP.SendMessage("GiveUp");
     }
 
     protected bool SplitFramesAndChechTrash()
@@ -69,11 +87,16 @@ public class GameTemplate_Online : MonoBehaviour
     protected void CloseAll()
     {
         _gameOn = false;
-        CancelInvoke(); //TODO: Временное решение для первой игры       
-        // Там автоматически после GameOn = false вызовется CloseClient()
-        Network.CloseUdpConnection();
+
+        if (_gameType == "udp")
+        {
+            Network.CloseUdpConnection();
+        }
     }
 
+    /// <summary>
+    /// Регулярная отправка сообщений. Переопределяется в наследуемых классах.
+    /// </summary>
     public virtual void SendAllChanges()
     {
 

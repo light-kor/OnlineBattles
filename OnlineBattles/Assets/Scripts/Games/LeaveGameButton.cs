@@ -1,12 +1,16 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
-public class LeaveGameButton : MonoBehaviour, IPointerClickHandler
+public class LeaveGameButton : MonoBehaviour
 {
     public static event DataHolder.Notification WantLeaveTheGame;
 
-    public void OnPointerClick(PointerEventData eventData)
+    private void Start()
+    {
+        GetComponent<Button>().onClick.AddListener(LeaveTheGame);
+    }
+    public void LeaveTheGame()
     {
         if (DataHolder.GameType == "OnPhone")
             SceneManager.LoadScene(0); //TODO: Ћ”чше конечно возвращать в меню выбора уровн€

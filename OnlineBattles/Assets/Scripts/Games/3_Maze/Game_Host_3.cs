@@ -79,17 +79,17 @@ public class Game_Host_3 : GameTemplate_WifiHost
 
     public void CheckEndOfGame()
     {
-        if (GR._myPoints > GR.WinScore || GR._enemyPoints > GR.WinScore)
+        if (GR._myPoints >= GR.WinScore || GR._enemyPoints >= GR.WinScore)
         {
             CloseAll();
             GR._myVelocity = Vector2.zero;
             GR._enemyVelocity = Vector2.zero;
 
-            if (GR._myPoints > GR.WinScore && GR._enemyPoints > GR.WinScore)
+            if (GR._myPoints == GR._enemyPoints)
                 EndOfGame("drawn");
-            else if (GR._myPoints > GR.WinScore)
+            else if (GR._myPoints > GR._enemyPoints)
                 EndOfGame("lose");
-            else if (GR._enemyPoints > GR.WinScore)
+            else if (GR._enemyPoints > GR._myPoints)
                 EndOfGame("win");
         }
     }

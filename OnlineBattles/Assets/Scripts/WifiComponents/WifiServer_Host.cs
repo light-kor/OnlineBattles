@@ -13,7 +13,7 @@ public static class WifiServer_Host
 
     public static event DataHolder.Notification CleanHostingUI;
     public static event DataHolder.Notification AcceptOpponent;
-    public static event DataHolder.Notification OpponentLeaveTheGame;
+    public static event DataHolder.Notification OpponentGaveUp;
 
     public static string OpponentStatus = null;
     public static bool OpponentIsReady { get; private set; } = false;
@@ -72,7 +72,6 @@ public static class WifiServer_Host
             AcceptOpponent?.Invoke();
             receiveThread = new Thread(TcpMessageHandler);
             receiveThread.Start();
-            DataHolder.StartMenuView = "WifiHost";
         }
         else if (myDecision == "denied")
         {
@@ -94,8 +93,8 @@ public static class WifiServer_Host
                 switch (mes[0])
                 {
 
-                    case "leave":
-                        OpponentLeaveTheGame?.Invoke();
+                    case "GiveUp":
+                        OpponentGaveUp?.Invoke();
                         break;
 
                     case "disconnect":
@@ -243,13 +242,12 @@ public static class WifiServer_Host
         if ((DateTime.UtcNow - _opponent.LastReciveTime).TotalSeconds > 5)
         {
             Disconnect();
-            Debug.Log("dis");
         }
     }
 
     private static void Disconnect()
     {
-        OpponentLeaveTheGame?.Invoke();
+        OpponentGaveUp?.Invoke();
         CloseAll();
         DataHolder.StartMenuView = null;
         NotificationPanels.NP.AddNotificationToQueue("Игрок отключился", 4); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
