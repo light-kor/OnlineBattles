@@ -9,7 +9,7 @@ public class Game_Online_3 : GameTemplate_Online
 
     private void Start()
     {
-        DataHolder.ClientTCP.GetBigMessage += GetBigMessage;
+        DataHolder.ClientTCP.BigMessageReceived += GetBigMessage;
         ManualCreateMapButton.Click += SendChangeMazeRequest;
 
         GR = transform.parent.GetComponent<GameResources_3>();
@@ -141,7 +141,7 @@ public class Game_Online_3 : GameTemplate_Online
 
     private void OnDestroy()
     {
-        DataHolder.ClientTCP.GetBigMessage -= GetBigMessage;
+        DataHolder.ClientTCP.BigMessageReceived -= GetBigMessage;
         ManualCreateMapButton.Click -= SendChangeMazeRequest;
     }
 }

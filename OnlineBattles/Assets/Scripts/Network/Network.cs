@@ -125,8 +125,8 @@ public static class Network
         }
 
         // Асинхронность нужна чтоб сначала показать уведомление о начале подключения, а потом уже подключать. 
-        await Task.Run(() => DataHolder.ClientTCP = new TcpConnect());
-        DataHolder.ClientTCP.GetMessage += MessageHandler;
+        await Task.Run(() => DataHolder.ClientTCP = new TCPConnect());
+        DataHolder.ClientTCP.MessageReceived += MessageHandler;
 
         if (!DataHolder.Connected)
         {

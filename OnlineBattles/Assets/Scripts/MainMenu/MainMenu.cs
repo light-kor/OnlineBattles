@@ -226,6 +226,11 @@ public class MainMenu : MonoBehaviour
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
     }
 
+
+    //TODO: Нужен ли CanStartReconnect
+
+    //TODO: DataHolder.Connected нужен ли он вообще
+
     //TODO: Игрок должен посылать сообщение "Готов" после выхода из игры, что б сервер не смог начать новыую игру, пока игрок ещё не вышел из прошлой
 
     //TODO: УБРАТЬ "g" к каждому игровому udp сообщению, ну или везде придумать общую систему.
