@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
-public class Opponent_Info
+public class WifiOpponentInfo
 {
     public TcpClient Client { get; private set; }
     public string PlayerName { get; set; } = null;
@@ -12,7 +12,7 @@ public class Opponent_Info
     public List<string> MessageTCPforGame { get; set; } = new List<string>();
     public long Ping { get; set; } = 0;
 
-    public Opponent_Info(TcpClient client, DateTime time)
+    public WifiOpponentInfo(TcpClient client, DateTime time)
     {
         Client = client;
         LastReciveTime = time;

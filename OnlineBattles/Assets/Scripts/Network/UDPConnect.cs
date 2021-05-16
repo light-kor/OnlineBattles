@@ -4,11 +4,11 @@ using System.Text;
 using System.Threading;
 
 public class UDPConnect
-{    
-    public IPEndPoint remoteIp = null;
-    private static UdpClient _client = null;
+{
+    private IPEndPoint _remoteIp = null;
+    private UdpClient _client = null;
     private Thread _receiveThread = null;
-    private bool Working = true;
+    private bool _working = true;
     private string _ip = null;
     private int _port = 0;
 
@@ -18,9 +18,12 @@ public class UDPConnect
         CreateClass();
     }
 
+    /// <summary>
+    /// Создание подключения в зависимости от типа игры.
+    /// </summary>
     private void CreateClass()
     {
-        Working = true;
+        _working = true;
         if (DataHolder.GameType == "Multiplayer")
         {
             _ip = DataHolder.ServerIp;
@@ -40,10 +43,10 @@ public class UDPConnect
     }
 
     /// <summary>
-    /// Отправка пользовательских UDP сообщений с добавлением "метаданных".
+    /// Отправка пользовательских UDP сообщений с добавлением "метаданных" для сервера.
     /// </summary>
     /// <param name="mes">Текст сообщения.</param>
-    public void SendMessage(string mes)
+    public void SendMessage(string mes) //TODO: Может сделать что-то типо переопределения, чтоб только один раз выбрать, а не делать проверку GameType каждый раз.
     {
         byte[] data = null;
         try
@@ -59,15 +62,15 @@ public class UDPConnect
     }
 
     /// <summary>
-    /// Цикл приёма UDP сообщений и помещение их в MessageUDPget.
+    /// Цикл приёма UDP сообщений и помещение их в DataHolder.MessageUDPget.
     /// </summary>
     private void ReceivingMessagesLoop()
     {
-        while (Working)
+        while (_working)
         {
             try
             {
-                byte[] data = _client.Receive(ref remoteIp);
+                byte[] data = _client.Receive(ref _remoteIp);
                 string messList = Encoding.UTF8.GetString(data);
                 DataHolder.MessageUDPget.Add(messList);
             }
@@ -80,7 +83,7 @@ public class UDPConnect
     /// </summary>
     private void TryReconnect()
     {
-        if (Working == true)
+        if (_working == true)
         {
             CloseAll();
             CreateClass();
@@ -96,7 +99,7 @@ public class UDPConnect
     /// </summary>
     public void CloseAll()
     {
-        Working = false;
+        _working = false;
 
         if (_client != null)
         {

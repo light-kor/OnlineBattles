@@ -17,7 +17,7 @@ public static class WifiServer_Host
 
     public static string OpponentStatus = null;
     public static bool OpponentIsReady { get; private set; } = false;
-    public static Opponent_Info _opponent { get; private set; } = null;
+    public static WifiOpponentInfo _opponent { get; private set; } = null;
        
     private static TcpListener _listener = null;
     private static NetworkStream _streamGame = null;
@@ -123,7 +123,7 @@ public static class WifiServer_Host
         {
             if (_listener.Pending())
             {
-                _opponent = new Opponent_Info(_listener.AcceptTcpClient(), DateTime.UtcNow);
+                _opponent = new WifiOpponentInfo(_listener.AcceptTcpClient(), DateTime.UtcNow);
                 _streamGame = _opponent.Client.GetStream();
                 break;
             }

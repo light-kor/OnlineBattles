@@ -6,13 +6,12 @@ using System.Threading;
 
 public class TCPConnect
 {
-    public event DataHolder.Notification MessageReceived;
     public event DataHolder.Notification BigMessageReceived;
 
     public bool CanStartReconnect = false;
 
     private const int ConnectionTimedOut = 3000;
-    private const int MessageLengthLimit = 100;
+    private const int MessageLengthLimit = 500;
 
     private TcpClient _client;
     private Thread _clientListener;
@@ -122,7 +121,7 @@ public class TCPConnect
             {
                 string message = Encoding.UTF8.GetString(_receivedBytesBuffer.ToArray());
                 DataHolder.MessageTCP.Add(message);
-                MessageReceived?.Invoke();
+                Network.MessageHandler();
             }
             else
             {

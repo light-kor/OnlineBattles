@@ -15,7 +15,7 @@ public static class Network
     private static bool WaitingForLogin = true;
     private static bool MessageHandlerIsBusy = false;
 
-    private static void MessageHandler()
+    public static void MessageHandler()
     {
         if (!MessageHandlerIsBusy)
         {
@@ -126,7 +126,6 @@ public static class Network
 
         // Асинхронность нужна чтоб сначала показать уведомление о начале подключения, а потом уже подключать. 
         await Task.Run(() => DataHolder.ClientTCP = new TCPConnect());
-        DataHolder.ClientTCP.MessageReceived += MessageHandler;
 
         if (!DataHolder.Connected)
         {
