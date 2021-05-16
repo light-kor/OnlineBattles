@@ -17,7 +17,6 @@ public class TCPConnect
     private Thread _clientListener;
     private NetworkStream _NS;
     private bool _working = true;
-    private List<byte> _receivedBytesBuffer = new List<byte>();
 
     /// <summary>
     /// Выбор типа сервера и попытка подключения.
@@ -99,17 +98,17 @@ public class TCPConnect
         _NS = _client.GetStream();
         while (_working)
         {
-            _receivedBytesBuffer.Clear();
+            List<byte> buffer = new List<byte>();
             try
             {
-                while (_receivedBytesBuffer.Count < 4)
-                    GetByteFromStream();
+                while (buffer.Count < 4)
+                    GetByteFromStream(buffer);
 
-                int mesCount = BitConverter.ToInt32(_receivedBytesBuffer.ToArray(), 0);
-                _receivedBytesBuffer.Clear();
+                int mesCount = BitConverter.ToInt32(buffer.ToArray(), 0);
+                buffer.Clear();
 
-                while (_receivedBytesBuffer.Count < mesCount)
-                    GetByteFromStream();
+                while (buffer.Count < mesCount)
+                    GetByteFromStream(buffer);
             }
             catch
             {
@@ -117,15 +116,15 @@ public class TCPConnect
                 break;
             }
 
-            if (_receivedBytesBuffer.Count < MessageLengthLimit)
+            if (buffer.Count < MessageLengthLimit)
             {
-                string message = Encoding.UTF8.GetString(_receivedBytesBuffer.ToArray());
+                string message = Encoding.UTF8.GetString(buffer.ToArray());
                 DataHolder.MessageTCP.Add(message);
                 Network.MessageHandler();
             }
             else
             {
-                DataHolder.BigArray = _receivedBytesBuffer;
+                DataHolder.BigArray = buffer;
                 BigMessageReceived?.Invoke();
             }
         }
@@ -134,14 +133,14 @@ public class TCPConnect
     /// <summary>
     /// Проверка потока на наличие полученных байт и добавление их к _receivedBytesBuffer.
     /// </summary>
-    private void GetByteFromStream()
+    private void GetByteFromStream(List<byte> buffer)
     {
         if (_NS.DataAvailable)
         {
             int ReadByte = _NS.ReadByte();
             if (ReadByte > -1)
             {
-                _receivedBytesBuffer.Add((byte)ReadByte);
+                buffer.Add((byte)ReadByte);
             }
         }
     }

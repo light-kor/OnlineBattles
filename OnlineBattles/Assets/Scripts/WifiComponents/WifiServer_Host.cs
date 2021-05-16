@@ -87,7 +87,7 @@ public static class WifiServer_Host
         {
             GetTcpMessageFromStream();
 
-            if (_opponent.TcpMessages.Count > 0)
+            if (_opponent != null && _opponent.TcpMessages.Count > 0)
             {
                 string[] mes = _opponent.TcpMessages[0].Split(' ');
                 switch (mes[0])
