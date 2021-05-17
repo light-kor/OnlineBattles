@@ -159,7 +159,7 @@ public static class Network
         }
 
         DateTime StartTryConnect = DateTime.Now;
-        //TODO: При этом, пока телефон думает, пусть в углу будет гифка загрузки, чтоб пользователь понимал, что что-то происходит
+
         while (true)
         {
             if (((DateTime.Now - StartTryConnect).TotalSeconds < TimeForWaitAnswer))
@@ -247,11 +247,4 @@ public static class Network
         CloseTcpConnection();
         TryRecconect = false;
     }
-
-    //TODO: Очистка всего, связанного  с соединениями, и тем, что создано в этом скрипте
-    private static void Clear()
-    {
-
-    }
-
 }

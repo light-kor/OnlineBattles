@@ -6,7 +6,6 @@ public class GameResources_1 : MonoBehaviour
 {
     public Tile MainTile, MyTile, EnemyTile;
     public Tilemap Map, PlayLayer;
-    [HideInInspector] public bool MyTurn = true;
 
     private readonly int FieldSize = 4;
     private readonly int WinRow = 3;

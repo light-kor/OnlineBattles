@@ -239,9 +239,12 @@ public static class WifiServer_Host
 
     private static void CheckDisconnect()
     {
-        if ((DateTime.UtcNow - _opponent.LastReciveTime).TotalSeconds > 5)
+        if (_opponent != null)
         {
-            Disconnect();
+            if ((DateTime.UtcNow - _opponent.LastReciveTime).TotalSeconds > 5)
+            {
+                Disconnect();
+            }
         }
     }
 

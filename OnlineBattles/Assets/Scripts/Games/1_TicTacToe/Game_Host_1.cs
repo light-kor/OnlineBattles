@@ -3,6 +3,7 @@ using UnityEngine;
 public class Game_Host_1 : GameTemplate_WifiHost
 {
     private GameResources_1 GR;
+    private bool _myTurn = true;
 
     private void Start()
     {
@@ -12,9 +13,11 @@ public class Game_Host_1 : GameTemplate_WifiHost
 
     protected override void Update()
     {
+        base.Update();
+
         if (_gameOn)
         {
-            if (GR.MyTurn && Input.GetMouseButtonDown(0))
+            if (_myTurn && Input.GetMouseButtonDown(0))
             {
                 Vector3 clickWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Vector3Int clickCellPosition = GR.Map.WorldToCell(clickWorldPosition);
@@ -23,7 +26,7 @@ public class Game_Host_1 : GameTemplate_WifiHost
                     GR.Map.SetTile(clickCellPosition, GR.MyTile);
                     string mes = $"move {clickCellPosition.x} {clickCellPosition.y}";
                     WifiServer_Host.SendTcpMessage(mes);
-                    GR.MyTurn = false;
+                    _myTurn = false;
                 }
             }
 
@@ -35,7 +38,7 @@ public class Game_Host_1 : GameTemplate_WifiHost
                     Vector3Int place = new Vector3Int(int.Parse(mes[1]), int.Parse(mes[2]), 0);
                     GR.Map.SetTile(place, GR.EnemyTile);
                     CheckEndOfGame();
-                    GR.MyTurn = true;
+                    _myTurn = true;
                 }
                 WifiServer_Host._opponent.MessageTCPforGame.RemoveAt(0);
             }
@@ -48,7 +51,8 @@ public class Game_Host_1 : GameTemplate_WifiHost
 
         if (result != null)
         {
-            GR.MyTurn = false;
+            CloseAll();
+
             if (result == "draw")
                 EndOfGame("drawn");
             else if (result == "first")

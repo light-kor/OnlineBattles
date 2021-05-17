@@ -3,6 +3,7 @@ using UnityEngine;
 public class Game_Online_1 : GameTemplate_Online
 {
     private GameResources_1 GR;
+    private bool _myTurn = false;
 
     private void Start()
     {
@@ -12,9 +13,11 @@ public class Game_Online_1 : GameTemplate_Online
 
     protected override void Update()
     {
+        base.Update();
+
         if (_gameOn)
-        {
-            if (GR.MyTurn && Input.GetMouseButtonDown(0))
+        {           
+            if (_myTurn && Input.GetMouseButtonDown(0))
             {
                 Vector3 clickWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Vector3Int clickCellPosition = GR.Map.WorldToCell(clickWorldPosition);
@@ -23,7 +26,7 @@ public class Game_Online_1 : GameTemplate_Online
                     GR.Map.SetTile(clickCellPosition, GR.MyTile);
                     string mes = $"move {clickCellPosition.x} {clickCellPosition.y}";
                     DataHolder.ClientTCP.SendMessage(mes);
-                    GR.MyTurn = false;
+                    _myTurn = false;
                 }
             }
 
@@ -34,7 +37,7 @@ public class Game_Online_1 : GameTemplate_Online
                 {
                     Vector3Int place = new Vector3Int(int.Parse(mes[1]), int.Parse(mes[2]), 0);
                     GR.Map.SetTile(place, GR.EnemyTile);
-                    GR.MyTurn = true;
+                    _myTurn = true;
                 }
                 DataHolder.MessageTCPforGame.RemoveAt(0);
             }

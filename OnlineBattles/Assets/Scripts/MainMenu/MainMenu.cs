@@ -226,6 +226,7 @@ public class MainMenu : MonoBehaviour
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
     }
 
+    //TODO: Имя соперника пропадает, если ты поиграл в wifi игру и вернулся в меню.
 
     //TODO: Нужен ли CanStartReconnect
 
