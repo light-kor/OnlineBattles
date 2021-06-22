@@ -64,7 +64,7 @@ public class Game_Host_3 : GameTemplate_WifiHost
             GR._maze = new GameObject("Cells");           
             MazeGenerator generator = new MazeGenerator(GR.Width, GR.Height);
             MazeGeneratorCell[,] maze = generator.GenerateMaze();
-            BigDataSendReceive<MazeGeneratorCell[,]>.SendBigMessage(maze);
+            BigDataExchange<MazeGeneratorCell[,]>.SendBigMessage(maze);
             GR.BuildMaze(maze);
 
             GR._lastChangeMazeTime = 0f;

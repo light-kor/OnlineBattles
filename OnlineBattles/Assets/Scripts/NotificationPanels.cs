@@ -56,6 +56,10 @@ public class NotificationPanels : MonoBehaviour
     {
         switch (num)
         {
+            case 100:
+                Debug.Log("aaaaa " + num);
+                break;
+
             case 1: // ExitSimpleNotif       
                 NotifButton.SetActive(false);
                 break;
@@ -107,7 +111,7 @@ public class NotificationPanels : MonoBehaviour
     /// </summary>
     /// <param name="notif">Текст уведомления.</param>
     /// <param name="caseNotif">Выбор типа кнопки и самого уведомления на окне.</param>
-    public void ShowNotif(string notif, int caseNotif) //TODO: А если будет несколько уведомлений по очереди, надо сделать очередь.
+    public void ShowNotif_old(string notif, int caseNotif) //TODO: А если будет несколько уведомлений по очереди, надо сделать очередь.
     {
         Shield.SetActive(true); //TODO: При переходе между сценами связь между ссылками временно теряется и вылетает ошибка
 
@@ -133,6 +137,38 @@ public class NotificationPanels : MonoBehaviour
         {
             AcceptOpponent.SetActive(true);
             CancelOpponent.SetActive(true);
+        }            
+        
+        NotifPanel.transform.Find("Text").GetComponent<Text>().text = notif;
+        NotifPanel.SetActive(true);
+
+        ListOfNotification.RemoveAt(0);
+        NumOfNotification.RemoveAt(0);
+    }
+
+
+    public void ShowNotif(string notif, int caseNotif) //TODO: А если будет несколько уведомлений по очереди, надо сделать очередь.
+    {
+        Shield.SetActive(true); //TODO: При переходе между сценами связь между ссылками временно теряется и вылетает ошибка
+        NotifButton.GetComponent<Button>().onClick.RemoveAllListeners();
+        NotifButton.SetActive(false);
+
+        if (AcceptOpponent != null) // Можно указать только один. Всё равно они вместе идут
+        {
+            AcceptOpponent.SetActive(false);
+            CancelOpponent.SetActive(false);
+        }
+
+        if (caseNotif == 5)
+        {
+            AcceptOpponent.SetActive(true);
+            CancelOpponent.SetActive(true);
+        }
+        else
+        {
+            NotifButton.GetComponent<Button>().onClick.AddListener(() => NotificatonMultyButton(100));
+            //NotifButton.GetComponent<Button>().onClick.AddListener(() => SetMessageType(5));
+            NotifButton.SetActive(true);
         }
             
 
@@ -141,5 +177,10 @@ public class NotificationPanels : MonoBehaviour
 
         ListOfNotification.RemoveAt(0);
         NumOfNotification.RemoveAt(0);
+    }
+
+    private void SetMessageType(int caseNotif)
+    {
+        Debug.Log("safe " + caseNotif);
     }
 }

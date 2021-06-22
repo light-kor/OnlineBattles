@@ -117,7 +117,7 @@ public class Game_Online_3 : GameTemplate_Online
                 Destroy(GR._maze);
 
             GR._maze = new GameObject("Maze");
-            MazeGeneratorCell[,] maze = BigDataSendReceive<MazeGeneratorCell[,]>.GetBigMessage();
+            MazeGeneratorCell[,] maze = BigDataExchange<MazeGeneratorCell[,]>.GetBigMessage();
             GR.BuildMaze(maze);
 
             GR._lock = false;

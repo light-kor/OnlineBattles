@@ -111,7 +111,7 @@ public static class Network
         }
     }
 
-    static async void TcpConnectionProcess(int num)
+    private static async void TcpConnectionProcess(int num)
     {
         CloseTcpConnection();
 
