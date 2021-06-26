@@ -47,13 +47,13 @@ public static class Network
 
                     case "denied":
                         CloseTcpConnection();
-                        NotificationPanels.NP.CloseSimple(); // Выключаем панель ожидания
-                        NotificationPanels.NP.AddNotificationToQueue("Запрос отклонён", 1);
+                        NotificationManager.NM.CloseAllNotification(); // Выключаем панель ожидания
+                        NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.Simple, "Запрос отклонён");
                         WifiServerAnswer?.Invoke("denied");
                         break;
 
                     case "accept":
-                        NotificationPanels.NP.CloseSimple(); // Выключаем панель ожидания
+                        NotificationManager.NM.CloseAllNotification(); // Выключаем панель ожидания
                         WifiServerAnswer?.Invoke("accept");
                         break;                   
 
@@ -97,9 +97,10 @@ public static class Network
     public static void CreateTCP()
     {
         //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
-        NotificationPanels.NP.AddNotificationToQueue("Ожидание подключения", 0);
+        var notifType = NotificationManager.NotifType.Connection;       
+        NotificationManager.NM.AddNotificationToQueue(notifType, "Ожидание подключения");
 
-        TcpConnectionProcess(1);
+        TcpConnectionProcess(notifType);
 
         if (DataHolder.Connected)
         {
@@ -111,7 +112,7 @@ public static class Network
         }
     }
 
-    private static async void TcpConnectionProcess(int num)
+    private static async void TcpConnectionProcess(NotificationManager.NotifType type)
     {
         CloseTcpConnection();
 
@@ -119,7 +120,7 @@ public static class Network
         {
             if (!await Task.Run(() => CheckForInternetConnection()))
             {
-                NotificationPanels.NP.AddNotificationToQueue("Отсутствует подключение к интернету.", num);
+                NotificationManager.NM.AddNotificationToQueue(type, "Отсутствует подключение к интернету.");
                 return;
             }
         }
@@ -130,17 +131,17 @@ public static class Network
         if (!DataHolder.Connected)
         {
             CloseTcpConnection();
-            NotificationPanels.NP.AddNotificationToQueue("Сервер не доступен.", num);
+            NotificationManager.NM.AddNotificationToQueue(type, "Сервер не доступен.");
             return;
         }
 
-        NotificationPanels.NP.AddNotificationToQueue("Ожидание ответа сервера", 0);
+        NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.Waiting, "Ожидание ответа сервера");
         await Task.Run(() => LoginInServerSystem());
 
         if (!DataHolder.Connected)
         {
             CloseTcpConnection();
-            NotificationPanels.NP.AddNotificationToQueue("Ошибка доступа к серверу.", num);
+            NotificationManager.NM.AddNotificationToQueue(type, "Ошибка доступа к серверу.");
             return;
         }
     }
@@ -182,15 +183,15 @@ public static class Network
     public static void StartReconnect()
     {
         DataHolder.Connected = false;
-        NotificationPanels.NP.AddNotificationToQueue("Разрыв соединения.\r\nПереподключение...", 2);
+        NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.Reconnect, "Разрыв соединения.\r\nПереподключение...");
 
         while (TryRecconect)
         {
-            TcpConnectionProcess(2);
+            TcpConnectionProcess(NotificationManager.NotifType.Reconnect);
             if (DataHolder.Connected)
             {
                 // При полном успехе
-                NotificationPanels.NP.NotificatonMultyButton(10);
+                NotificationManager.NM.CloseStartReconnect();
                 DataHolder.ClientTCP.CanStartReconnect = true;
             }
         }

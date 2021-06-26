@@ -70,6 +70,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8821578334815022195}
   - component: {fileID: 2873455480108863960}
+  - component: {fileID: 6600508450564672422}
   m_Layer: 0
   m_Name: GameControllers
   m_TagString: Untagged
@@ -109,6 +110,20 @@ MonoBehaviour:
   _singleGame: {fileID: 8821578335915307759}
   _wifiHost: {fileID: 8821578334112831335}
   _onlineGame: {fileID: 8821578334268564998}
+--- !u!114 &6600508450564672422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8821578334815022194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89a1a52fc49d9c4468d2a4b538c59b1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _notifPrefab: {fileID: 183802569826306518, guid: e84b926165ab96b42a88e823fe761c3e,
+    type: 3}
 --- !u!1 &8821578335915307759
 GameObject:
   m_ObjectHideFlags: 0

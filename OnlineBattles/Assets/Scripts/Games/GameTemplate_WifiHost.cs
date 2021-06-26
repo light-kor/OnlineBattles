@@ -56,12 +56,15 @@ public class GameTemplate_WifiHost : MonoBehaviour
     protected static void EndOfGame(string opponentStatus)
     {
         WifiServer_Host.SendTcpMessage(opponentStatus);
+        string notifText = null;
         if (opponentStatus == "drawn")
-            NotificationPanels.NP.AddNotificationToQueue("Ничья", 4);
+            notifText = "Ничья";
         else if (opponentStatus == "lose")
-            NotificationPanels.NP.AddNotificationToQueue("Вы победили", 4);
+            notifText = "Вы победили";
         else if (opponentStatus == "win")
-            NotificationPanels.NP.AddNotificationToQueue("Вы проиграли", 4);
+            notifText = "Вы проиграли";
+
+        NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.FinishGame, notifText);
     }
 
     private void IGiveUp()

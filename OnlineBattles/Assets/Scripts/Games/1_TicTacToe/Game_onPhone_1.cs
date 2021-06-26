@@ -37,12 +37,15 @@ public class Game_onPhone_1 : MonoBehaviour
 
         if (result != null)
         {
+            string notifText = null;
             if (result == "draw")
-                NotificationPanels.NP.AddNotificationToQueue("Ничья", 4);
+                notifText = "Ничья";
             else if (result == "first")
-                NotificationPanels.NP.AddNotificationToQueue("Синий победил", 4);
+                notifText = "Синий победил";
             else if (result == "second")
-                NotificationPanels.NP.AddNotificationToQueue("Красный победил", 4);
+                notifText = "Красный победил";
+
+            NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.FinishGame, notifText);
         }
     }
 }

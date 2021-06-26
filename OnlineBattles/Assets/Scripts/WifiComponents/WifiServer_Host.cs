@@ -141,7 +141,7 @@ public static class WifiServer_Host
                 if (mes[0] == "name")
                 {
                     _opponent.PlayerName = mes[1];
-                    NotificationPanels.NP.AddNotificationToQueue("Подключился игрок:\r\n" + _opponent.PlayerName, 5);
+                    NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.AcceptOpponent, "Подключился игрок:\r\n" + _opponent.PlayerName);
                     _opponent.TcpMessages.RemoveAt(0);
                     break;
                 }
@@ -253,7 +253,7 @@ public static class WifiServer_Host
         OpponentGaveUp?.Invoke();
         CloseAll();
         DataHolder.StartMenuView = null;
-        NotificationPanels.NP.AddNotificationToQueue("Игрок отключился", 4); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
+        NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.FinishGame, "Игрок отключился"); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
     }
 
 

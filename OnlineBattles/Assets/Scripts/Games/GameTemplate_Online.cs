@@ -52,12 +52,15 @@ public class GameTemplate_Online : MonoBehaviour
     /// </summary>
     protected void EndOfGame()
     {
+        string notifText = null;
         if (_endStatus == "drawn")
-            NotificationPanels.NP.AddNotificationToQueue("Ничья", 4);
+            notifText = "Ничья";
         else if (_endStatus == "win")
-            NotificationPanels.NP.AddNotificationToQueue("Вы победили", 4);
+            notifText = "Вы победили";
         else if (_endStatus == "lose")
-            NotificationPanels.NP.AddNotificationToQueue("Вы проиграли", 4);
+            notifText = "Вы проиграли";
+
+        NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.FinishGame, notifText);
     }
 
     private void GiveUp()

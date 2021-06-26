@@ -66,13 +66,16 @@ public class Game_onPhone_3 : MonoBehaviour
             _gameOn = false;
             GR._myVelocity = Vector2.zero;
             GR._enemyVelocity = Vector2.zero;
+            string notifText = null;
 
             if (GR._myPoints == GR._enemyPoints)
-                NotificationPanels.NP.AddNotificationToQueue("Ничья", 4);
+                notifText = "Ничья";
             else if (GR._myPoints > GR._enemyPoints)
-                NotificationPanels.NP.AddNotificationToQueue("Синий победил", 4);
+                notifText = "Синий победил";
             else if (GR._enemyPoints > GR._myPoints)
-                NotificationPanels.NP.AddNotificationToQueue("Красный победил", 4);
+                notifText = "Красный победил";
+
+            NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.FinishGame, notifText);
         }
     }
 

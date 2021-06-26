@@ -33,7 +33,7 @@ public class MainMenu : MonoBehaviour
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[1]);
                 DataHolder.LobbyID = Convert.ToInt32(mes[2]);
                 SceneManager.LoadScene(_lvlName);
-                NotificationPanels.NP.NotificatonMultyButton(0);
+                NotificationManager.NM.CloseAllNotification();
             }
             // Значит до этого игрок вылетел, и сейчас может восстановиться в игре
             else if (mes[0] == "goto")
@@ -55,7 +55,7 @@ public class MainMenu : MonoBehaviour
                 Network.CloseTcpConnection();
                 _lvlChoseWaiting.SetActive(false);
                 ActivateMenuPanel();
-                NotificationPanels.NP.AddNotificationToQueue("Сервер отключён", 1);
+                NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.Simple, "Сервер отключён");
             }
             DataHolder.MessageTCPforGame.RemoveAt(0);
         }                          
@@ -73,7 +73,7 @@ public class MainMenu : MonoBehaviour
         {
             if (WifiServer_Host.OpponentIsReady == false)
             {
-                NotificationPanels.NP.AddNotificationToQueue("Ожидайте второго игрока", 1);
+                NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.Simple, "Ожидайте второго игрока");
             }
             else
             {
@@ -85,7 +85,7 @@ public class MainMenu : MonoBehaviour
         else if (DataHolder.GameType == "Multiplayer")
         {
             //TODO: Добавить анимацию ожидания.
-            NotificationPanels.NP.AddNotificationToQueue("Поиск игры", 3);
+            NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.GameSearching ,"Поиск игры");
             _lvlName = "lvl" + lvlNum;
             DataHolder.ClientTCP.SendMessage($"game {lvlNum}");           
         }
@@ -144,7 +144,7 @@ public class MainMenu : MonoBehaviour
     {
         if (DataHolder.Connected)
         {
-            NotificationPanels.NP.NotificatonMultyButton(1);
+            NotificationManager.NM.CloseAllNotification();
 
             if (DataHolder.GameType == "Multiplayer")
                 ActivatePanel(_lvlPanel);
