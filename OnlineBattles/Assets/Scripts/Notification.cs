@@ -4,9 +4,10 @@ using UnityEngine.UI;
 
 public class Notification : MonoBehaviour
 {
-    [SerializeField] private GameObject NotifPanel, Shield;
-    [SerializeField] private GameObject NotifButton, AcceptOpponent, CancelOpponent;
-    [SerializeField] private Text Message;
+    public event DataHolder.Notification CloseNotification;
+
+    [SerializeField] private GameObject _closeNotifButton, _acceptButton, _cancelButton;
+    [SerializeField] private Text _messageText;
 
     private void Start()
     {
@@ -40,8 +41,8 @@ public class Notification : MonoBehaviour
 
             case 50: // Искать другого противника по wifi
             case 51: // Принять противника по wifi?
-                AcceptOpponent.SetActive(false);
-                CancelOpponent.SetActive(false);
+                _acceptButton.SetActive(false);
+                _cancelButton.SetActive(false);
                 if (num == 50)
                     WifiServer_Host.OpponentStatus = "denied";
                 else WifiServer_Host.OpponentStatus = "accept";
@@ -51,8 +52,7 @@ public class Notification : MonoBehaviour
                 Network.TryRecconect = false;
                 break;
         }
-        NotifPanel.SetActive(false);
-        Shield.SetActive(false);
+        CloseNotification?.Invoke();
     }
 
     /// <summary>
@@ -61,24 +61,20 @@ public class Notification : MonoBehaviour
     /// <param name="notif">Текст уведомления.</param>
     /// <param name="caseNotif">Выбор типа кнопки и самого уведомления на окне.</param>
     public void ShowNotif(string notif, int caseNotif) //TODO: А если будет несколько уведомлений по очереди, надо сделать очередь.
-    {
-        Shield.SetActive(true); //TODO: При переходе между сценами связь между ссылками временно теряется и вылетает ошибка       
-
+    { 
         if (caseNotif == 5)
         {
-            AcceptOpponent.SetActive(true);
-            CancelOpponent.SetActive(true);
+            _acceptButton.SetActive(true);
+            _cancelButton.SetActive(true);
         }
         else
         {           
             if (caseNotif != 0)
             {
-                NotifButton.GetComponent<Button>().onClick.AddListener(() => NotificatonMultyButton(caseNotif));
-                NotifButton.SetActive(true);
+                _closeNotifButton.GetComponent<Button>().onClick.AddListener(() => NotificatonMultyButton(caseNotif));
+                _closeNotifButton.SetActive(true);
             }                
         }
-
-        Message.text = notif;
-        NotifPanel.SetActive(true);        
+        _messageText.text = notif;    
     }
 }

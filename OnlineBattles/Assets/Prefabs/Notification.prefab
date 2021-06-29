@@ -78,7 +78,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
+  m_Text: Text
 --- !u!1 &183802569786264639
 GameObject:
   m_ObjectHideFlags: 0
@@ -171,6 +171,7 @@ GameObject:
   - component: {fileID: 183802569826306512}
   - component: {fileID: 183802569826306513}
   - component: {fileID: 4727623607350168781}
+  - component: {fileID: 2556188799696204693}
   m_Layer: 5
   m_Name: Notification
   m_TagString: Untagged
@@ -272,12 +273,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b9af8d30a566264d84c0290889a3be1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NotifPanel: {fileID: 183802571298789052}
-  Shield: {fileID: 183802570987852991}
-  NotifButton: {fileID: 183802570160742810}
-  AcceptOpponent: {fileID: 183802571077566508}
-  CancelOpponent: {fileID: 183802570413916919}
-  Message: {fileID: 183802569518883688}
+  _closeNotifButton: {fileID: 183802570160742810}
+  _acceptButton: {fileID: 183802571077566508}
+  _cancelButton: {fileID: 183802570413916919}
+  _messageText: {fileID: 183802569518883688}
+--- !u!114 &2556188799696204693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 183802569826306518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1945eef2506811647b980e6dca8b20e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _messageBox: {fileID: 183802571298789055}
+  _background: {fileID: 5073993596307812177}
 --- !u!1 &183802569940015984
 GameObject:
   m_ObjectHideFlags: 0
@@ -570,7 +583,7 @@ GameObject:
   - component: {fileID: 183802570413916912}
   - component: {fileID: 183802570413916913}
   m_Layer: 5
-  m_Name: CancelPlayer
+  m_Name: CancelButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -702,12 +715,12 @@ GameObject:
   - component: {fileID: 6276130596605917001}
   - component: {fileID: 5073993596307812177}
   m_Layer: 5
-  m_Name: Shield
+  m_Name: BackgroundShield
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &183802570987852990
 RectTransform:
   m_ObjectHideFlags: 0
@@ -747,7 +760,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 0b2237f8ac97e7a468f6715d5efab00e, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -778,7 +791,7 @@ GameObject:
   - component: {fileID: 183802571077566505}
   - component: {fileID: 183802571077566510}
   m_Layer: 5
-  m_Name: AcceptPlayer
+  m_Name: AcceptButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -910,12 +923,12 @@ GameObject:
   - component: {fileID: 183802571298789049}
   - component: {fileID: 183802571298789054}
   m_Layer: 5
-  m_Name: NotificationPanel
+  m_Name: NotificationBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &183802571298789055
 RectTransform:
   m_ObjectHideFlags: 0
@@ -960,7 +973,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8301887, g: 0.7792809, b: 0.7792809, a: 0.5254902}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.78431374}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
