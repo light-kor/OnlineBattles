@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
+    public static event DataHolder.Notification ChangePanel;
+    public const float AnimTime = 0.5f;
     public GameObject _lvlChoseWaiting, _lvlPanel;
     [SerializeField] private GameObject _mainPanel, _wifiPanel, _multiBackButton;
 
@@ -98,7 +101,8 @@ public class MainMenu : MonoBehaviour
         if (DataHolder.StartMenuView == "WifiHost")
         {
             WifiMenu.WriteOpponentName();
-            ActivatePanel(_lvlPanel);
+            //ActivatePanel(_lvlPanel);
+            StartCoroutine(Transition(_lvlPanel));
         }
         else if (DataHolder.StartMenuView == "WifiClient")
         {            
@@ -116,16 +120,18 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     public void SelectSingleGame()
     {
-        DataHolder.GameType = "OnPhone";
-        ActivatePanel(_lvlPanel);
+        DataHolder.GameType = "OnPhone";        
+        //ActivatePanel(_lvlPanel);
+        StartCoroutine(Transition(_lvlPanel));
     }
 
     /// <summary>
     /// Обработка кнопки и установка режима игры по wifi.
     /// </summary>
     public void SelectWifiGame()
-    {             
-        ActivatePanel(_wifiPanel);
+    {
+        //ActivatePanel(_wifiPanel);
+        StartCoroutine(Transition(_wifiPanel));
     }
 
     /// <summary>
@@ -147,7 +153,8 @@ public class MainMenu : MonoBehaviour
             NotificationManager.NM.CloseAllNotification();
 
             if (DataHolder.GameType == "Multiplayer")
-                ActivatePanel(_lvlPanel);
+                StartCoroutine(Transition(_lvlPanel));
+                //ActivatePanel(_lvlPanel);
         }
     }  
 
@@ -188,6 +195,7 @@ public class MainMenu : MonoBehaviour
     #region ActivatePanels
     public void ActivatePanel(GameObject panel) // В основном для кнопки Back в меню
     {
+        ChangePanel?.Invoke();       
         DeactivatePanels();
         panel.SetActive(true);
 
@@ -197,11 +205,42 @@ public class MainMenu : MonoBehaviour
             ShowMultiBackButton("Назад");           
     }
 
+    private IEnumerator Transition(GameObject panel)
+    {
+        ChangePanel?.Invoke();
+        bool flag1 = true, flag2 = false;
+        float time1 = AnimTime / 5, time2 = AnimTime - time1;
+        float time = 0f;
+        while (true)
+        {
+            time += Time.deltaTime;
+            if (flag1 && time > time1)
+            {
+                DeactivatePanels();
+                flag1 = false;
+                flag2 = true;
+            }
+
+            if (flag2 && time > time2)
+            {
+                panel.SetActive(true);
+                break;
+            }
+            yield return null;
+        }
+
+        if ((DataHolder.GameType == "WifiServer" && WifiServer_Host._opponent == null) || DataHolder.GameType == "WifiClient")
+            ShowMultiBackButton("Отмена");
+        else
+            ShowMultiBackButton("Назад");
+    }
+
     public void ActivateMenuPanel() // В основном для кнопки Back в меню
     {
         DataHolder.GameType = null;
         DeactivatePanels();
         _mainPanel.SetActive(true);
+        //StartCoroutine(Transition(_mainPanel));
     }
 
     public void ShowMultiBackButton(string text)
@@ -225,6 +264,8 @@ public class MainMenu : MonoBehaviour
     {
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
     }
+
+    //TODO: Разобраться со static gameObject. Поставил много где в главном меню, ну и в префабе уведомлений
 
     //TODO: Имя соперника пропадает, если ты поиграл в wifi игру и вернулся в меню.
 

@@ -15,7 +15,7 @@ public class a_ShowNotif : MonoBehaviour
     {
         _background.material.SetFloat("_Size", 0.0f);
         GetComponent<Notification>().CloseNotification += CloseNotification;
-        StartCoroutine(BlurProgress(1, AnimTime));
+        StartCoroutine(BlurProgress(1));
 
         _messageBox.localPosition = new Vector2(0, -Screen.height);
         _messageBox.LeanMoveLocalY(0, AnimTime).setEaseOutExpo().delay = 0.1f;
@@ -23,7 +23,7 @@ public class a_ShowNotif : MonoBehaviour
 
     private void CloseNotification()
     {
-        StartCoroutine(BlurProgress(-1, AnimTime));      
+        StartCoroutine(BlurProgress(-1));      
         _messageBox.LeanMoveLocalY(-Screen.height, AnimTime).setEaseInExpo().setOnComplete(Complete);
     }
 
@@ -33,13 +33,13 @@ public class a_ShowNotif : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private IEnumerator BlurProgress(int dir, float delay)
+    private IEnumerator BlurProgress(int dir)
     {
         float time = 0f;
-        while (time < delay)
+        while (time < AnimTime)
         {
             time += Time.deltaTime;
-            _blurProgress += Time.deltaTime * dir * (BlurSize / delay);
+            _blurProgress += Time.deltaTime * dir * (BlurSize / AnimTime);
             _background.material.SetFloat("_Size", _blurProgress);           
             yield return null;
         }
