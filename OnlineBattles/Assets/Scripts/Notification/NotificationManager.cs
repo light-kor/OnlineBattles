@@ -46,45 +46,46 @@ public class NotificationManager : MonoBehaviour
     public void CreateNewNotification()
     {
         var notifText = _listOfNotif[0];
+        var notification = CreateNotifObj().GetComponent<Notification>();
         switch (_notifType[0])
         {
             case NotifType.Simple:
-                CreateNotifObj().GetComponent<Notification>().ShowNotif(notifText, 1);
+                notification.ShowNotif(notifText, 1);
                 break;
 
             case NotifType.Connection:
                 if (_serverConnectNotification == null)
                 {
-                    _serverConnectNotification = CreateNotifObj();
-                    _serverConnectNotification.GetComponent<Notification>().ShowNotif(notifText, 0);
+                    _serverConnectNotification = notification.gameObject;
+                    notification.ShowNotif(notifText, 0);
                 }                  
                 else
                 {
                     _serverConnectNotification.SetActive(false);
                     Destroy(_serverConnectNotification);
                     _serverConnectNotification = null;
-                    CreateNotifObj().GetComponent<Notification>().ShowNotif(notifText, 1);
+                    notification.ShowNotif(notifText, 1);
                 }
                 break;
 
             case NotifType.Waiting:
-                CreateNotifObj().GetComponent<Notification>().ShowNotif(notifText, 0);
+                notification.ShowNotif(notifText, 0);
                 break;
 
             case NotifType.Reconnect:
-                CreateNotifObj().GetComponent<Notification>().ShowNotif(notifText, 2);
+                notification.ShowNotif(notifText, 2);
                 break;
 
             case NotifType.GameSearching:
-                CreateNotifObj().GetComponent<Notification>().ShowNotif(notifText, 3);
+                notification.ShowNotif(notifText, 3);
                 break;
 
             case NotifType.FinishGame:
-                CreateNotifObj().GetComponent<Notification>().ShowNotif(notifText, 4);
+                notification.ShowNotif(notifText, 4);
                 break;
 
             case NotifType.AcceptOpponent:
-                CreateNotifObj().GetComponent<Notification>().ShowNotif(notifText, 5);
+                notification.ShowNotif(notifText, 5);
                 break;
         }
     }

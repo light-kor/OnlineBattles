@@ -6,8 +6,9 @@ public class Notification : MonoBehaviour
 {
     public event DataHolder.Notification CloseNotification;
 
-    [SerializeField] private GameObject _closeNotifButton, _acceptButton, _cancelButton, _line;
+    [SerializeField] private GameObject _closeNotifButton, _acceptButton, _cancelButton;
     [SerializeField] private Text _messageText;
+    [SerializeField] private a_MoveNotifButton _buttonPane;
 
     private void Start()
     {
@@ -66,7 +67,6 @@ public class Notification : MonoBehaviour
         {
             _acceptButton.SetActive(true);
             _cancelButton.SetActive(true);
-            _line.SetActive(true);
         }
         else
         {           
@@ -74,9 +74,11 @@ public class Notification : MonoBehaviour
             {
                 _closeNotifButton.GetComponent<Button>().onClick.AddListener(() => NotificatonMultyButton(caseNotif));
                 _closeNotifButton.SetActive(true);
-                _line.SetActive(true);
             }                
         }
-        _messageText.text = notif;    
+        _messageText.text = notif;
+
+        if (caseNotif != 0)
+            _buttonPane.ShowButton();
     }
 }
