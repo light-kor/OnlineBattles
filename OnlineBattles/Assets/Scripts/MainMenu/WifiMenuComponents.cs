@@ -62,7 +62,7 @@ public class WifiMenuComponents : MonoBehaviour
         DataHolder.GameType = "WifiServer";
         WifiServer_Host.StartHosting();
         ShowOpponentNameObj();
-        _menuScr.ActivatePanel(_menuScr._lvlPanel);
+        _menuScr.SwitchToTargetPanel(_menuScr._lvlPanel);
     }
 
     public void Wifi_ConnectHost()
@@ -70,7 +70,7 @@ public class WifiMenuComponents : MonoBehaviour
         DataHolder.GameType = "WifiClient";
         DestroyAllWifiServersIcons();
         WifiServer_Connect.StartSearching();
-        _menuScr.ActivatePanel(_serverSearchPanel);
+        _menuScr.SwitchToTargetPanel(_serverSearchPanel);
     }
 
     private void DestroyAllWifiServersIcons()
@@ -113,7 +113,7 @@ public class WifiMenuComponents : MonoBehaviour
     private void WifiServerAnswerProcessing()
     {
         if (_serverAnswer == "denied")
-            _menuScr.ActivateMenuPanel();
+            _menuScr.SwitchToMenuPanel();
         else if (_serverAnswer == "accept")
         {
             _menuScr.DeactivatePanels();
