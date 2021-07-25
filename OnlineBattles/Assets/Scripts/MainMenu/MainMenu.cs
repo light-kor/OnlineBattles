@@ -11,9 +11,11 @@ public class MainMenu : MonoBehaviour
     public GameObject _lvlChoseWaiting, _lvlPanel;
     [SerializeField] private GameObject _mainPanel, _wifiPanel, _multiBackButton;
 
+    private GameObject _targetPanel = null;
     private int _frameRate = 60;
     private WifiMenuComponents WifiMenu;
     private string _lvlName { get; set; } = "";
+    Action<GameObject> _changePanel;
 
     private void Start()
     {
@@ -21,6 +23,7 @@ public class MainMenu : MonoBehaviour
         Application.targetFrameRate = _frameRate;
         WifiMenu = GetComponent<WifiMenuComponents>();
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
+        a_ChangePanel.ChangePanel += ActivatePanelFromAnotherScript;
         ChoseStartView();       
     }
 
@@ -102,7 +105,7 @@ public class MainMenu : MonoBehaviour
         {
             WifiMenu.WriteOpponentName();
             //ActivatePanel(_lvlPanel);
-            StartCoroutine(Transition(_lvlPanel));
+            StartPanelChanging(_lvlPanel);
         }
         else if (DataHolder.StartMenuView == "WifiClient")
         {            
@@ -120,9 +123,9 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     public void SelectSingleGame()
     {
-        DataHolder.GameType = "OnPhone";        
+        DataHolder.GameType = "OnPhone";
         //ActivatePanel(_lvlPanel);
-        StartCoroutine(Transition(_lvlPanel));
+        StartPanelChanging(_lvlPanel);
     }
 
     /// <summary>
@@ -131,7 +134,7 @@ public class MainMenu : MonoBehaviour
     public void SelectWifiGame()
     {
         //ActivatePanel(_wifiPanel);
-        StartCoroutine(Transition(_wifiPanel));
+        StartPanelChanging(_wifiPanel);
     }
 
     /// <summary>
@@ -153,7 +156,7 @@ public class MainMenu : MonoBehaviour
             NotificationManager.NM.CloseAllNotification();
 
             if (DataHolder.GameType == "Multiplayer")
-                StartCoroutine(Transition(_lvlPanel));
+                StartPanelChanging(_lvlPanel);
                 //ActivatePanel(_lvlPanel);
         }
     }  
@@ -205,29 +208,47 @@ public class MainMenu : MonoBehaviour
             ShowMultiBackButton("Назад");           
     }
 
-    private IEnumerator Transition(GameObject panel)
-    {
-        ChangePanel?.Invoke();
-        bool flag1 = true, flag2 = false;
-        float time1 = AnimTime / 5, time2 = AnimTime - time1;
-        float time = 0f;
-        while (true)
-        {
-            time += Time.deltaTime;
-            if (flag1 && time > time1)
-            {
-                DeactivatePanels();
-                flag1 = false;
-                flag2 = true;
-            }
+    //private IEnumerator Transition(GameObject panel)
+    //{
+    //    ChangePanel?.Invoke();
+    //    bool flag1 = true, flag2 = false;
+    //    float time1 = AnimTime / 5, time2 = AnimTime - time1;
+    //    float time = 0f;
+    //    while (true)
+    //    {
+    //        time += Time.deltaTime;
+    //        if (flag1 && time > time1)
+    //        {
+    //            DeactivatePanels();
+    //            flag1 = false;
+    //            flag2 = true;
+    //        }
 
-            if (flag2 && time > time2)
-            {
-                panel.SetActive(true);
-                break;
-            }
-            yield return null;
-        }
+    //        if (flag2 && time > time2)
+    //        {
+    //            panel.SetActive(true);
+    //            break;
+    //        }
+    //        yield return null;
+    //    }
+
+    //    if ((DataHolder.GameType == "WifiServer" && WifiServer_Host._opponent == null) || DataHolder.GameType == "WifiClient")
+    //        ShowMultiBackButton("Отмена");
+    //    else
+    //        ShowMultiBackButton("Назад");
+    //}
+
+    private void StartPanelChanging(GameObject panel)
+    {
+        _targetPanel = panel;
+        ChangePanel?.Invoke();
+    }
+
+    private void ActivatePanelFromAnotherScript()
+    {
+        DeactivatePanels();
+        _targetPanel.SetActive(true);
+        _targetPanel = null;
 
         if ((DataHolder.GameType == "WifiServer" && WifiServer_Host._opponent == null) || DataHolder.GameType == "WifiClient")
             ShowMultiBackButton("Отмена");
