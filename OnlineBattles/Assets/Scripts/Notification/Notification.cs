@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class Notification : MonoBehaviour
 {
     public event DataHolder.Notification CloseNotification;
 
-    [SerializeField] private GameObject _closeNotifButton, _acceptButton, _cancelButton;
-    [SerializeField] private Text _messageText;
+    [SerializeField] private Button _closeNotifButton, _acceptButton, _cancelButton;
+    [SerializeField] private TMP_Text _messageText;
     [SerializeField] private a_MoveNotifButton _buttonPane;
 
     private NotificationManager.NotifType _buttonType;
@@ -44,11 +45,10 @@ public class Notification : MonoBehaviour
 
             case NotificationManager.NotifType.CancelOpponent: // Искать другого противника по wifi
             case NotificationManager.NotifType.AcceptOpponent: // Принять противника по wifi?
-                _acceptButton.SetActive(false);
-                _cancelButton.SetActive(false);
                 if (_buttonType == NotificationManager.NotifType.CancelOpponent)
                     WifiServer_Host.OpponentStatus = "denied";
-                else WifiServer_Host.OpponentStatus = "accept";
+                else 
+                    WifiServer_Host.OpponentStatus = "accept";
                 break;
 
             case NotificationManager.NotifType.StopTryingReconnect: // Правильный выход из StartReconnect
@@ -68,18 +68,26 @@ public class Notification : MonoBehaviour
         _buttonType = type;
         if (type == NotificationManager.NotifType.WifiRequest)
         {
-            _acceptButton.SetActive(true);
-            _cancelButton.SetActive(true);
+            _acceptButton.gameObject.SetActive(true);
+            _cancelButton.gameObject.SetActive(true);
+            _acceptButton.onClick.AddListener(() => WifiRequestButtons(NotificationManager.NotifType.AcceptOpponent));
+            _cancelButton.onClick.AddListener(() => WifiRequestButtons(NotificationManager.NotifType.CancelOpponent));
         }
         else
         {
             if (type != NotificationManager.NotifType.Waiting)
             {
-                _closeNotifButton.GetComponent<Button>().onClick.AddListener(() => NotificatonMultyButton());
-                _closeNotifButton.SetActive(true);
+                _closeNotifButton.onClick.AddListener(() => NotificatonMultyButton());
+                _closeNotifButton.gameObject.SetActive(true);
             }
         }
         _messageText.text = notif;        
+    }
+
+    public void WifiRequestButtons(NotificationManager.NotifType type)
+    {
+        _buttonType = type;
+        NotificatonMultyButton();
     }
 
     public void ShowNotifButton()

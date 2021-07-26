@@ -46,7 +46,7 @@ public class WifiMenuComponents : MonoBehaviour
         if (_writeOpponentName)
         {
             _opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
-            _menuScr.ShowMultiBackButton("Отключиться");
+            _menuScr.ShowMultiBackButton("[ Отключиться ]");
             _writeOpponentName = false;
         }
 
@@ -118,7 +118,7 @@ public class WifiMenuComponents : MonoBehaviour
         {
             _menuScr.DeactivatePanels();
             _menuScr._lvlChoseWaiting.SetActive(true);
-            _menuScr.ShowMultiBackButton("Отключиться");
+            _menuScr.ShowMultiBackButton("[ Отключиться ]");
         }
 
         _serverAnswer = null;

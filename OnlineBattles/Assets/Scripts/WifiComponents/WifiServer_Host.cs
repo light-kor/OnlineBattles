@@ -140,7 +140,7 @@ public static class WifiServer_Host
                 if (mes[0] == "name")
                 {
                     _opponent.PlayerName = mes[1];
-                    NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.AcceptOpponent, "Подключился игрок:\r\n" + _opponent.PlayerName);
+                    NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.WifiRequest, "Подключился игрок:\r\n" + _opponent.PlayerName);
                     _opponent.TcpMessages.RemoveAt(0);
                     break;
                 }

@@ -107,7 +107,7 @@ public class MainMenu : MonoBehaviour
         else if (DataHolder.StartMenuView == "WifiClient")
         {
             _lvlChoseWaiting.SetActive(true);
-            ShowMultiBackButton("Отключиться");
+            ShowMultiBackButton("[ Отключиться] ");
         }
         else
             SwitchToMenuPanel();
@@ -210,9 +210,9 @@ public class MainMenu : MonoBehaviour
         if (_targetPanel == _mainPanel)
             DataHolder.GameType = null;
         else if ((DataHolder.GameType == "WifiServer" && WifiServer_Host._opponent == null) || DataHolder.GameType == "WifiClient")
-            ShowMultiBackButton("Отмена");
+            ShowMultiBackButton("[ Отмена ]");
         else
-            ShowMultiBackButton("Назад");
+            ShowMultiBackButton("[ Назад ]");
 
         _targetPanel.SetActive(true);
         _targetPanel = null;
