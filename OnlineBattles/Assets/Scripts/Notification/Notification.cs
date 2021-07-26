@@ -10,6 +10,8 @@ public class Notification : MonoBehaviour
     [SerializeField] private Text _messageText;
     [SerializeField] private a_MoveNotifButton _buttonPane;
 
+    private NotificationManager.NotifType _buttonType;
+
     private void Start()
     {
         GetComponent<Canvas>().worldCamera = Camera.main;
@@ -19,37 +21,37 @@ public class Notification : MonoBehaviour
     /// Функция закрытия всех типов уведомлений NotifPanel с последующей обработкой.
     /// </summary>
     /// <param name="num">Тип уведомления.</param>
-    public void NotificatonMultyButton(int num)
+    public void NotificatonMultyButton()
     {
-        switch (num)
+        switch (_buttonType)
         {
-            case 1: // Закрыть уведомление      
+            case NotificationManager.NotifType.Simple: // Закрыть уведомление      
                 break;
 
-            case 2: // StopReconnect                
+            case NotificationManager.NotifType.Reconnect: // StopReconnect                
                 Network.StopReconnecting();
                 SceneManager.LoadScene("mainMenu"); // Ну если не хочешь reconnect во время игры, то не играй))
                 //TODO: Ну тогда надо ещё корректно завершить игру и закрыть UDP соединение.
                 break;
 
-            case 3: // CancelGameSearch
+            case NotificationManager.NotifType.GameSearching: // CancelGameSearch
                 DataHolder.ClientTCP.SendMessage("CancelSearch");
                 break;
 
-            case 4: // ExitPresentGame
+            case NotificationManager.NotifType.FinishGame: // ExitPresentGame
                 SceneManager.LoadScene("mainMenu");
                 break;
 
-            case 50: // Искать другого противника по wifi
-            case 51: // Принять противника по wifi?
+            case NotificationManager.NotifType.CancelOpponent: // Искать другого противника по wifi
+            case NotificationManager.NotifType.AcceptOpponent: // Принять противника по wifi?
                 _acceptButton.SetActive(false);
                 _cancelButton.SetActive(false);
-                if (num == 50)
+                if (_buttonType == NotificationManager.NotifType.CancelOpponent)
                     WifiServer_Host.OpponentStatus = "denied";
                 else WifiServer_Host.OpponentStatus = "accept";
-                break; 
+                break;
 
-            case 10: // Правильный выход из StartReconnect
+            case NotificationManager.NotifType.StopTryingReconnect: // Правильный выход из StartReconnect
                 Network.TryRecconect = false;
                 break;
         }
@@ -59,26 +61,30 @@ public class Notification : MonoBehaviour
     /// <summary>
     /// Выводит на экран уведомление и устанавливает тип уведомления.
     /// </summary>
-    /// <param name="notif">Текст уведомления.</param>
-    /// <param name="caseNotif">Выбор типа кнопки и самого уведомления на окне.</param>
-    public void ShowNotif(string notif, int caseNotif) //TODO: А если будет несколько уведомлений по очереди, надо сделать очередь.
-    { 
-        if (caseNotif == 5)
+    /// <param name="notif"> Текст уведомления. </param>
+    /// <param name="type"> Выбор типа кнопки и самого уведомления на окне. </param>
+    public void ShowNotif(string notif, NotificationManager.NotifType type) //TODO: А если будет несколько уведомлений по очереди, надо сделать очередь.
+    {
+        _buttonType = type;
+        if (type == NotificationManager.NotifType.WifiRequest)
         {
             _acceptButton.SetActive(true);
             _cancelButton.SetActive(true);
         }
         else
-        {           
-            if (caseNotif != 0)
+        {
+            if (type != NotificationManager.NotifType.Waiting)
             {
-                _closeNotifButton.GetComponent<Button>().onClick.AddListener(() => NotificatonMultyButton(caseNotif));
+                _closeNotifButton.GetComponent<Button>().onClick.AddListener(() => NotificatonMultyButton());
                 _closeNotifButton.SetActive(true);
-            }                
+            }
         }
-        _messageText.text = notif;
+        _messageText.text = notif;        
+    }
 
-        if (caseNotif != 0)
+    public void ShowNotifButton()
+    {
+        if (_buttonType != NotificationManager.NotifType.Waiting)
             _buttonPane.ShowButton();
     }
 }

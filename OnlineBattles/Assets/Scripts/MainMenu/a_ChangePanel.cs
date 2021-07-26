@@ -46,4 +46,9 @@ public class a_ChangePanel : MonoBehaviour
         _canvasGroup.alpha = 1f;
         _canvasGroup.interactable = true;
     }
+
+    private void OnDestroy()
+    {
+        MainMenu.ChangePanel -= StartTransition;
+    }
 }

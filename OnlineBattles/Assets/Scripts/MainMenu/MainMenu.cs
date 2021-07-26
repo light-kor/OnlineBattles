@@ -238,6 +238,7 @@ public class MainMenu : MonoBehaviour
     private void OnDestroy()
     {
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
+        a_ChangePanel.ChangePanel -= ActivatePanelFromAnotherScript;
     }
 
     //TODO: Разобраться со static gameObject. Поставил много где в главном меню, ну и в префабе уведомлений

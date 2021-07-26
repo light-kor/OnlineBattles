@@ -47,47 +47,25 @@ public class NotificationManager : MonoBehaviour
     {
         var notifText = _listOfNotif[0];
         var notification = CreateNotifObj().GetComponent<Notification>();
-        switch (_notifType[0])
+
+        if (_notifType[0] == NotifType.Connection)
         {
-            case NotifType.Simple:
-                notification.ShowNotif(notifText, 1);
-                break;
-
-            case NotifType.Connection:
-                if (_serverConnectNotification == null)
-                {
-                    _serverConnectNotification = notification.gameObject;
-                    notification.ShowNotif(notifText, 0);
-                }                  
-                else
-                {
-                    _serverConnectNotification.SetActive(false);
-                    Destroy(_serverConnectNotification);
-                    _serverConnectNotification = null;
-                    notification.ShowNotif(notifText, 1);
-                }
-                break;
-
-            case NotifType.Waiting:
-                notification.ShowNotif(notifText, 0);
-                break;
-
-            case NotifType.Reconnect:
-                notification.ShowNotif(notifText, 2);
-                break;
-
-            case NotifType.GameSearching:
-                notification.ShowNotif(notifText, 3);
-                break;
-
-            case NotifType.FinishGame:
-                notification.ShowNotif(notifText, 4);
-                break;
-
-            case NotifType.AcceptOpponent:
-                notification.ShowNotif(notifText, 5);
-                break;
+            if (_serverConnectNotification == null)
+            {
+                _serverConnectNotification = notification.gameObject;
+                notification.ShowNotif(notifText, NotifType.Waiting);
+            }
+            else
+            {
+                _serverConnectNotification.SetActive(false);
+                Destroy(_serverConnectNotification);
+                _serverConnectNotification = null;
+                notification.ShowNotif(notifText, NotifType.Simple);
+            }
         }
+        else
+            notification.ShowNotif(notifText, _notifType[0]);
+
     }
 
     public GameObject CreateNotifObj()
@@ -100,7 +78,8 @@ public class NotificationManager : MonoBehaviour
 
     public void CloseAllNotification()
     {
-
+        // наверное тут
+        // flag = true;
     }
 
     public void CloseStartReconnect()
@@ -117,6 +96,10 @@ public class NotificationManager : MonoBehaviour
         Reconnect, // num 2
         GameSearching, // num 3
         FinishGame, // num 4
-        AcceptOpponent // num 5
+        WifiRequest, // num 5
+
+        CancelOpponent,
+        AcceptOpponent,
+        StopTryingReconnect
     }
 }

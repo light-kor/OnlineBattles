@@ -9,16 +9,18 @@ public class a_ShowNotif : MonoBehaviour
 
     [SerializeField] private Transform _notificationBox;
     [SerializeField] private Image _background;
+    private Notification _notification;
     private float _blurProgress = 0f;
 
     private void Start()
-    {
+    {      
+        _notification = GetComponent<Notification>();
+        _notification.CloseNotification += CloseNotification;
         _background.material.SetFloat("_Size", 0.0f);
-        GetComponent<Notification>().CloseNotification += CloseNotification;
         StartCoroutine(BlurProgress(1));
 
         _notificationBox.localPosition = new Vector2(0, -Screen.height);
-        _notificationBox.LeanMoveLocalY(0, AnimTime).setEaseOutExpo().delay = 0.1f;
+        _notificationBox.LeanMoveLocalY(0, AnimTime).setEaseOutExpo().setOnComplete(_notification.ShowNotifButton).delay = 0.1f;
     }
 
     private void CloseNotification()
@@ -29,7 +31,7 @@ public class a_ShowNotif : MonoBehaviour
 
     private void Complete()
     {
-        GetComponent<Notification>().CloseNotification -= CloseNotification;
+        _notification.CloseNotification -= CloseNotification;
         Destroy(gameObject);
     }
 
