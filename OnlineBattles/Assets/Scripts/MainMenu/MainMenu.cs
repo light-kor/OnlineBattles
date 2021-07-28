@@ -11,14 +11,14 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject _mainPanel, _wifiPanel, _multiBackButton;
 
     private GameObject _targetPanel = null;
-    private int _frameRate = 60;
+    private const int FrameRate = 60;
     private WifiMenuComponents WifiMenu;
     private string _lvlName { get; set; } = "";
 
     private void Start()
     {
 		QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = _frameRate;
+        Application.targetFrameRate = FrameRate;
         WifiMenu = GetComponent<WifiMenuComponents>();
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
         a_ChangePanel.ChangePanel += ActivatePanelFromAnotherScript;
