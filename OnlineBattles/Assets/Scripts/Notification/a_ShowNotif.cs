@@ -20,13 +20,13 @@ public class a_ShowNotif : MonoBehaviour
         StartCoroutine(BlurProgress(1));
 
         _notificationBox.localPosition = new Vector2(0, -Screen.height);
-        _notificationBox.LeanMoveLocalY(0, AnimTime).setEaseOutExpo().setOnComplete(_notification.ShowNotifButton).delay = 0.1f;
+        StartCoroutine(_notificationBox.gameObject.MoveLocalY(0, AnimTime, _notification.ShowNotifButton));
     }
 
     private void CloseNotification()
     {
-        StartCoroutine(BlurProgress(-1));      
-        _notificationBox.LeanMoveLocalY(-Screen.height, AnimTime).setEaseInExpo().setOnComplete(Complete);
+        StartCoroutine(BlurProgress(-1));
+        StartCoroutine(_notificationBox.gameObject.MoveLocalY(-Screen.height, AnimTime, Complete));
     }
 
     private void Complete()
@@ -45,5 +45,5 @@ public class a_ShowNotif : MonoBehaviour
             _background.material.SetFloat("_Size", _blurProgress);           
             yield return null;
         }
-    }
+    }    
 }
