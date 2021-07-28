@@ -134,6 +134,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _notificationBox: {fileID: 4271770657572358366}
   _background: {fileID: 5073993596307812177}
+  _blurOn: 1
 --- !u!1 &183802570987852991
 GameObject:
   m_ObjectHideFlags: 0

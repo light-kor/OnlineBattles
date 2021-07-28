@@ -4,11 +4,12 @@ using UnityEngine.UI;
 
 public class a_ShowNotif : MonoBehaviour
 {
-    private const float BlurSize = 3f;
+    private const float BlurSize = 4f;
     private const float AnimTime = 0.5f;
-
+    
     [SerializeField] private Transform _notificationBox;
     [SerializeField] private Image _background;
+    [SerializeField] private bool _blurOn = false;
     private Notification _notification;
     private float _blurProgress = 0f;
 
@@ -16,16 +17,20 @@ public class a_ShowNotif : MonoBehaviour
     {      
         _notification = GetComponent<Notification>();
         _notification.CloseNotification += CloseNotification;
-        _background.material.SetFloat("_Size", 0.0f);
-        StartCoroutine(BlurProgress(1));
-
+        if (_blurOn)
+        {
+            _background.material.SetFloat("_Size", 0.0f);
+            StartCoroutine(BlurProgress(1));
+        }
+        
         _notificationBox.localPosition = new Vector2(0, -Screen.height);
         StartCoroutine(_notificationBox.gameObject.MoveLocalY(0, AnimTime, _notification.ShowNotifButton));
     }
 
     private void CloseNotification()
     {
-        StartCoroutine(BlurProgress(-1));
+        if (_blurOn)
+            StartCoroutine(BlurProgress(-1));
         StartCoroutine(_notificationBox.gameObject.MoveLocalY(-Screen.height, AnimTime, Complete));
     }
 
