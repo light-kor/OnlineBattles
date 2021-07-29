@@ -131,7 +131,7 @@ public static class Network
         if (!DataHolder.Connected)
         {
             CloseTcpConnection();
-            NotificationManager.NM.AddNotificationToQueue(type, "Сервер не доступен.");
+            NotificationManager.NM.AddNotificationToQueue(type, "Сервер недоступен.");
             return;
         }
 
