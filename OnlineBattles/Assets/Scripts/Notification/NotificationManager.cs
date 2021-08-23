@@ -8,7 +8,7 @@ public class NotificationManager : MonoBehaviour
 
     private List<string> _listOfNotif = new List<string>();
     private List<NotifType> _notifType = new List<NotifType>();
-    private GameObject _serverConnectNotification = null;
+    private Notification _serverConnectNotification = null;
     private int _orderInLayer = 20;
     private bool _flag = false;
 
@@ -46,25 +46,31 @@ public class NotificationManager : MonoBehaviour
     public void CreateNewNotification()
     {
         var notifText = _listOfNotif[0];
-        var notification = CreateNotifObj().GetComponent<Notification>();
 
         if (_notifType[0] == NotifType.Connection)
         {
             if (_serverConnectNotification == null)
             {
-                _serverConnectNotification = notification.gameObject;
-                notification.ShowNotif(notifText, NotifType.Waiting);
+                _serverConnectNotification = CreateNotifObj().GetComponent<Notification>();
+                _serverConnectNotification.ShowNotification(notifText, NotifType.Waiting);
             }
             else
             {
-                _serverConnectNotification.SetActive(false);
-                Destroy(_serverConnectNotification);
-                _serverConnectNotification = null;
-                notification.ShowNotif(notifText, NotifType.Simple);
+                //_serverConnectNotification.SetActive(false);
+                //Destroy(_serverConnectNotification);
+                //_serverConnectNotification = null;
+                //notification.ShowNotif(notifText, NotifType.Simple);
+
+                //TODO: Если только нет сети, то это. Надо додумать логику
+                _serverConnectNotification.UpdateNotification(notifText, NotifType.Simple);
             }
         }
         else
-            notification.ShowNotif(notifText, _notifType[0]);
+        {
+            var notification = CreateNotifObj().GetComponent<Notification>();
+            notification.ShowNotification(notifText, _notifType[0]);
+        }
+            
 
     }
 
