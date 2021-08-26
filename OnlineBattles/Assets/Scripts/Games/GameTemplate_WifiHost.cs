@@ -64,7 +64,7 @@ public class GameTemplate_WifiHost : MonoBehaviour
         else if (opponentStatus == "win")
             notifText = "Вы проиграли";
 
-        NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.FinishGame, notifText);
+        new Notification(notifText, Notification.ButtonTypes.ExitSingleGame);
     }
 
     private void IGiveUp()

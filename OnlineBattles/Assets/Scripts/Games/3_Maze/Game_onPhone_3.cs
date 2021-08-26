@@ -75,7 +75,7 @@ public class Game_onPhone_3 : MonoBehaviour
             else if (GR._enemyPoints > GR._myPoints)
                 notifText = "Красный победил";
 
-            NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.FinishGame, notifText);
+            new Notification(notifText, Notification.ButtonTypes.ExitSingleGame);
         }
     }
 

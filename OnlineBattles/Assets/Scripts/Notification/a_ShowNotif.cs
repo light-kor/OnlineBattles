@@ -10,12 +10,12 @@ public class a_ShowNotif : MonoBehaviour
     [SerializeField] private Transform _notificationBox;
     [SerializeField] private Image _background;
     [SerializeField] private bool _blurOn = true; // Чтобы можно было отключить в инспекторе..
-    private Notification _notification;
+    private NotificationControl _notification;
     private float _blurProgress = 0f;
 
     private void Start()
     {      
-        _notification = GetComponent<Notification>();
+        _notification = GetComponent<NotificationControl>();
         _notification.CloseNotification += CloseNotification;
 
         if (_blurOn)

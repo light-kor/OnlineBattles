@@ -45,7 +45,7 @@ public class Game_onPhone_1 : MonoBehaviour
             else if (result == "second")
                 notifText = "Красный победил";
 
-            NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.FinishGame, notifText);
+            new Notification(notifText, Notification.ButtonTypes.ExitSingleGame);
         }
     }
 }

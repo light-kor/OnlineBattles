@@ -60,7 +60,7 @@ public class GameTemplate_Online : MonoBehaviour
         else if (_endStatus == "lose")
             notifText = "Вы проиграли";
 
-        NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.FinishGame, notifText);
+        new Notification(notifText, Notification.ButtonTypes.ExitSingleGame);
     }
 
     private void GiveUp()

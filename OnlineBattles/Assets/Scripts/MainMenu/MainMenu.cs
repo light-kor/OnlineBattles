@@ -59,7 +59,7 @@ public class MainMenu : MonoBehaviour
                 Network.CloseTcpConnection();
                 _lvlChoseWaiting.SetActive(false);
                 SwitchToMenuPanel();
-                NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.Simple, "Сервер отключён");
+                new Notification("Сервер отключён", Notification.ButtonTypes.SimpleClose);
             }
             DataHolder.MessageTCPforGame.RemoveAt(0);
         }                          
@@ -77,7 +77,7 @@ public class MainMenu : MonoBehaviour
         {
             if (WifiServer_Host.OpponentIsReady == false)
             {
-                NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.Simple, "Ожидайте второго игрока");
+                new Notification("Ожидайте второго игрока", Notification.ButtonTypes.SimpleClose);
             }
             else
             {
@@ -89,7 +89,7 @@ public class MainMenu : MonoBehaviour
         else if (DataHolder.GameType == "Multiplayer")
         {
             //TODO: Добавить анимацию ожидания.
-            NotificationManager.NM.AddNotificationToQueue(NotificationManager.NotifType.GameSearching ,"Поиск игры");
+            new Notification("Поиск игры", Notification.ButtonTypes.CancelGameSearch);
             _lvlName = "lvl" + lvlNum;
             DataHolder.ClientTCP.SendMessage($"game {lvlNum}");           
         }

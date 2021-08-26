@@ -5,35 +5,30 @@ public class NotificationManager : MonoBehaviour
 {
     public static NotificationManager NM;
     [SerializeField] private GameObject _notifPrefab;
-
-    private List<string> _listOfNotif = new List<string>();
-    private List<NotifType> _notifType = new List<NotifType>();
-    private Notification _serverConnectNotification = null;
+    public List<Notification> _notifList = new List<Notification>();
+    private NotificationControl _serverConnectNotification = null;
     private int _orderInLayer = 20;
     private bool _flag = false;
 
     private void Awake()
     {
         NM = this;
-        //TODO: Следующие две строчки - это костыль от Таблички "Поиск новый игры" 
+        //TODO: Следующая строчка - это костыль от Таблички "Поиск новый игры" 
         //в начале сцены тк запрос с опоздание переходит с прошлой сцены в эту, если игра нашлась слишком быстро
-        _listOfNotif.Clear();
-        _notifType.Clear();
+        _notifList.Clear();
     }
 
-    public void AddNotificationToQueue(NotifType caseNotif, string notif)
+    public void AddNotificationToQueue(Notification notification)
     {
-        _listOfNotif.Add(notif);
-        _notifType.Add(caseNotif);
+        _notifList.Add(notification);
     }
 
     private void Update()
     {
-        if (_listOfNotif.Count > 0)
+        if (_notifList.Count > 0)
         {           
             CreateNewNotification();
-            _listOfNotif.RemoveAt(0);
-            _notifType.RemoveAt(0);
+            _notifList.RemoveAt(0);
         }
 
         if (_flag)
@@ -45,30 +40,24 @@ public class NotificationManager : MonoBehaviour
 
     public void CreateNewNotification()
     {
-        var notifText = _listOfNotif[0];
+        var notifText = _notifList[0].NotifText;
 
-        if (_notifType[0] == NotifType.Connection)
+        if (_notifList[0].NotifType == Notification.NotifTypes.Connection)
         {
             if (_serverConnectNotification == null)
             {
-                _serverConnectNotification = CreateNotifObj().GetComponent<Notification>();
-                _serverConnectNotification.ShowNotification(notifText, NotifType.Waiting);
+                _serverConnectNotification = CreateNotifObj().GetComponent<NotificationControl>();
+                _serverConnectNotification.ShowNotification(_notifList[0]);
             }
             else
             {
-                //_serverConnectNotification.SetActive(false);
-                //Destroy(_serverConnectNotification);
-                //_serverConnectNotification = null;
-                //notification.ShowNotif(notifText, NotifType.Simple);
-
-                //TODO: Если только нет сети, то это. Надо додумать логику
-                _serverConnectNotification.UpdateNotification(notifText, NotifType.Simple);
+                _serverConnectNotification.UpdateNotification(_notifList[0]);
             }
         }
         else
         {
-            var notification = CreateNotifObj().GetComponent<Notification>();
-            notification.ShowNotification(notifText, _notifType[0]);
+            var notification = CreateNotifObj().GetComponent<NotificationControl>();
+            notification.ShowNotification(_notifList[0]);
         }
             
 
@@ -94,18 +83,5 @@ public class NotificationManager : MonoBehaviour
     }
 
 
-    public enum NotifType
-    {
-        Waiting, // num  0
-        Simple, // num 1
-        Connection, 
-        Reconnect, // num 2
-        GameSearching, // num 3
-        FinishGame, // num 4
-        WifiRequest, // num 5
-
-        CancelOpponent,
-        AcceptOpponent,
-        StopTryingReconnect
-    }
+    
 }
