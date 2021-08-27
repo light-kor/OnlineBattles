@@ -84,6 +84,7 @@ public class NotificationControl : MonoBehaviour
     public void UpdateNotification(Notification notif)
     {
         _notif = notif;
+        _notif.SetController(this);
         StartCoroutine(_textPane.ReplaceText(TransferText));
     }
 
