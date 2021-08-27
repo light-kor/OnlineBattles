@@ -47,13 +47,13 @@ public static class Network
 
                     case "denied":
                         CloseTcpConnection();
-                        NotificationManager.NM.CloseAllNotification(); // Выключаем панель ожидания
+                        NotificationManager.NM.CloseNotification(); // Выключаем панель ожидания
                         new Notification("Запрос отклонён", Notification.ButtonTypes.SimpleClose);
                         WifiServerAnswer?.Invoke("denied");
                         break;
 
                     case "accept":
-                        NotificationManager.NM.CloseAllNotification(); // Выключаем панель ожидания
+                        NotificationManager.NM.CloseNotification(); // Выключаем панель ожидания
                         WifiServerAnswer?.Invoke("accept");
                         break;                   
 

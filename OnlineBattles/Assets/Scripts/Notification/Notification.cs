@@ -1,9 +1,12 @@
+using UnityEngine;
+
 public class Notification
 {
     public readonly string NotifText = null;
     public readonly NotifTypes NotifType = 0;
     public ButtonTypes ButtonType = 0;
-    
+    public NotificationControl Controller = null;
+
     public Notification(string notif, NotifTypes notifType, ButtonTypes buttonType)
     {
         NotifText = notif;
@@ -17,6 +20,11 @@ public class Notification
         NotifText = notif;
         ButtonType = buttonType;
         NotificationManager.NM.AddNotificationToQueue(this);
+    }
+
+    public void SetController(NotificationControl controller)
+    {
+        Controller = controller;
     }
 
     public enum ButtonTypes

@@ -37,7 +37,7 @@ public class MainMenu : MonoBehaviour
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[1]);
                 DataHolder.LobbyID = Convert.ToInt32(mes[2]);
                 SceneManager.LoadScene(_lvlName);
-                NotificationManager.NM.CloseAllNotification();
+                NotificationManager.NM.CloseNotification();
             }
             // Значит до этого игрок вылетел, и сейчас может восстановиться в игре
             else if (mes[0] == "goto")
@@ -148,7 +148,7 @@ public class MainMenu : MonoBehaviour
     {
         if (DataHolder.Connected)
         {
-            NotificationManager.NM.CloseAllNotification();
+            NotificationManager.NM.CloseNotification();
 
             if (DataHolder.GameType == "Multiplayer")
                 SwitchToTargetPanel(_lvlPanel);               
@@ -240,6 +240,8 @@ public class MainMenu : MonoBehaviour
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
         a_ChangePanel.ChangePanel -= ActivatePanelFromAnotherScript;
     }
+
+    //TODO: Добавить возможность отменить ожидание ответа wifi сервера, если тот затупил там где-то
 
     //TODO: Разобраться со static gameObject. Поставил много где в главном меню, ну и в префабе уведомлений
 

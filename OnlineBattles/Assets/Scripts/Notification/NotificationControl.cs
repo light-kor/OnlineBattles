@@ -1,8 +1,7 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using TMPro;
-using System;
 
 public class NotificationControl : MonoBehaviour
 {
@@ -14,20 +13,23 @@ public class NotificationControl : MonoBehaviour
     [SerializeField] private a_TextReplacement _textPane;
 
     private Notification _notif;
+    private Notification.ButtonTypes _fallBack = 0;
 
     private void Start()
     {
         GetComponent<Canvas>().worldCamera = Camera.main;
     }
 
-    /// <summary>
-    /// Функция закрытия всех типов уведомлений NotifPanel с последующей обработкой.
-    /// </summary>
-    /// <param name="num">Тип уведомления.</param>
-    public void NotificatonMultyButton()
+    private void NotificatonMultyButton()
     {
-        var notif = _notif.ButtonType;
-        switch (notif)
+        Notification.ButtonTypes buttonType;
+
+        if (_fallBack == 0)
+            buttonType = _notif.ButtonType;
+        else
+            buttonType = _fallBack;
+
+        switch (buttonType)
         {
             case Notification.ButtonTypes.SimpleClose: // Закрыть уведомление      
                 break;
@@ -48,7 +50,7 @@ public class NotificationControl : MonoBehaviour
 
             case Notification.ButtonTypes.CancelWifiOpponent: // Искать другого противника по wifi
             case Notification.ButtonTypes.AcceptWifiOpponent: // Принять противника по wifi?
-                if (notif == Notification.ButtonTypes.CancelWifiOpponent)
+                if (buttonType == Notification.ButtonTypes.CancelWifiOpponent)
                     WifiServer_Host.OpponentStatus = "denied";
                 else 
                     WifiServer_Host.OpponentStatus = "accept";
@@ -59,16 +61,13 @@ public class NotificationControl : MonoBehaviour
                 break;
         }
         CloseNotification?.Invoke();
+        NotificationManager.NM.ReleaseNotification();
     }
 
-    /// <summary>
-    /// Выводит на экран уведомление и устанавливает тип уведомления.
-    /// </summary>
-    /// <param name="notif"> Текст уведомления. </param>
-    /// <param name="type"> Выбор типа кнопки и самого уведомления на окне. </param>
     public void ShowNotification(Notification notif) //TODO: А если будет несколько уведомлений по очереди, надо сделать очередь.
     {
         _notif = notif;
+        _notif.SetController(this);
         if (_notif.NotifType == Notification.NotifTypes.WifiRequest)
         {
             _acceptButton.gameObject.SetActive(true);
@@ -77,31 +76,29 @@ public class NotificationControl : MonoBehaviour
             _cancelButton.onClick.AddListener(() => WifiRequestButtons(Notification.ButtonTypes.CancelWifiOpponent));
         }
         else
-        {
-            if (_notif.ButtonType != Notification.ButtonTypes.Waiting)
-            { 
-                ActivateCloseButton();
-            }
-        }
+            ActivateCloseButton();
+
         _messageText.text = _notif.NotifText;        
     }
 
     public void UpdateNotification(Notification notif)
     {
         _notif = notif;
-        Action transfer = TransferText;
-        StartCoroutine(_textPane.ReplaceText(transfer));
+        StartCoroutine(_textPane.ReplaceText(TransferText));
     }
 
-    void ActivateCloseButton()
+    private void ActivateCloseButton()
     {
-        _closeNotifButton.onClick.AddListener(() => NotificatonMultyButton());
-        _closeNotifButton.gameObject.SetActive(true);
+        if (_notif.ButtonType != Notification.ButtonTypes.Waiting)
+        {
+            _closeNotifButton.onClick.AddListener(() => NotificatonMultyButton());
+            _closeNotifButton.gameObject.SetActive(true);
+        }
     }
 
-    public void WifiRequestButtons(Notification.ButtonTypes type)
+    private void WifiRequestButtons(Notification.ButtonTypes type)
     {
-        _notif.ButtonType = type;
+        _fallBack = type;
         NotificatonMultyButton();
     }
 
@@ -115,6 +112,18 @@ public class NotificationControl : MonoBehaviour
     {
         _messageText.text = _notif.NotifText;
         ActivateCloseButton();
-        _buttonPane.ShowButton();
+        ShowNotifButton();
+    }
+
+    public void ManualCloseNotif()
+    {
+        _fallBack = Notification.ButtonTypes.SimpleClose;
+        NotificatonMultyButton();
+    }
+
+    public void StopTryingReconnect()
+    {
+        _fallBack = Notification.ButtonTypes.StopTryingReconnect;
+        NotificatonMultyButton();
     }
 }
