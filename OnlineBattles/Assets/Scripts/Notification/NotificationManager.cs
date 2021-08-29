@@ -3,15 +3,18 @@ using UnityEngine;
 
 public class NotificationManager : MonoBehaviour
 {
+    private const float TimeBetweenNotif = 1f;
+
     public static NotificationManager NM;
     [SerializeField] private GameObject _notifPrefab;
     private List<Notification> _newNotif = new List<Notification>();
     private List<Notification> _notifQueue = new List<Notification>();
-    private NotificationControl _serverConnectNotification = null;
+    private NotificationControl _serverConnectNotif = null;
     private Notification _presentNotif = null;
     private int _orderInLayer = 20;
     private bool _flag = false;
     private bool _notifOnScreen = false;
+    private float _timeDelay = 0f;
 
     private void Awake()
     {
@@ -29,49 +32,54 @@ public class NotificationManager : MonoBehaviour
 
     private void Update()
     {
-        if (_newNotif.Count > 0)
-        {
-            if (_presentNotif != null && _presentNotif.NotifType != 0 && _newNotif[0].NotifType == _presentNotif.NotifType)
-                CreateNewNotification(_newNotif[0]);
-            else
-                _notifQueue.Add(_newNotif[0]);              
-
-            _newNotif.RemoveAt(0);
-        }
-
-        if (!_notifOnScreen && _notifQueue.Count > 0)
-        {
-            CreateNewNotification(_notifQueue[0]);
-            _notifQueue.RemoveAt(0);
-        }
+        _timeDelay += Time.deltaTime;
 
         if (_flag)
         {
-            _presentNotif.Controller.ManualCloseNotif();
+            _presentNotif.Controller.ManualCloseNotif(Notification.ButtonTypes.SimpleClose);
             _flag = false;
         }
+
+        if (_timeDelay > TimeBetweenNotif)
+        {
+            if (_newNotif.Count > 0)
+            {
+                if (_presentNotif != null && _presentNotif.NotifType != 0 && _newNotif[0].NotifType == _presentNotif.NotifType)
+                    CreateNewNotification(_newNotif[0]);
+                else
+                    _notifQueue.Add(_newNotif[0]);
+
+                _newNotif.RemoveAt(0);
+            }
+
+            if (!_notifOnScreen && _notifQueue.Count > 0)
+            {
+                CreateNewNotification(_notifQueue[0]);
+                _notifQueue.RemoveAt(0);
+                _timeDelay = 0f;
+            }
+        }         
     }
 
     public void CreateNewNotification(Notification notif)
     {
         _notifOnScreen = true;
         _presentNotif = notif;
-        if (_presentNotif.NotifType == Notification.NotifTypes.Connection)
+        if (_presentNotif.NotifType == Notification.NotifTypes.Connection || _presentNotif.NotifType == Notification.NotifTypes.Reconnect)
         {
-            if (_serverConnectNotification == null)
+            if (_serverConnectNotif == null)
             {
-                _serverConnectNotification = CreateNotifObj().GetComponent<NotificationControl>();
-                _serverConnectNotification.ShowNotification(_presentNotif);
+                _serverConnectNotif = CreateNotifObj().GetComponent<NotificationControl>();
+                _serverConnectNotif.ShowNotification(_presentNotif);
             }
             else
-                _serverConnectNotification.UpdateNotification(_presentNotif);
+                _serverConnectNotif.UpdateNotification(_presentNotif);
         }
         else
         {
             var notification = CreateNotifObj().GetComponent<NotificationControl>();
             notification.ShowNotification(_presentNotif);
         }
-        //TODO: Добавить Notification.NotifTypes.Reconnect
     }
 
     public GameObject CreateNotifObj()
@@ -88,7 +96,7 @@ public class NotificationManager : MonoBehaviour
 
     public void CloseStartReconnect()
     {
-        _presentNotif.Controller.StopTryingReconnect();
+        _presentNotif.Controller.ManualCloseNotif(Notification.ButtonTypes.StopTryingReconnect);
     }
 
     public void ReleaseNotification()

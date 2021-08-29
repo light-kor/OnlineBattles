@@ -12,14 +12,15 @@ public static class Network
     public static bool TryRecconect = true;
 
     private const float TimeForWaitAnswer = 5f;   
-    private static bool WaitingForLogin = true;
-    private static bool MessageHandlerIsBusy = false;
+    private static bool _waitingForLogin = true;
+    private static bool _messageHandlerIsBusy = false;
+    private static bool _EarlyTerminationOfConnection = false;
 
     public static void MessageHandler()
     {
-        if (!MessageHandlerIsBusy)
+        if (!_messageHandlerIsBusy)
         {
-            MessageHandlerIsBusy = true;
+            _messageHandlerIsBusy = true;
             while (DataHolder.MessageTCP.Count > 0)
             {
                 string[] mes = DataHolder.MessageTCP[0].Split(' ');
@@ -34,7 +35,7 @@ public static class Network
                     case "login":
                         DataHolder.MyIDInServerSystem = Convert.ToInt32(mes[1]);
                         DataHolder.Money = Convert.ToInt32(mes[2]);
-                        WaitingForLogin = false;
+                        _waitingForLogin = false;
                         break;
 
                     case "ping":
@@ -48,7 +49,7 @@ public static class Network
                     case "denied":
                         CloseTcpConnection();
                         NotificationManager.NM.CloseNotification(); // Выключаем панель ожидания
-                        new Notification("Запрос отклонён", Notification.ButtonTypes.SimpleClose);
+                        new Notification("Запрос отклонён", Notification.NotifTypes.Connection, Notification.ButtonTypes.SimpleClose);
                         WifiServerAnswer?.Invoke("denied");
                         break;
 
@@ -64,7 +65,7 @@ public static class Network
                 }
                 DataHolder.MessageTCP.RemoveAt(0);
             }
-            MessageHandlerIsBusy = false;
+            _messageHandlerIsBusy = false;
         }       
     }
 
@@ -98,7 +99,6 @@ public static class Network
     {
         //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
         var notifType = Notification.NotifTypes.Connection;       
-        //NotificationManager.NM.AddNotificationToQueue("Ожидание подключения", notifType);
         new Notification("Ожидание подключения", notifType, Notification.ButtonTypes.Waiting);
 
         TcpConnectionProcess(notifType);
@@ -126,19 +126,24 @@ public static class Network
             }
         }
 
+        if (CheckForEarlyTerminationOfConnection()) return;
+
         // Асинхронность нужна чтоб сначала показать уведомление о начале подключения, а потом уже подключать. 
         await Task.Run(() => DataHolder.ClientTCP = new TCPConnect());
+
+        if (CheckForEarlyTerminationOfConnection()) return;
 
         if (!DataHolder.Connected)
         {
             CloseTcpConnection();
-            //NotificationManager.NM.AddNotificationToQueue("Сервер недоступен.", type);
             new Notification("Сервер недоступен.", type, Notification.ButtonTypes.SimpleClose);
             return;
         }
 
         new Notification("Ожидание ответа сервера", type, Notification.ButtonTypes.Waiting);
         await Task.Run(() => LoginInServerSystem());
+
+        if (CheckForEarlyTerminationOfConnection()) return;
 
         if (!DataHolder.Connected)
         {
@@ -165,9 +170,11 @@ public static class Network
 
         while (true)
         {
+            if (CheckForEarlyTerminationOfConnection()) return;
+
             if (((DateTime.Now - StartTryConnect).TotalSeconds < TimeForWaitAnswer))
             {
-                if (!WaitingForLogin)
+                if (!_waitingForLogin)
                     break;
             }
             else
@@ -176,7 +183,7 @@ public static class Network
                 break;
             }
         }
-        WaitingForLogin = true;
+        _waitingForLogin = true;
     }
 
     /// <summary>
@@ -215,6 +222,18 @@ public static class Network
         catch { return false; }
     }
 
+
+    private static bool CheckForEarlyTerminationOfConnection()
+    {
+        if (_EarlyTerminationOfConnection)
+        {
+            CloseTcpConnection();
+            _EarlyTerminationOfConnection = false;
+            return true;
+        }
+        else return false;           
+    }
+
     /// <summary>
     /// Очистка и удаление ClientTCP и всего TCP соединения.
     /// </summary>
@@ -249,5 +268,10 @@ public static class Network
     {
         CloseTcpConnection();
         TryRecconect = false;
+    }
+
+    public static void StopConnecting()
+    {
+        _EarlyTerminationOfConnection = true;
     }
 }

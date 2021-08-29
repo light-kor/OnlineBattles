@@ -7,7 +7,7 @@ public class NotificationControl : MonoBehaviour
 {
     public event DataHolder.Notification CloseNotification;
 
-    [SerializeField] private Button _closeNotifButton, _acceptButton, _cancelButton;
+    [SerializeField] private Button _closeNotif, _accept, _refuse, _cancelConnect;
     [SerializeField] private TMP_Text _messageText;
     [SerializeField] private a_MoveNotifButton _buttonPane;
     [SerializeField] private a_TextReplacement _textPane;
@@ -40,6 +40,11 @@ public class NotificationControl : MonoBehaviour
                 //TODO: Ну тогда надо ещё корректно завершить игру и закрыть UDP соединение.
                 break;
 
+            case Notification.ButtonTypes.StopConnecting:             
+                Network.StopConnecting();
+                SceneManager.LoadScene("mainMenu");
+                break;
+
             case Notification.ButtonTypes.CancelGameSearch: // CancelGameSearch
                 DataHolder.ClientTCP.SendMessage("CancelSearch");
                 break;
@@ -70,13 +75,24 @@ public class NotificationControl : MonoBehaviour
         _notif.SetController(this);
         if (_notif.NotifType == Notification.NotifTypes.WifiRequest)
         {
-            _acceptButton.gameObject.SetActive(true);
-            _cancelButton.gameObject.SetActive(true);
-            _acceptButton.onClick.AddListener(() => WifiRequestButtons(Notification.ButtonTypes.AcceptWifiOpponent));
-            _cancelButton.onClick.AddListener(() => WifiRequestButtons(Notification.ButtonTypes.CancelWifiOpponent));
+            _accept.gameObject.SetActive(true);
+            _refuse.gameObject.SetActive(true);
+            _accept.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.AcceptWifiOpponent));
+            _refuse.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.CancelWifiOpponent));
         }
         else
             ActivateCloseButton();
+
+        if (_notif.NotifType == Notification.NotifTypes.Connection)
+        {
+            _cancelConnect.GetComponent<a_ShowCancelButton>().ShowButton();
+            _cancelConnect.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.StopConnecting));
+        }
+        else if (_notif.NotifType == Notification.NotifTypes.Reconnect)
+        {
+            _cancelConnect.GetComponent<a_ShowCancelButton>().ShowButton();
+            _cancelConnect.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.StopReconnect));
+        }
 
         _messageText.text = _notif.NotifText;        
     }
@@ -85,22 +101,26 @@ public class NotificationControl : MonoBehaviour
     {
         _notif = notif;
         _notif.SetController(this);
+
+        if ((_notif.NotifType == Notification.NotifTypes.Connection || _notif.NotifType == Notification.NotifTypes.Reconnect) && _notif.ButtonType != Notification.ButtonTypes.Waiting)
+            _cancelConnect.GetComponent<a_ShowCancelButton>().HideButton();
+
         StartCoroutine(_textPane.ReplaceText(TransferText));
+    }
+
+    public void ManualCloseNotif(Notification.ButtonTypes type)
+    {
+        _fallBack = type;
+        NotificatonMultyButton();
     }
 
     private void ActivateCloseButton()
     {
         if (_notif.ButtonType != Notification.ButtonTypes.Waiting)
         {
-            _closeNotifButton.onClick.AddListener(() => NotificatonMultyButton());
-            _closeNotifButton.gameObject.SetActive(true);
+            _closeNotif.onClick.AddListener(() => NotificatonMultyButton());
+            _closeNotif.gameObject.SetActive(true);
         }
-    }
-
-    private void WifiRequestButtons(Notification.ButtonTypes type)
-    {
-        _fallBack = type;
-        NotificatonMultyButton();
     }
 
     public void ShowNotifButton()
@@ -114,17 +134,5 @@ public class NotificationControl : MonoBehaviour
         _messageText.text = _notif.NotifText;
         ActivateCloseButton();
         ShowNotifButton();
-    }
-
-    public void ManualCloseNotif()
-    {
-        _fallBack = Notification.ButtonTypes.SimpleClose;
-        NotificatonMultyButton();
-    }
-
-    public void StopTryingReconnect()
-    {
-        _fallBack = Notification.ButtonTypes.StopTryingReconnect;
-        NotificatonMultyButton();
-    }
+    }    
 }

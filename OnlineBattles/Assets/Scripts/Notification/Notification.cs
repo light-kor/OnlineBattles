@@ -1,11 +1,9 @@
-using UnityEngine;
-
 public class Notification
 {
     public readonly string NotifText = null;
     public readonly NotifTypes NotifType = 0;
-    public ButtonTypes ButtonType = 0;
-    public NotificationControl Controller = null;
+    public readonly ButtonTypes ButtonType = 0;
+    public NotificationControl Controller { get; private set; } = null;
 
     public Notification(string notif, NotifTypes notifType, ButtonTypes buttonType)
     {
@@ -33,8 +31,10 @@ public class Notification
         Waiting, // num  0
         SimpleClose, // num 1
         StopReconnect, // num 2
+        StopConnecting,
         CancelGameSearch, // num 3
         ExitSingleGame, // num 4
+        
 
         CancelWifiOpponent,
         AcceptWifiOpponent,
@@ -48,5 +48,4 @@ public class Notification
         Reconnect,
         WifiRequest
     }
-
 }
