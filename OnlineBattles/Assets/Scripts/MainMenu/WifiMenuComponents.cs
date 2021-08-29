@@ -89,16 +89,14 @@ public class WifiMenuComponents : MonoBehaviour
     
     private void CreateWifiServerCopy(string text)
     {
-        float x = 0, y = 0;
-        while (x < 150 && x > -150)
-        {
-            x = Random.Range(-360, 360);
-        }
+        float x = Random.Range(-360, 60); // По факту получается диапазон (-360, 360) с пропуском диапазона (-150, 150)
+        if (x > -150)
+            x += 300;
 
-        while (y < 150 && y > -150)
-        {
-            y = Random.Range(-640, 640);
-        }
+        float y = Random.Range(-360, 60);
+        if (y > -150)
+            y += 300;
+
         GameObject pref = Instantiate(_wifiServerPrefab, _serverSearchPanel.transform);
         pref.transform.localPosition = new Vector3(x, y, 0);
         pref.GetComponent<SelectWifiServer>().SetNameAndIP(text);

@@ -148,7 +148,7 @@ public class MainMenu : MonoBehaviour
     {
         if (DataHolder.Connected)
         {
-            NotificationManager.NM.CloseNotification();
+            //NotificationManager.NM.CloseNotification();
 
             if (DataHolder.GameType == "Multiplayer")
                 SwitchToTargetPanel(_lvlPanel);               
@@ -241,8 +241,6 @@ public class MainMenu : MonoBehaviour
         a_ChangePanel.ChangePanel -= ActivatePanelFromAnotherScript;
     }
 
-    //TODO: Изменит область появления значков wifi соперников
-
     //TODO: Если ты отменяешь ожидание подключения, то надо послать серверу инфу, что ты отказываешься. (В том числе и по wifi)
 
     //TODO: Мб добвить уведомление что Wifi запрос принят
@@ -254,8 +252,6 @@ public class MainMenu : MonoBehaviour
     //TODO: Кто первый ходит в кресттиках ноликах. Там вроде баг, любой модет начать первым. Ну и надо бы показать игрокам, кто первый
 
     //TODO: Имя противника в меню пропадпет после одного матча
-
-    //TODO: Добавить возможность отменить ожидание ответа wifi сервера, если тот затупил там где-то
 
     //TODO: Разобраться со static gameObject. Поставил много где в главном меню, ну и в префабе уведомлений
 

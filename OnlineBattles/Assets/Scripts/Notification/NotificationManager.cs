@@ -104,5 +104,4 @@ public class NotificationManager : MonoBehaviour
         _notifOnScreen = false;
         _presentNotif = null;
     }
-
 }
