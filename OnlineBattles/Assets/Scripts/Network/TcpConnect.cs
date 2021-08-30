@@ -59,16 +59,9 @@ public class TCPConnect
                 DataHolder.Connected = true;
             }
             else
-            {
                 CloseClient();
-                DataHolder.Connected = false;
-            }
         }
-        catch
-        {
-            CloseClient();
-            DataHolder.Connected = false;
-        }
+        catch { CloseClient(); }           
     }
 
     /// <summary>

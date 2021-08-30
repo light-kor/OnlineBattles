@@ -11,10 +11,10 @@ public static class Network
 
     public static bool TryRecconect = true;
 
-    private const float TimeForWaitAnswer = 5f;   
-    private static bool _waitingForLogin = true;
+    private const float TimeForWaitAnswer = 10f;   
+    private static bool _loginSuccessful = false;
     private static bool _messageHandlerIsBusy = false;
-    private static bool _EarlyTerminationOfConnection = false;
+    private static bool _earlyTerminationOfConnection = false;
 
     public static void MessageHandler()
     {
@@ -35,7 +35,7 @@ public static class Network
                     case "login":
                         DataHolder.MyIDInServerSystem = Convert.ToInt32(mes[1]);
                         DataHolder.Money = Convert.ToInt32(mes[2]);
-                        _waitingForLogin = false;
+                        _loginSuccessful = true;
                         break;
 
                     case "ping":
@@ -47,13 +47,14 @@ public static class Network
                         break;
 
                     case "denied":
-                        CloseTcpConnection();
+                        _earlyTerminationOfConnection = true;
                         new Notification("Запрос отклонён", Notification.NotifTypes.Connection, Notification.ButtonTypes.SimpleClose);
                         WifiServerAnswer?.Invoke("denied");
                         break;
 
                     case "accept":
-                        NotificationManager.NM.CloseNotification(); // Выключаем панель ожидания
+                        _loginSuccessful = true;
+                        NotificationManager.NM.CloseNotification(); // Выключаем панель ожидания                       
                         WifiServerAnswer?.Invoke("accept");
                         break;                   
 
@@ -135,7 +136,7 @@ public static class Network
         if (!DataHolder.Connected)
         {
             CloseTcpConnection();
-            new Notification("Сервер недоступен.", type, Notification.ButtonTypes.SimpleClose);
+            new Notification("Сервер недоступен", type, Notification.ButtonTypes.SimpleClose);
             return;
         }
 
@@ -147,7 +148,7 @@ public static class Network
         if (!DataHolder.Connected)
         {
             CloseTcpConnection();
-            new Notification("Ошибка доступа к серверу.", type, Notification.ButtonTypes.SimpleClose);
+            new Notification("Ошибка доступа к серверу", type, Notification.ButtonTypes.SimpleClose);
             return;
         }
     }
@@ -160,29 +161,23 @@ public static class Network
         if (DataHolder.GameType == "Multiplayer")
             DataHolder.ClientTCP.SendMessage("login " + DataHolder.KeyCodeName);
         else if (DataHolder.GameType == "WifiClient")
-        {
             DataHolder.ClientTCP.SendMessage("name " + DataHolder.NickName);
-            return;
-        }
 
         DateTime StartTryConnect = DateTime.Now;
 
         while (true)
         {
-            if (CheckForEarlyTerminationOfConnection()) return;
+            if (_earlyTerminationOfConnection) return;
 
-            if (((DateTime.Now - StartTryConnect).TotalSeconds < TimeForWaitAnswer))
-            {
-                if (!_waitingForLogin)
-                    break;
-            }
-            else
+            if (_loginSuccessful == true) // Авторизация прошла успешно
+                return;
+
+            if (DataHolder.GameType == "Multiplayer" && ((DateTime.Now - StartTryConnect).TotalSeconds > TimeForWaitAnswer)) // Превышен лимит ожижания
             {
                 DataHolder.Connected = false;
                 break;
             }
         }
-        _waitingForLogin = true;
     }
 
     /// <summary>
@@ -224,10 +219,10 @@ public static class Network
 
     private static bool CheckForEarlyTerminationOfConnection()
     {
-        if (_EarlyTerminationOfConnection)
+        if (_earlyTerminationOfConnection)
         {
             CloseTcpConnection();
-            _EarlyTerminationOfConnection = false;
+            _earlyTerminationOfConnection = false;
             return true;
         }
         else return false;           
@@ -237,7 +232,9 @@ public static class Network
     /// Очистка и удаление ClientTCP и всего TCP соединения.
     /// </summary>
     public static void CloseTcpConnection()
-    {       
+    {
+        DataHolder.Connected = false;
+        _loginSuccessful = false;
         if (DataHolder.ClientTCP != null)
         {
             DataHolder.ClientTCP.CloseClient();
@@ -271,6 +268,6 @@ public static class Network
 
     public static void StopConnecting()
     {
-        _EarlyTerminationOfConnection = true;
+        _earlyTerminationOfConnection = true;
     }
 }
