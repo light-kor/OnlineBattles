@@ -8,7 +8,7 @@ public class MainMenu : MonoBehaviour
     public static event DataHolder.Notification ChangePanel;
     public const float AnimTime = 0.5f;
     public GameObject _lvlChoseWaiting, _lvlPanel;
-    [SerializeField] private GameObject _mainPanel, _wifiPanel, _multiBackButton;
+    [SerializeField] private GameObject _mainPanel, _wifiPanel, _multiBackButton, _settings;
 
     private GameObject _targetPanel = null;
     private const int FrameRate = 60;
@@ -143,7 +143,12 @@ public class MainMenu : MonoBehaviour
 
         TcpConnectionIsReady();
     }
-       
+
+    public void Settings()
+    {
+        _settings.SetActive(true);
+    }
+
     public void TcpConnectionIsReady()
     {
         if (DataHolder.Connected)
@@ -240,6 +245,8 @@ public class MainMenu : MonoBehaviour
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
         a_ChangePanel.ChangePanel -= ActivatePanelFromAnotherScript;
     }
+
+    //TODO: Сделать маленькие уведомления - подсказки. Чтоб вылетали снизу и сами исчезали через время
 
     //TODO: Добавить анимацию обновления нижней кнопки "отмена\назад". Можно как и обновление уведомлений.
 

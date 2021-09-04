@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public static class Network
 {    
@@ -123,7 +125,7 @@ public static class Network
             {
                 new Notification("Отсутствует подключение к интернету.", type, Notification.ButtonTypes.SimpleClose);
                 return;
-            }
+            }        
         }
 
         if (CheckForEarlyTerminationOfConnection()) return;
@@ -210,12 +212,11 @@ public static class Network
         try
         {
             using (var client = new WebClient())
-            using (client.OpenRead("http://google.com/generate_204"))
+            using (client.OpenRead("https://google.com/generate_204"))
                 return true;
         }
         catch { return false; }
-    }
-
+    }    
 
     private static bool CheckForEarlyTerminationOfConnection()
     {
