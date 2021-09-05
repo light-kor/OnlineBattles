@@ -12,7 +12,6 @@ public static class DataHolder
     public static WifiServer_Searcher ServerSearcher { get; set; } = null;
     public static DateTime LastSend { get; set; } = DateTime.UtcNow;
     public static string KeyCodeName { get; set; } = "123";
-    public static string NickName { get; set; } = "Mihuil";
     public static string StartMenuView { get; set; } = null;
     public static bool Connected { get; set; } = false;
     public static long TimeDifferenceWithServer { get; set; }
@@ -22,6 +21,11 @@ public static class DataHolder
     public static int LobbyID { get; set; } = -1;   
     public static int IDInThisGame { get; set; } = -1;
     public static int Money { get; set; } = -1;
+
+    // Settings
+    public static string NickName { get; set; } = null;
+    public static float Volume { get; set; } = 1f;
+    //
 
     public delegate void Notification();
     public delegate void TextЕransmissionEnvent(string text);

@@ -10,17 +10,14 @@ public class a_Settings : MonoBehaviour
     [SerializeField] private Transform _notificationBox;
     [SerializeField] private Image _background;
     [SerializeField] private bool _blurOn = true; // Чтобы можно было отключить в инспекторе..
-    //private NotificationControl _notification;
     private float _blurProgress = 0f;
 
     private void OnEnable()
     {
-        //_notification = GetComponent<NotificationControl>();
-        //_notification.CloseNotification += CloseNotification;
-
         if (_blurOn)
         {
             _background.material.SetFloat("_Size", 0.0f);
+            _blurProgress = 0f;
             StartCoroutine(BlurProgress(1));
         }
 
@@ -38,7 +35,6 @@ public class a_Settings : MonoBehaviour
 
     private void Complete()
     {
-        //_notification.CloseNotification -= CloseNotification;
         gameObject.SetActive(false);
     } //TODO: А если вызовут заново, когда она ещё не закрылось
 
