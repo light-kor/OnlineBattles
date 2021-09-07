@@ -2,33 +2,37 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class a_ShowNotif : MonoBehaviour
+public class a_ShowMovingPanel : MonoBehaviour
 {
     private const float BlurSize = 4f;
     private const float AnimTime = MainMenu.AnimTime;
-    
+
     [SerializeField] private Transform _notificationBox;
     [SerializeField] private Image _background;
     [SerializeField] private bool _blurOn = true; // Чтобы можно было отключить в инспекторе..
-    private NotificationControl _notification;
     private float _blurProgress = 0f;
+    private NotificationControl _notification = null;
 
-    private void Start()
-    {      
-        _notification = GetComponent<NotificationControl>();
-        _notification.CloseNotification += CloseNotification;
+    public void ShowPanel(NotificationControl notification)
+    {
+        _notification = notification;
 
         if (_blurOn)
         {
             _background.material.SetFloat("_Size", 0.0f);
+            _blurProgress = 0f;
             StartCoroutine(BlurProgress(1));
         }
 
         _notificationBox.localPosition = new Vector2(0, -Screen.height);
-        StartCoroutine(_notificationBox.gameObject.MoveLocalY(0, AnimTime, _notification.ShowNotifButton));
+
+        if (_notification == null)
+            StartCoroutine(_notificationBox.gameObject.MoveLocalY(0, AnimTime));
+        else
+            StartCoroutine(_notificationBox.gameObject.MoveLocalY(0, AnimTime, _notification.ShowNotifButton));
     }
 
-    private void CloseNotification()
+    public void ClosePanel()
     {
         if (_blurOn)
             StartCoroutine(BlurProgress(-1));
@@ -38,9 +42,11 @@ public class a_ShowNotif : MonoBehaviour
 
     private void Complete()
     {
-        _notification.CloseNotification -= CloseNotification;
-        Destroy(gameObject);
-    }
+        if (_notification != null)
+            Destroy(gameObject);
+        else
+            gameObject.SetActive(false);
+    } //TODO: А если вызовут заново, когда она ещё не закрылось
 
     private IEnumerator BlurProgress(int dir)
     {
@@ -49,8 +55,8 @@ public class a_ShowNotif : MonoBehaviour
         {
             time += Time.deltaTime;
             _blurProgress += Time.deltaTime * dir * (BlurSize / AnimTime);
-            _background.material.SetFloat("_Size", _blurProgress);           
+            _background.material.SetFloat("_Size", _blurProgress);
             yield return null;
         }
-    }    
+    }
 }

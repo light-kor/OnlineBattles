@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 183802569826306512}
   - component: {fileID: 183802569826306513}
   - component: {fileID: 4727623607350168781}
-  - component: {fileID: 2556188799696204693}
+  - component: {fileID: 7278130494368989206}
   m_Layer: 5
   m_Name: Notification
   m_TagString: Untagged
@@ -123,7 +123,7 @@ MonoBehaviour:
   _messageText: {fileID: 6779773486494757557}
   _buttonPane: {fileID: 5113932156465044755}
   _textPane: {fileID: 1048459374545126543}
---- !u!114 &2556188799696204693
+--- !u!114 &7278130494368989206
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -132,7 +132,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 183802569826306518}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1945eef2506811647b980e6dca8b20e3, type: 3}
+  m_Script: {fileID: 11500000, guid: 2b8f0c614438d5641a1cd4e54760fd23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _notificationBox: {fileID: 4271770657572358366}

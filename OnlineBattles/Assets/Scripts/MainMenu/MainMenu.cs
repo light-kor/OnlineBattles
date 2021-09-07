@@ -8,7 +8,7 @@ public class MainMenu : MonoBehaviour
     public static event DataHolder.Notification ChangePanel;
     public const float AnimTime = 0.5f;
     public GameObject _lvlChoseWaiting, _lvlPanel;
-    [SerializeField] private GameObject _mainPanel, _wifiPanel, _multiBackButton, _settings;
+    [SerializeField] private GameObject _mainPanel, _wifiPanel, _multiBackButton, _settings, _nameField;
 
     private GameObject _targetPanel = null;
     private const int FrameRate = 60;
@@ -22,6 +22,7 @@ public class MainMenu : MonoBehaviour
         WifiMenu = GetComponent<WifiMenuComponents>();
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
         a_ChangePanel.ChangePanel += ActivatePanelFromAnotherScript;
+        _settings.GetComponent<PlayerSettings>().LoadSettings(); // Нужно это сделать тут, а то тот объект со скриптом в начале неактивен
         ChoseStartView();       
     }
 
@@ -129,6 +130,8 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     public void SelectWifiGame()
     {
+        if (!CheckNickNameAvailability()) return;
+
         SwitchToTargetPanel(_wifiPanel);
     }
 
@@ -137,6 +140,8 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     public void SelectMultiplayerGame()
     {
+        if (!CheckNickNameAvailability()) return;
+
         DataHolder.GameType = "Multiplayer";
         if (!DataHolder.Connected)
             Network.CreateTCP();
@@ -189,9 +194,14 @@ public class MainMenu : MonoBehaviour
         SwitchToMenuPanel();
     }
 
-    public void StopListener()
+    private bool CheckNickNameAvailability()
     {
-        
+        if (DataHolder.NickName == null || DataHolder.NickName == "")
+        {
+            _nameField.SetActive(true);
+            return false;
+        }
+        else return true;            
     }
 
     #region ActivatePanels
@@ -248,7 +258,7 @@ public class MainMenu : MonoBehaviour
 
     //TODO: Сделать маленькие уведомления - подсказки. Чтоб вылетали снизу и сами исчезали через время
 
-    //TODO: Добавить анимацию обновления нижней кнопки "отмена\назад". Можно как и обновление уведомлений.
+    //TODO: Добавить анимацию обновления нижней кнопки "отмена\назад" (Нужно только в некоторых местах, при wifi подключении). Можно как и обновление уведомлений.
 
     //TODO: Что делать, если оппонент вышел из поиска, а только потом ты ео принял. Надо как-то обработать.
 

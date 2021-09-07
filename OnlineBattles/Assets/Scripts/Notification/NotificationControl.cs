@@ -5,19 +5,20 @@ using UnityEngine.UI;
 
 public class NotificationControl : MonoBehaviour
 {
-    public event DataHolder.Notification CloseNotification;
-
     [SerializeField] private Button _closeNotif, _accept, _refuse, _cancelConnect;
     [SerializeField] private TMP_Text _messageText;
     [SerializeField] private a_MoveNotifButton _buttonPane;
     [SerializeField] private a_TextReplacement _textPane;
+    private a_ShowMovingPanel _anim;
 
     private Notification _notif;
     private Notification.ButtonTypes _fallBack = 0;
 
     private void Start()
-    {
+    {       
         GetComponent<Canvas>().worldCamera = Camera.main;
+        _anim = GetComponent<a_ShowMovingPanel>();
+        _anim.ShowPanel(this);
     }
 
     private void NotificatonMultyButton()
@@ -65,7 +66,7 @@ public class NotificationControl : MonoBehaviour
                 Network.TryRecconect = false;
                 break;
         }
-        CloseNotification?.Invoke();
+        _anim.ClosePanel();
         NotificationManager.NM.ReleaseNotification();
     }
 

@@ -7,23 +7,24 @@ public class PlayerSettings : MonoBehaviour
     [SerializeField] private Button _close;
     [SerializeField] private Slider _volume;
     [SerializeField] private TMP_InputField _nickName;
-    private a_Settings _anim;
+    private a_ShowMovingPanel _anim;
 
-    private void Start()
+    private void Awake()
     {
-        if (DataHolder.NickName == null)
-            LoadGame();
-
-        ShowSavesOnUI();
-
-        _anim = GetComponent<a_Settings>();
-        _close.onClick.AddListener(() => CloseNotification());
+        _anim = GetComponent<a_ShowMovingPanel>();
+        _close.onClick.AddListener(() => ClosePanel());
     }
 
-    private void CloseNotification()
+    private void OnEnable()
     {
-        SaveGame();
-        _anim.CloseNotification();
+        ShowSavesOnUI();
+        _anim.ShowPanel(null);
+    }
+
+    private void ClosePanel()
+    {
+        SaveSettings();
+        _anim.ClosePanel();
     }
 
     private void ShowSavesOnUI()
@@ -32,7 +33,7 @@ public class PlayerSettings : MonoBehaviour
         _nickName.text = DataHolder.NickName;
     }
 
-    private void SaveGame()
+    private void SaveSettings()
     {
         DataHolder.Volume = _volume.value;
         DataHolder.NickName = _nickName.text;
@@ -42,12 +43,15 @@ public class PlayerSettings : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    private void LoadGame()
+    public void LoadSettings()
     {
-        if (PlayerPrefs.HasKey("NickName"))
-            DataHolder.NickName = PlayerPrefs.GetString("SavedString");
+        if (DataHolder.NickName == null)
+        {
+            if (PlayerPrefs.HasKey("NickName"))
+                DataHolder.NickName = PlayerPrefs.GetString("NickName");
 
-        if (PlayerPrefs.HasKey("Volume"))
-            DataHolder.Volume = PlayerPrefs.GetFloat("Volume");
+            if (PlayerPrefs.HasKey("Volume"))
+                DataHolder.Volume = PlayerPrefs.GetFloat("Volume");
+        }        
     }
 }
