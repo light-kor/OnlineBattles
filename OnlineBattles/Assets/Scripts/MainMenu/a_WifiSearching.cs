@@ -25,7 +25,7 @@ public class a_WifiSearching : MonoBehaviour
         _select = 0;
     }
 
-    void Update()
+    private void Update()
     {
         if (_select == _listOfCircleImages.Length)
         {

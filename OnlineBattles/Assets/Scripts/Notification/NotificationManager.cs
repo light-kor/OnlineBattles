@@ -61,7 +61,7 @@ public class NotificationManager : MonoBehaviour
         }         
     }
 
-    public void CreateNewNotification(Notification notif)
+    private void CreateNewNotification(Notification notif)
     {
         _notifOnScreen = true;
         _presentNotif = notif;
@@ -82,7 +82,7 @@ public class NotificationManager : MonoBehaviour
         }
     }
 
-    public GameObject CreateNotifObj()
+    private GameObject CreateNotifObj()
     {
         GameObject obj = Instantiate(_notifPrefab);
         obj.GetComponent<Canvas>().sortingOrder = _orderInLayer++;

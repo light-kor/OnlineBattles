@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    public static event DataHolder.Notification ChangePanel;
     public const float AnimTime = 0.5f;
     private const int FrameRate = 60;
 
@@ -13,15 +12,17 @@ public class MainMenu : MonoBehaviour
    
     private GameObject _targetPanel = null;   
     private WifiMenuComponents _wifiMenu;
+    private a_ChangePanel _panelAnim;
     private string _lvlName = "";
 
     private void Start()
     {
 		QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = FrameRate;
-        _wifiMenu = GetComponent<WifiMenuComponents>();
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
-        a_ChangePanel.ChangePanel += ActivatePanelFromAnotherScript;
+
+        _wifiMenu = GetComponent<WifiMenuComponents>();
+        _panelAnim = GetComponent<a_ChangePanel>();       
         _settings.GetComponent<PlayerSettings>().LoadSettings(); // Нужно это сделать тут, а то тот объект со скриптом в начале неактивен
         ChoseStartView();       
     }
@@ -217,13 +218,13 @@ public class MainMenu : MonoBehaviour
             panel = _lvlPanel; //TODO: Это костыль, чтоб не делать public из _lvlPanel ради WifiMenuComponents. Надо бы пофиксить.
 
         _targetPanel = panel;
-        ChangePanel?.Invoke();
+        _panelAnim.StartTransition(ActivatePanelFromAnotherScript);
     }
 
     public void SwitchToMenuPanel()
     {
         _targetPanel = _mainPanel;
-        ChangePanel?.Invoke();
+        _panelAnim.StartTransition(ActivatePanelFromAnotherScript);
     }
 
     private void ActivatePanelFromAnotherScript()
@@ -255,14 +256,9 @@ public class MainMenu : MonoBehaviour
     private void OnDestroy()
     {
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
-        a_ChangePanel.ChangePanel -= ActivatePanelFromAnotherScript;
     }
 
-    //TODO: Добавить разделитель (полоску) между кнопками "принять и отклонит" wifi игрока.
-
     //TODO: Если отменяешь поиск мультиплеера, то пусть просто закрывается панель, а не перезапускается сцена.
-
-    //TODO: Изменить анимацию ожидания сервера и добавить подпись
 
     //TODO: Полностью просмотреть всю логику дисконнекта во время wifi игры. Оппонент не всегда корректно реагирует
 
@@ -272,18 +268,16 @@ public class MainMenu : MonoBehaviour
 
     //TODO: Что делать, если оппонент вышел из поиска, а только потом ты ео принял. Надо как-то обработать.
 
-    //TODO: Уменьшить максимальную прозрачность у кругов поиске по wifi
-
     //TODO: Если ты отменяешь ожидание подключения, то надо послать серверу инфу, что ты отказываешься. (В том числе и по wifi).
     //Мб показать хосту как уведомление. ТОгда можно выделить отдельный тип уведомлений (wifi..) и тогда емё не надо будет нажимать, уведомление само обновится
 
-    //TODO: Мб добвить уведомление что Wifi запрос принят
+    //TODO: Мб добвить уведомление что Wifi запрос принят. (Возможно маленькое уведомление снизу)
 
     //TODO: Добавить имя wifi соперника в уведомление, что он ливнул
 
     //TODO: Кто первый ходит в кресттиках ноликах. Там вроде баг, любой модет начать первым. Ну и надо бы показать игрокам, кто первый
 
-    //TODO: Имя противника в меню пропадпет после одного матча
+    //TODO: Имя противника в меню пропадает после одного матча
 
     //TODO: Разобраться со static gameObject. Поставил много где в главном меню, ну и в префабе уведомлений
 
@@ -297,8 +291,6 @@ public class MainMenu : MonoBehaviour
 
     //TODO: УБРАТЬ "g" к каждому игровому udp сообщению, ну или везде придумать общую систему.
 
-    //TODO: Настроить диапазон пикселей для появления серверов
-
     //TODO: Добавил "g" к каждому игровому udp сообщению. НО НЕ УЧЁЛ ЭТО НА СЕРВЕРЕ!!!!
 
     //TODO: Сбрасывать значения в DataHolder после онлайн матча
@@ -311,27 +303,19 @@ public class MainMenu : MonoBehaviour
 
     //TODO: Если чел вышел из игры во время матча, то сервер говорит второму, что тот выиграл. Но надо ещё добавить, чтоб сразу дисконнектить первого с сервера.
 
-    //TODO: Если вырубить сервер, то бесконечно на экране будет пустое уведомление, которое не убрать. Переработать  уведомления и кнопки
-
     //TODO: Проверить соответствие всех сообщений от сервера и игрока (сообщение 404 только на сервере).
-
-    //TODO: Пусть кнопка отмены поиска появится не сразу, тогда не получится спамить на сервер
 
     //TODO: Добавить на сервере try для всех Convert.ToInt32 и всех возможных несостыковок типов данных
 
-    //TODO: Создать словари для всех string
+    //TODO: Создать словари для всех string, чтоб добавить несколько языков
 
     //TODO: В начале каждой игры сделать заставку, чтоб успели прийти первые данные с позиционированием игроков, до того, как они попытаются ходить
 
     //TODO: Если пришло несколько сообщений подряд, то нужно все их отработать на клиенте. А то одно может отменять предыдущее и тд.
 
-    //TODO: Если на экране одно уведомление, но второе сейчас важнее, то что? Как они накладываются друг на друга?
-
     //TODO: Сейчас награда добавляется в SplitByLobby, но это надо куда-то переместить и добавить выбор
 
     //TODO: Возможно вынести коннект с сервером ещё до главного меню
-
-    //TODO: Всё ещё не сразу появляется уведомление, если всё хорошо подключается, получаетя секундная заминка
 
     //TODO: Досрочный выход из udp игры и отслеживание вылетов и автоматическая победа второго с таймером и тд
 
@@ -363,13 +347,9 @@ public class MainMenu : MonoBehaviour
 
     //TODO: Настроить камеру и вообще узнать, зачем все кнопки
 
-    //TODO: Интересные переходы(прокрутки) между меню, когда всё на одной сцене
-
     //TODO: Раз в какае-то время можно получать монеты за рекламу, но пересылать их другим можно только с определённой суммы. Как-то защититься от взлома
 
     //TODO: Лого и название компании
-
-    //TODO: Поместить на главный экран атрибуты из миниигр и как-то заанимировать. Те крестики, револьверы и прочее из всех игр
 
     //TODO: Добавить хотя-бы русский и английский
 

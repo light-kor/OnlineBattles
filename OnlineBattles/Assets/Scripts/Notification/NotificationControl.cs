@@ -106,7 +106,7 @@ public class NotificationControl : MonoBehaviour
         if ((_notif.NotifType == Notification.NotifTypes.Connection || _notif.NotifType == Notification.NotifTypes.Reconnect) && _notif.ButtonType != Notification.ButtonTypes.Waiting)
             _cancelConnect.GetComponent<a_ShowCancelButton>().HideButton();
 
-        StartCoroutine(_textPane.ReplaceText(TransferText));
+        _textPane.ReplaceText(TransferText);
     }
 
     public void ManualCloseNotif(Notification.ButtonTypes type)

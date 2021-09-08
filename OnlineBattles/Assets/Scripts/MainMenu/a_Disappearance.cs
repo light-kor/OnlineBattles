@@ -7,13 +7,13 @@ public class a_Disappearance : MonoBehaviour
     private Image _image;
     private Color _color;
 
-    void Start()
+    private void Start()
     {
         _image = GetComponent<Image>();
         _color = _image.color;
     }
 
-    void Update()
+    private void Update()
     {
         _color.a -= Time.deltaTime * _speed / 10;
         _image.color = _color;

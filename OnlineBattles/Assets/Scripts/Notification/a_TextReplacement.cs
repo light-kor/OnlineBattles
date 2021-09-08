@@ -13,7 +13,12 @@ public class a_TextReplacement : MonoBehaviour
         _image = GetComponent<Image>();
     }
 
-    public IEnumerator ReplaceText(Action ChangeText)
+    public void ReplaceText(Action ChangeText)
+    {
+        StartCoroutine(ReplaceAnim(ChangeText));
+    }
+
+    private IEnumerator ReplaceAnim(Action ChangeText)
     {
         _image.fillOrigin = (int)Image.OriginVertical.Top;
         _image.fillAmount = 1f;

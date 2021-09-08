@@ -6,7 +6,7 @@ public class a_CloneTrail : MonoBehaviour
     [SerializeField] private float _startTimeBtwSpawns;
     private float _timeBtwSpawns;
 
-    void Update()
+    private void Update()
     {
         if (_timeBtwSpawns <= 0)
         {

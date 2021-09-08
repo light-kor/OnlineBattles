@@ -8,7 +8,7 @@ public class a_ScoreFlicker : MonoBehaviour
     private Image _leftNumber1_image, _leftNumber2_image, _rightNumber1_image, _rightNumber2_image;
     private float _timer = 0, _range = 1f, _timer2 = 0, _range2 = 1f;
 
-    void Start()
+    private void Start()
     {
         _leftNumber1_image = _leftNumber1.GetComponent<Image>();
         _leftNumber2_image = _leftNumber2.GetComponent<Image>();
@@ -17,7 +17,7 @@ public class a_ScoreFlicker : MonoBehaviour
     }
 
 
-    void Update()
+    private void Update()
     {
         if (_timer < _range)
         {

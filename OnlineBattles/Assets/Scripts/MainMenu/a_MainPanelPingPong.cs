@@ -15,7 +15,7 @@ public class a_MainPanelPingPong : MonoBehaviour, IPointerClickHandler
     private Coroutine _zoomAnimation = null;
     private CanvasGroup _buttonsGroup;
 
-    void Start()
+    private void Start()
     {
         PingPongLinesTrigger.MyTriggerEnter += ChangeDirection;
         _buttonsGroup = _mainButtons.GetComponent<CanvasGroup>();
@@ -28,8 +28,8 @@ public class a_MainPanelPingPong : MonoBehaviour, IPointerClickHandler
         _rightStart = _rightLine.transform.localPosition;
     }
 
-    
-    void FixedUpdate()
+
+    private void FixedUpdate()
     {
         if (_time < 1f)
         {

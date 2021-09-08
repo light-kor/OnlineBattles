@@ -2,21 +2,21 @@ using UnityEngine;
 
 public class a_Floater : MonoBehaviour
 {
-    [SerializeField] private float amplitude = 0.2f;
-    [SerializeField] private float frequency = 0.5f;
+    [SerializeField] private float _amplitude = 0.2f;
+    [SerializeField] private float _frequency = 0.5f;
 
-    private Vector3 posOffset = new Vector3();
-    private Vector3 tempPos = new Vector3();
+    private Vector3 _posOffset = new Vector3();
+    private Vector3 _tempPos = new Vector3();
 
     private void Start()
     {
-        posOffset = transform.position;
+        _posOffset = transform.position;
     }
 
     private void Update()
     {
-        tempPos = posOffset;
-        tempPos.y += Mathf.Sin(Time.fixedTime * Mathf.PI * frequency) * amplitude;
-        transform.position = tempPos;
+        _tempPos = _posOffset;
+        _tempPos.y += Mathf.Sin(Time.fixedTime * Mathf.PI * _frequency) * _amplitude;
+        transform.position = _tempPos;
     }
 }

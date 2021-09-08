@@ -24,7 +24,7 @@ public class MultiBackButton : MonoBehaviour
     {
         gameObject.SetActive(true);
         _newText = SelectText(type);
-        StartCoroutine(_textPane.ReplaceText(ChangeText));
+        _textPane.ReplaceText(ChangeText);
     }
 
     private string SelectText(ButtonTypes type)
