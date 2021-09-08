@@ -44,7 +44,6 @@ public class NotificationControl : MonoBehaviour
 
             case Notification.ButtonTypes.StopConnecting:             
                 Network.StopConnecting();
-                SceneManager.LoadScene("mainMenu");
                 break;
 
             case Notification.ButtonTypes.CancelGameSearch: // CancelGameSearch

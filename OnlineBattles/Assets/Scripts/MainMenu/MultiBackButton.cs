@@ -15,16 +15,17 @@ public class MultiBackButton : MonoBehaviour
     }
 
     public void ShowMultiBackButton(ButtonTypes type)
-    {       
-        _text.text = SelectText(type);
-        gameObject.SetActive(true);
-    }
-
-    public void UpdateButtonText(ButtonTypes type)
     {
-        gameObject.SetActive(true);
-        _newText = SelectText(type);
-        _textPane.ReplaceText(ChangeText);
+        if (gameObject.activeSelf == false) //TODO: Не совсем корректно срабатывает, когда тебя принимают по wifi. Но можно забить, это не сильно заметно.
+        {
+            _text.text = SelectText(type);
+            gameObject.SetActive(true);
+        }
+        else
+        {
+            _newText = SelectText(type);
+            _textPane.ReplaceText(ChangeText);
+        }
     }
 
     private string SelectText(ButtonTypes type)

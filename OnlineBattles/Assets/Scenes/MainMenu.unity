@@ -175,8 +175,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f2c56430bb668442a88bddf7e425889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  amplitude: 0.2
-  frequency: 0.5
+  _amplitude: 0.2
+  _frequency: 0.5
 --- !u!1 &52734452
 GameObject:
   m_ObjectHideFlags: 0
@@ -5570,8 +5570,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f2c56430bb668442a88bddf7e425889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  amplitude: 0.02
-  frequency: 1
+  _amplitude: 0.02
+  _frequency: 1
 --- !u!1 &707487089
 GameObject:
   m_ObjectHideFlags: 0
@@ -12042,7 +12042,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5df2c6cbd2b0ce47a3a2ebe4271336e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _opponent: {fileID: 698189541}
+  _opponentName: {fileID: 698189541}
   _wifiServerPrefab: {fileID: 3845060545958983136, guid: 021ed01d0d386b94783ba7d556c01bff,
     type: 3}
   _serverSearchPanel: {fileID: 1666964218}

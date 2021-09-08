@@ -103,7 +103,6 @@ public class MainMenu : MonoBehaviour
 
         if (DataHolder.StartMenuView == "WifiHost")
         {
-            _wifiMenu.WriteOpponentName();
             SwitchToTargetPanel(_lvlPanel);
         }
         else if (DataHolder.StartMenuView == "WifiClient")
@@ -159,8 +158,6 @@ public class MainMenu : MonoBehaviour
     {
         if (DataHolder.Connected)
         {
-            //NotificationManager.NM.CloseNotification();
-
             if (DataHolder.GameType == "Multiplayer")
                 SwitchToTargetPanel(_lvlPanel);               
         }
@@ -230,11 +227,13 @@ public class MainMenu : MonoBehaviour
     private void ActivatePanelFromAnotherScript()
     {
         DeactivatePanels();
-               
+
         if (_targetPanel == _mainPanel)
             DataHolder.GameType = null;
         else if ((DataHolder.GameType == "WifiServer" && WifiServer_Host._opponent == null) || DataHolder.GameType == "WifiClient")
             _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Cancel);
+        else if (DataHolder.GameType == "WifiServer" && WifiServer_Host._opponent != null)
+            _wifiMenu.WriteOpponentName();
         else
             _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Back);
 
@@ -258,13 +257,21 @@ public class MainMenu : MonoBehaviour
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
     }
 
-    //TODO: Если отменяешь поиск мультиплеера, то пусть просто закрывается панель, а не перезапускается сцена.
+    //TODO: После окончания игры в сингле, возвращать не в меню, а в выбор уровня
+
+    //TODO: Если человек зашёл в wifi игру, то надо чекнуть, подключен ли он к wifi, и вывести маленкое уведомление. Ну или вообще не разрешать играть
+
+    //TODO: Как-то сравнивать версии приложения и не пускать в игру, если они сильно различаются
+
+    //TODO: В настройках добавить вкладку "О приложении", и там хранить инфу о версии и прочее.
+
+    //TODO: Пересмотреть всю систему поддержания жизни соединения.
+
+    //TODO: Перед выходом из матча добавить уведомление с уточнением. Точно ли игрок хочет выйти.
 
     //TODO: Полностью просмотреть всю логику дисконнекта во время wifi игры. Оппонент не всегда корректно реагирует
 
     //TODO: Сделать маленькие уведомления - подсказки. Чтоб вылетали снизу и сами исчезали через время
-
-    //TODO: Добавить анимацию обновления нижней кнопки "отмена\назад" (Нужно только в некоторых местах, при wifi подключении). Можно как и обновление уведомлений.
 
     //TODO: Что делать, если оппонент вышел из поиска, а только потом ты ео принял. Надо как-то обработать.
 

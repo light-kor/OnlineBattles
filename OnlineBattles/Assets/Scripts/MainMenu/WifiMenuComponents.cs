@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class WifiMenuComponents : MonoBehaviour
 {
-    [SerializeField] private TMP_Text _opponent;
+    [SerializeField] private TMP_Text _opponentName;
     [SerializeField] private GameObject _wifiServerPrefab, _serverSearchPanel;
     [SerializeField] private MultiBackButton _multiBackButton;
     private List<string> _wifiServers = new List<string>();
@@ -37,22 +37,23 @@ public class WifiMenuComponents : MonoBehaviour
 
         if (_showOpponentNameObj)
         {
-            _opponent.text = "Ожидание игроков...";
-            _opponent.gameObject.SetActive(true);
+            _opponentName.text = "Ожидание игроков...";
+            SetOpponentNameState(true);
             _showOpponentNameObj = false;
         }
 
         //TODO: Когда игрок отключится, или ты закроешь сервер, надо сделать WifiServer_Host._opponent.PlayerName = null
         if (_writeOpponentName)
         {
-            _opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
-            _multiBackButton.UpdateButtonText(MultiBackButton.ButtonTypes.Disconnect);
+            _opponentName.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
+            SetOpponentNameState(true);
+            _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Disconnect);
             _writeOpponentName = false;
         }
 
         if (_hideOpponentName)
         {
-            _opponent.gameObject.SetActive(false);
+            SetOpponentNameState(false);
             _hideOpponentName = false;
         }
     }
@@ -116,10 +117,15 @@ public class WifiMenuComponents : MonoBehaviour
         {
             _menuScr.DeactivatePanels();
             _menuScr.ChangeLvlChoseWaitingState(true);
-            _multiBackButton.UpdateButtonText(MultiBackButton.ButtonTypes.Disconnect);
+            _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Disconnect);
         }
 
         _serverAnswer = null;
+    }
+
+    private void SetOpponentNameState(bool active)
+    {
+        _opponentName.gameObject.SetActive(active);
     }
 
     public void DeactivateServerSearchPanel()

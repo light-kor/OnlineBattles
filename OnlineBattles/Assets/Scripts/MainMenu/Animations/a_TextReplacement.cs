@@ -8,7 +8,7 @@ public class a_TextReplacement : MonoBehaviour
     private const float AnimTime = MainMenu.AnimTime / 2;
     private Image _image;
 
-    private void Start()
+    private void Awake()
     {
         _image = GetComponent<Image>();
     }
