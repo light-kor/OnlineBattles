@@ -1,5 +1,4 @@
 ﻿using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,19 +6,20 @@ public class MainMenu : MonoBehaviour
 {
     public static event DataHolder.Notification ChangePanel;
     public const float AnimTime = 0.5f;
-    public GameObject _lvlChoseWaiting, _lvlPanel;
-    [SerializeField] private GameObject _mainPanel, _wifiPanel, _multiBackButton, _settings, _nameField;
-
-    private GameObject _targetPanel = null;
     private const int FrameRate = 60;
-    private WifiMenuComponents WifiMenu;
-    private string _lvlName { get; set; } = "";
+
+    [SerializeField] private GameObject _mainPanel, _wifiPanel, _settings, _nameField, _waitingForLevelSelection, _lvlPanel;
+    [SerializeField] private MultiBackButton _multiBackButton;
+   
+    private GameObject _targetPanel = null;   
+    private WifiMenuComponents _wifiMenu;
+    private string _lvlName = "";
 
     private void Start()
     {
 		QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = FrameRate;
-        WifiMenu = GetComponent<WifiMenuComponents>();
+        _wifiMenu = GetComponent<WifiMenuComponents>();
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
         a_ChangePanel.ChangePanel += ActivatePanelFromAnotherScript;
         _settings.GetComponent<PlayerSettings>().LoadSettings(); // Нужно это сделать тут, а то тот объект со скриптом в начале неактивен
@@ -58,7 +58,7 @@ public class MainMenu : MonoBehaviour
             else if (mes[0] == "disconnect")
             {
                 Network.CloseTcpConnection();
-                _lvlChoseWaiting.SetActive(false);
+                ChangeLvlChoseWaitingState(false);
                 SwitchToMenuPanel();
                 new Notification("Сервер отключён", Notification.ButtonTypes.SimpleClose);
             }
@@ -102,13 +102,13 @@ public class MainMenu : MonoBehaviour
 
         if (DataHolder.StartMenuView == "WifiHost")
         {
-            WifiMenu.WriteOpponentName();
+            _wifiMenu.WriteOpponentName();
             SwitchToTargetPanel(_lvlPanel);
         }
         else if (DataHolder.StartMenuView == "WifiClient")
         {
-            _lvlChoseWaiting.SetActive(true);
-            ShowMultiBackButton("[ Отключиться] ");
+            ChangeLvlChoseWaitingState(true);
+            _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Disconnect);
         }
         else
             SwitchToMenuPanel();
@@ -165,12 +165,12 @@ public class MainMenu : MonoBehaviour
         }
     }  
 
-    public void MultiBackButton() //TODO: !!Добавить кнопку и завершение всех соединений на момент, когда ты уже имеешь подключённого чела и хочешь выйти!!
+    public void MultiBack() //TODO: !!Добавить кнопку и завершение всех соединений на момент, когда ты уже имеешь подключённого чела и хочешь выйти!!
     {
         if (DataHolder.GameType == "WifiClient")
         {
             Network.CloseWifiServerSearcher();
-            _lvlChoseWaiting.SetActive(false);
+            ChangeLvlChoseWaitingState(false);
 
             if (DataHolder.ClientTCP != null)
             {
@@ -184,7 +184,7 @@ public class MainMenu : MonoBehaviour
             {
                 WifiServer_Host.SendTcpMessage("disconnect");
                 WifiServer_Host.CloseAll();
-                WifiMenu.HideOpponentName();
+                _wifiMenu.HideOpponentName();
             }
             else
             {
@@ -204,10 +204,18 @@ public class MainMenu : MonoBehaviour
         else return true;            
     }
 
+    public void ChangeLvlChoseWaitingState(bool state)
+    {
+        _waitingForLevelSelection.SetActive(state);       
+    }
+
     #region ActivatePanels
-    
+
     public void SwitchToTargetPanel(GameObject panel)
     {
+        if (panel == null)
+            panel = _lvlPanel; //TODO: Это костыль, чтоб не делать public из _lvlPanel ради WifiMenuComponents. Надо бы пофиксить.
+
         _targetPanel = panel;
         ChangePanel?.Invoke();
     }
@@ -225,18 +233,12 @@ public class MainMenu : MonoBehaviour
         if (_targetPanel == _mainPanel)
             DataHolder.GameType = null;
         else if ((DataHolder.GameType == "WifiServer" && WifiServer_Host._opponent == null) || DataHolder.GameType == "WifiClient")
-            ShowMultiBackButton("[ Отмена ]");
+            _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Cancel);
         else
-            ShowMultiBackButton("[ Назад ]");
+            _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Back);
 
         _targetPanel.SetActive(true);
         _targetPanel = null;
-    }
-
-    public void ShowMultiBackButton(string text)
-    {
-        _multiBackButton.GetComponentInChildren<TMP_Text>().text = text;
-        _multiBackButton.SetActive(true);
     }
 
     public void DeactivatePanels()
@@ -244,9 +246,9 @@ public class MainMenu : MonoBehaviour
         _mainPanel.SetActive(false);
         _lvlPanel.SetActive(false);
         _wifiPanel.SetActive(false);
-        WifiMenu.DeactivateServerSearchPanel();
+        _wifiMenu.DeactivateServerSearchPanel();
 
-        _multiBackButton.SetActive(false);
+        _multiBackButton.DeactivateButton();
     }
     #endregion
 
@@ -255,6 +257,14 @@ public class MainMenu : MonoBehaviour
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
         a_ChangePanel.ChangePanel -= ActivatePanelFromAnotherScript;
     }
+
+    //TODO: Добавить разделитель (полоску) между кнопками "принять и отклонит" wifi игрока.
+
+    //TODO: Если отменяешь поиск мультиплеера, то пусть просто закрывается панель, а не перезапускается сцена.
+
+    //TODO: Изменить анимацию ожидания сервера и добавить подпись
+
+    //TODO: Полностью просмотреть всю логику дисконнекта во время wifi игры. Оппонент не всегда корректно реагирует
 
     //TODO: Сделать маленькие уведомления - подсказки. Чтоб вылетали снизу и сами исчезали через время
 

@@ -39,5 +39,4 @@ public class a_TextReplacement : MonoBehaviour
         }
         _image.fillAmount = 1f;
     }
-
 }

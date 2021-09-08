@@ -104,7 +104,7 @@ public class WifiServer_Searcher
         while (count <= 255)
         {
             string fullIp = IpPiece + count;
-            SendMessage("server " + DataHolder.ServerName, fullIp);
+            SendMessage("server " + DataHolder.NickName, fullIp);
             count++;
         }
     }

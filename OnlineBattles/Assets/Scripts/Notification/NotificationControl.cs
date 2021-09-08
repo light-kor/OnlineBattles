@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class NotificationControl : MonoBehaviour
 {
+    [SerializeField] private GameObject _wifiButtons;
     [SerializeField] private Button _closeNotif, _accept, _refuse, _cancelConnect;
     [SerializeField] private TMP_Text _messageText;
     [SerializeField] private a_MoveNotifButton _buttonPane;
@@ -76,8 +77,7 @@ public class NotificationControl : MonoBehaviour
         _notif.SetController(this);
         if (_notif.NotifType == Notification.NotifTypes.WifiRequest)
         {
-            _accept.gameObject.SetActive(true);
-            _refuse.gameObject.SetActive(true);
+            _wifiButtons.SetActive(true);
             _accept.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.AcceptWifiOpponent));
             _refuse.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.CancelWifiOpponent));
         }

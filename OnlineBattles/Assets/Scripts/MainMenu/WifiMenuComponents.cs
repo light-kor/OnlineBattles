@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class WifiMenuComponents : MonoBehaviour
 {
     [SerializeField] private TMP_Text _opponent;
     [SerializeField] private GameObject _wifiServerPrefab, _serverSearchPanel;
+    [SerializeField] private MultiBackButton _multiBackButton;
     private List<string> _wifiServers = new List<string>();
     private MainMenu _menuScr;
     private string _serverAnswer = null;
@@ -46,7 +46,7 @@ public class WifiMenuComponents : MonoBehaviour
         if (_writeOpponentName)
         {
             _opponent.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
-            _menuScr.ShowMultiBackButton("[ Отключиться ]");
+            _multiBackButton.UpdateButtonText(MultiBackButton.ButtonTypes.Disconnect);
             _writeOpponentName = false;
         }
 
@@ -62,7 +62,7 @@ public class WifiMenuComponents : MonoBehaviour
         DataHolder.GameType = "WifiServer";
         WifiServer_Host.StartHosting();
         ShowOpponentNameObj();
-        _menuScr.SwitchToTargetPanel(_menuScr._lvlPanel);
+        _menuScr.SwitchToTargetPanel(null);
     }
 
     public void Wifi_ConnectHost()
@@ -115,8 +115,8 @@ public class WifiMenuComponents : MonoBehaviour
         else if (_serverAnswer == "accept")
         {
             _menuScr.DeactivatePanels();
-            _menuScr._lvlChoseWaiting.SetActive(true);
-            _menuScr.ShowMultiBackButton("[ Отключиться ]");
+            _menuScr.ChangeLvlChoseWaitingState(true);
+            _multiBackButton.UpdateButtonText(MultiBackButton.ButtonTypes.Disconnect);
         }
 
         _serverAnswer = null;

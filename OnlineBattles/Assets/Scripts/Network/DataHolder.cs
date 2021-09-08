@@ -35,6 +35,4 @@ public static class DataHolder
     public static string WifiGameIp { get; set; } = null;
     public static int RemoteServerPort { get; } = 55555;
     public static int WifiPort { get; } = 55550;
-    public static string ServerName { get; } = "Kate";
-
 }

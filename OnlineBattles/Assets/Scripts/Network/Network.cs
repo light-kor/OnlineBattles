@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.Networking;
 
 public static class Network
 {    

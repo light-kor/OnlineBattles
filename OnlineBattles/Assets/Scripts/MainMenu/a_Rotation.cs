@@ -2,9 +2,17 @@ using UnityEngine;
 
 public class a_Rotation : MonoBehaviour
 {
-    [SerializeField] private float _rotationSpeed = -1f;
+    private float _rotationAngle = -30f;
+    private float _rotateInterval = 0.15f;
+    private float _time = 0f;
+
     private void Update()
     {
-        transform.Rotate(0, 0, _rotationSpeed);
+        _time += Time.deltaTime;
+        if (_time > _rotateInterval)
+        {
+            transform.Rotate(0, 0, _rotationAngle);
+            _time = 0f;
+        }       
     }
 }
