@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class MainMenu : MonoBehaviour
 
     [SerializeField] private GameObject _mainPanel, _wifiPanel, _settings, _nameField, _waitingForLevelSelection, _lvlPanel;
     [SerializeField] private MultiBackButton _multiBackButton;
+    [SerializeField] private ScrollRect _lvlScrollbar;
     private WifiMenuComponents _wifiComponents;
     private string _lvlName = "";
 
@@ -105,7 +107,7 @@ public class MainMenu : MonoBehaviour
         else if (StartMenuView == MenuTypes.WifiHost)
         {
             ActivateCreateWifiMenu();
-            _wifiComponents.ChangeOpponentNameAndButton();
+            _wifiComponents.ChangeOpponentNameAndButton(false);
         }
         else if (StartMenuView == MenuTypes.WifiClient)
             ActivateWaitingWifiLvl();
@@ -206,14 +208,14 @@ public class MainMenu : MonoBehaviour
 
     public void ActivateMainMenu() // # 1
     {
-        DeactivatePanels();
+        DeactivateAllPanels();
         _mainPanel.SetActive(true);
     }
 
     private void ActivateSingleplayerMenu() // # 2
     {
         _mainPanel.SetActive(false);
-        _lvlPanel.SetActive(true);
+        ActivateLvlPanel();
         _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Back);
     }
 
@@ -228,7 +230,7 @@ public class MainMenu : MonoBehaviour
     {
         _mainPanel.SetActive(false); // Чтоб после игры она не вылезала (т.к. она вкл в инспекторе)
         _wifiPanel.SetActive(false);
-        _lvlPanel.SetActive(true);
+        ActivateLvlPanel();
         _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Cancel);
         _wifiComponents.ShowOpponentNameObj();
     }
@@ -251,11 +253,18 @@ public class MainMenu : MonoBehaviour
     private void ActivateMultiplayerMenu()  // # 4
     {
         _mainPanel.SetActive(false);
-        _lvlPanel.SetActive(true);
+        ActivateLvlPanel();
         _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Disconnect); //TODO: Это вроде нигде не обрабатывается
     }
 
-    private void DeactivatePanels() // Можно использовать только при переходе в главное меню
+    private void ActivateLvlPanel()  // # 4
+    {
+        _lvlScrollbar.verticalNormalizedPosition = 2f; 
+        // 1f - это просто наверху, 0f - внизу, а с 2f контент выкатывается снизу к нормальному положению
+        _lvlPanel.SetActive(true);
+    }
+
+    private void DeactivateAllPanels()
     {
         _mainPanel.SetActive(false);
         _lvlPanel.SetActive(false);
@@ -289,15 +298,7 @@ public class MainMenu : MonoBehaviour
 
     //TODO: Если чел попытался нажать на игру недождавшись второго игрока, то выйдет уведомление, и оно будет мешать уведомлению с одобрением 
 
-    //TODO: Кнопки иногда появляются и сразу обновляются
-
     //TODO: Если противник ддисконнекнулся, а ты хост, то тебя без анимации перебросит в меню. Ну или мне кажется
-
-    //TODO: Добавить анимацию обновления имени противника
-
-    //TODO: Возвращать каретку меню выбора уровня каждый раз в начало
-
-    //TODO: После окончания игры в сингле, возвращать не в меню, а в выбор уровня
 
     //TODO: Если человек зашёл в wifi игру, то надо чекнуть, подключен ли он к wifi, и вывести маленкое уведомление. Ну или вообще не разрешать играть
 
@@ -324,11 +325,7 @@ public class MainMenu : MonoBehaviour
 
     //TODO: Кто первый ходит в кресттиках ноликах. Там вроде баг, любой модет начать первым. Ну и надо бы показать игрокам, кто первый
 
-    //TODO: Имя противника в меню пропадает после одного матча
-
     //TODO: Разобраться со static gameObject. Поставил много где в главном меню, ну и в префабе уведомлений
-
-    //TODO: Имя соперника пропадает, если ты поиграл в wifi игру и вернулся в меню.
 
     //TODO: Нужен ли CanStartReconnect
 

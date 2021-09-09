@@ -4,17 +4,19 @@ using UnityEngine;
 
 public class WifiMenuComponents : MonoBehaviour
 {
-    [SerializeField] private TMP_Text _opponentName;
+    
     [SerializeField] private GameObject _wifiServerPrefab, _serverSearchPanel;
+    [SerializeField] private a_TextReplacement _opponentNamePane;
     [SerializeField] private MultiBackButton _multiBackButton;
     private List<string> _wifiServers = new List<string>();
     private MainMenu _menuScr;
+    private TMP_Text _opponentName;
     private string _serverAnswer = null;
     private bool _canReadServerAnswer = false, _writeOpponentName = false;
 
     void Start()
     {
-        _menuScr = GetComponent<MainMenu>();
+        _menuScr = GetComponent<MainMenu>();        
         WifiServer_Connect.AddWifiServerToScreen += GetNewWifiServer;
         WifiServer_Host.AcceptOpponent += WriteOpponentName;
         Network.WifiServerAnswer += WifiServerAnswerProcessing;
@@ -36,7 +38,7 @@ public class WifiMenuComponents : MonoBehaviour
 
         if (_writeOpponentName)
         {
-            ChangeOpponentNameAndButton();
+            ChangeOpponentNameAndButton(true);
             _writeOpponentName = false;
         }
     }
@@ -96,7 +98,7 @@ public class WifiMenuComponents : MonoBehaviour
         if (_serverAnswer == "denied")
             _menuScr._panelAnim.StartTransition(_menuScr.ActivateMainMenu);
         else if (_serverAnswer == "accept")
-            _menuScr.ActivateWaitingWifiLvl();
+            _menuScr._panelAnim.StartTransition(_menuScr.ActivateWaitingWifiLvl);
 
         _serverAnswer = null;
     }
@@ -108,14 +110,28 @@ public class WifiMenuComponents : MonoBehaviour
 
     public void ShowOpponentNameObj()
     {
+        _opponentName = _opponentNamePane.GetComponentInChildren<TMP_Text>();
         _opponentName.text = "Ожидание игроков...";
-        _opponentName.gameObject.SetActive(true);
+        _opponentNamePane.gameObject.SetActive(true);
     }
 
-    public void ChangeOpponentNameAndButton() //TODO: Когда игрок отключится, или ты закроешь сервер, надо сделать WifiServer_Host._opponent.PlayerName = null
+    public void ChangeOpponentNameAndButton(bool withAnimation) //TODO: Когда игрок отключится, или ты закроешь сервер, надо сделать WifiServer_Host._opponent.PlayerName = null
+    {
+        if (withAnimation)
+        {
+            _opponentNamePane.ReplaceText(ChangeText);
+            _multiBackButton.UpdateMultiBackButton(MultiBackButton.ButtonTypes.Disconnect);
+        }
+        else
+        {
+            ChangeText();
+            _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Disconnect);
+        }        
+    }
+
+    private void ChangeText()
     {
         _opponentName.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
-        _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Disconnect);
     }
 
     public void ActivateServerSearchPanel()
@@ -126,7 +142,7 @@ public class WifiMenuComponents : MonoBehaviour
     public void DeactivateServerSearchAndName()
     {
         _serverSearchPanel.SetActive(false);
-        _opponentName.gameObject.SetActive(false);
+        _opponentNamePane.gameObject.SetActive(false);
     }
 
     private void OnDestroy()
