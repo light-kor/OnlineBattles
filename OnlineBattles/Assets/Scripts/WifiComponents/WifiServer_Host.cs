@@ -10,7 +10,6 @@ public static class WifiServer_Host
 {
     public const float UpdateRate = 0.03125f; // Отправка UDP инфы каждые UpdateRate мс 
 
-    public static event DataHolder.Notification CleanHostingUI;
     public static event DataHolder.Notification AcceptOpponent;
     public static event DataHolder.Notification OpponentGaveUp;
 
@@ -251,7 +250,7 @@ public static class WifiServer_Host
     {
         OpponentGaveUp?.Invoke();
         CloseAll();
-        DataHolder.StartMenuView = null;
+        MainMenu.SetStartMenuType(MainMenu.MenuTypes.Null);
         new Notification("Игрок отключился", Notification.ButtonTypes.ExitSingleGame); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
     }
 
@@ -259,7 +258,7 @@ public static class WifiServer_Host
     public static void CancelWaiting()
     {
         _searching = false;
-        CleanHostingUI?.Invoke();
+        //CleanHostingUI?.Invoke();
     }
 
     public static void CloseAll()

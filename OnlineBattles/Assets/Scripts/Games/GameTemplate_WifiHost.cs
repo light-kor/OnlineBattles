@@ -11,7 +11,7 @@ public class GameTemplate_WifiHost : MonoBehaviour
     {
         WifiServer_Host.OpponentGaveUp += OpponentGiveUp;
         LeaveGameButton.WantLeaveTheGame += IGiveUp;
-        DataHolder.StartMenuView = "WifiHost";
+        MainMenu.SetStartMenuType(MainMenu.MenuTypes.WifiHost);
         _gameType = type;
 
         if (_gameType == "udp")

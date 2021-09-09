@@ -12,7 +12,7 @@ public static class DataHolder
     public static WifiServer_Searcher ServerSearcher { get; set; } = null;
     public static DateTime LastSend { get; set; } = DateTime.UtcNow;
     public static string KeyCodeName { get; set; } = "123";
-    public static string StartMenuView { get; set; } = null;
+    public static string StartMenuView { get; set; } = null; //TODO: Удалить
     public static bool Connected { get; set; } = false;
     public static long TimeDifferenceWithServer { get; set; }
     public static string GameType { get; set; } = null;

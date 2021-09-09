@@ -13,7 +13,7 @@ public class GameTemplate_Online : MonoBehaviour
     {
         Network.EndOfGame += FinishTheGame;
         LeaveGameButton.WantLeaveTheGame += GiveUp;
-        DataHolder.StartMenuView = "WifiClient";
+        MainMenu.SetStartMenuType(MainMenu.MenuTypes.WifiClient);
         _gameType = type;
 
         if (_gameType == "udp")

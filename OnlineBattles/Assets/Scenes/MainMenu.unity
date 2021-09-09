@@ -4351,7 +4351,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1632653834}
-        m_TargetAssemblyTypeName: MainMenuScr, Assembly-CSharp
+        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: SelectWifiGame
         m_Mode: 1
         m_Arguments:
@@ -4674,19 +4674,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 561880395}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1632653834}
-        m_TargetAssemblyTypeName: MainMenuScr, Assembly-CSharp
-        m_MethodName: StopListener
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 1
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &561880395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6804,7 +6792,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1632653837}
-        m_TargetAssemblyTypeName: WifiUIComponents, Assembly-CSharp
+        m_TargetAssemblyTypeName: WifiMenuComponents, Assembly-CSharp
         m_MethodName: Wifi_SetHost
         m_Mode: 1
         m_Arguments:
@@ -9175,7 +9163,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1632653834}
-        m_TargetAssemblyTypeName: MainMenuScr, Assembly-CSharp
+        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: SelectSingleGame
         m_Mode: 1
         m_Arguments:
@@ -11017,8 +11005,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1632653837}
-        m_TargetAssemblyTypeName: WifiUIComponents, Assembly-CSharp
-        m_MethodName: Wifi_ConnectHost
+        m_TargetAssemblyTypeName: WifiMenuComponents, Assembly-CSharp
+        m_MethodName: Wifi_Connect
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11994,6 +11982,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fecff129c5626824a8c1ea2d3ea87cfc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _panelAnim: {fileID: 0}
   _mainPanel: {fileID: 2053439670}
   _wifiPanel: {fileID: 21435417}
   _settings: {fileID: 1887690660}
@@ -12417,7 +12406,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1632653834}
-        m_TargetAssemblyTypeName: MainMenuScr, Assembly-CSharp
+        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: SelectGame
         m_Mode: 3
         m_Arguments:
@@ -14080,7 +14069,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1632653834}
-        m_TargetAssemblyTypeName: MainMenuScr, Assembly-CSharp
+        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: SelectMultiplayerGame
         m_Mode: 1
         m_Arguments:
