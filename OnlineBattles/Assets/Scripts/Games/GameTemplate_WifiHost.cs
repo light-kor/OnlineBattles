@@ -11,7 +11,6 @@ public class GameTemplate_WifiHost : MonoBehaviour
     {
         WifiServer_Host.OpponentGaveUp += OpponentGiveUp;
         LeaveGameButton.WantLeaveTheGame += IGiveUp;
-        MainMenu.SetStartMenuType(MainMenu.MenuTypes.WifiHost);
         _gameType = type;
 
         if (_gameType == "udp")
@@ -64,7 +63,7 @@ public class GameTemplate_WifiHost : MonoBehaviour
         else if (opponentStatus == "win")
             notifText = "Вы проиграли";
 
-        new Notification(notifText, Notification.ButtonTypes.ExitSingleGame);
+        new Notification(notifText, Notification.ButtonTypes.MenuButton);
     }
 
     private void IGiveUp()

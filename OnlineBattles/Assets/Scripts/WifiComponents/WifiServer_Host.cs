@@ -14,69 +14,86 @@ public static class WifiServer_Host
     public static event DataHolder.Notification OpponentGaveUp;
 
     public static string OpponentStatus = null;
-    public static bool OpponentIsReady { get; private set; } = false;
-    public static WifiOpponentInfo _opponent { get; private set; } = null;
+    public static bool OpponentIsReady { get; private set; } = false; //TODO: При дисконнеекте делать false. Переделать бы на подтверждение выбора карты.
+    public static WifiOpponentInfo Opponent { get; private set; } = null;
        
     private static TcpListener _listener = null;
     private static NetworkStream _streamGame = null;
-    private static Thread receiveThread;
-    private static bool _searching, _working;
+    private static Thread receiveThread; //TODO: Удалить его in Close тоже.
+    private static bool _working, _opponentCancelConnect, _getPing;
 
     public static async void StartHosting()
     {
         Network.CloseTcpConnection();
         Network.CloseUdpConnection();
-        CloseAll();
+        CloseConnection();
 
-        _searching = true;
-        _working = true;
         Network.CreateWifiServerSearcher("spamming");
         _listener = new TcpListener(IPAddress.Any, DataHolder.WifiPort);
         _listener.Start();
 
-    StartSearch:
-        await Task.Run(() => ListnerClientsTCP());
-
-        if (!_searching)
+        while (true)
         {
-            CloseAll();
-            return;
-        }
+            await Task.Run(() => ClearOpponentInfo()); // Это нужно для каждого повторного круга
+            _working = true;
 
-        await Task.Run(() => WaitForLogin());
+            await Task.Run(() => ListnerClientsTCP());
 
-        if (!_searching)
-        {
-            CloseAll();
-            return;
-        }
-
-        string myDecision = await Task.Run(() => WaitPlayerAnswer());
-        
-        if (myDecision == "accept")
-        {
-            Network.CloseWifiServerSearcher();
-            SendTcpMessage("accept");
-
-            await Task.Delay(500); // Чтоб всё прогрузилось на клиенте, перед запросом пинга
-            await Task.Run(() => CheckPing());
-            if (!_searching)
+            if (_working == false)
             {
-                CloseAll();
+                CloseConnection();
                 return;
             }
+            else if (_opponentCancelConnect == true)
+                continue;
 
-            OpponentIsReady = true; //TODO: При дисконнеекте делать false. Переделать бы на подтверждение выбора карты.
-            AcceptOpponent?.Invoke();
-            receiveThread = new Thread(TcpMessageHandler);
-            receiveThread.Start();
-        }
-        else if (myDecision == "denied")
-        {
-            SendTcpMessage("denied");
-            ClearOpponentInfo();
-            goto StartSearch;
-        }
+            await Task.Run(() => WaitForLogin());
+
+            if (_working == false)
+            {
+                CloseConnection();
+                return;
+            }
+            else if (_opponentCancelConnect == true)
+                continue;
+
+            await Task.Run(() => WaitPlayerAnswer());
+
+            if (_working == false)
+            {
+                CloseConnection();
+                return;
+            }
+            else if (_opponentCancelConnect == true)
+                continue;
+
+            if (OpponentStatus == "accept")
+            {
+                Network.CloseWifiServerSearcher();
+                SendTcpMessage("accept");
+
+                await Task.Delay(500); // Чтоб всё прогрузилось на клиенте, перед запросом пинга
+                await Task.Run(() => CheckPing());
+
+                if (_working == false)
+                {
+                    CloseConnection();
+                    return;
+                }
+                else if (_opponentCancelConnect == true)
+                    continue;
+
+                OpponentIsReady = true;
+                AcceptOpponent?.Invoke();
+                StopListening();
+                return;
+            }
+            else if (OpponentStatus == "denied")
+            {
+                SendTcpMessage("denied");                
+                continue;
+            }
+        }   
     }
 
     private static void TcpMessageHandler()
@@ -84,10 +101,9 @@ public static class WifiServer_Host
         while (_working)
         {
             GetTcpMessageFromStream();
-
-            if (_opponent != null && _opponent.TcpMessages.Count > 0)
+            if (Opponent != null && Opponent.TcpMessages.Count > 0)
             {
-                string[] mes = _opponent.TcpMessages[0].Split(' ');
+                string[] mes = Opponent.TcpMessages[0].Split(' ');
                 switch (mes[0])
                 {
 
@@ -99,15 +115,30 @@ public static class WifiServer_Host
                         Disconnect();
                         return;
 
+                    case "name":
+                        Opponent.PlayerName = mes[1];
+                        new Notification("Подключился игрок:\r\n" + Opponent.PlayerName, Notification.NotifTypes.WifiRequest, 0);
+                        break;
+
+                    case "ping":
+                        _getPing = true;
+                        break;
+
+                    case "Cancel":
+                        _opponentCancelConnect = true;
+                        new Notification("Игрок отменил запрос", Notification.NotifTypes.WifiRequest, Notification.ButtonTypes.SimpleClose);                       
+                        break;
+
                     case "Check":
                         break;
 
                     default:
-                        _opponent.MessageTCPforGame.Add(_opponent.TcpMessages[0]);
+                        Opponent.MessageTCPforGame.Add(Opponent.TcpMessages[0]);
                         break;
 
                 }
-                _opponent.TcpMessages.RemoveAt(0);
+                if (Opponent != null && Opponent.TcpMessages.Count > 0) // Иначе бывают ошибки
+                    Opponent.TcpMessages.RemoveAt(0);
             }
             CheckDisconnect();
         }
@@ -115,76 +146,73 @@ public static class WifiServer_Host
 
     #region ConnectionSteps
 
+    /// <summary>
+    /// Ожидание подключения любого игрока.
+    /// </summary>
     private static void ListnerClientsTCP()
     {
-        while (_searching)
+        while (_working)
         {
             if (_listener.Pending())
             {
-                _opponent = new WifiOpponentInfo(_listener.AcceptTcpClient(), DateTime.UtcNow);
-                _streamGame = _opponent.Client.GetStream();
-                break;
+                Opponent = new WifiOpponentInfo(_listener.AcceptTcpClient(), DateTime.UtcNow);
+                _streamGame = Opponent.Client.GetStream();
+                receiveThread = new Thread(TcpMessageHandler);
+                receiveThread.Start();
+                return;
             }
         }
     }
 
+    /// <summary>
+    /// Ожидание получения имени оппонента.
+    /// </summary>
     private static void WaitForLogin()
     {
-        while (_searching)
+        while (_working)
         {
-            GetTcpMessageFromStream();
-            if (_opponent.TcpMessages.Count > 0)
-            {
-                string[] mes = _opponent.TcpMessages[0].Split(' ');
-                if (mes[0] == "name")
-                {
-                    _opponent.PlayerName = mes[1];
-                    new Notification("Подключился игрок:\r\n" + _opponent.PlayerName, Notification.NotifTypes.WifiRequest, 0);
-                    _opponent.TcpMessages.RemoveAt(0);
-                    break;
-                }
-                _opponent.TcpMessages.RemoveAt(0);
-            }
+            if (Opponent.PlayerName != null)
+                return;
+
+            if (_opponentCancelConnect == true)
+                return;
         }
     }
 
-    private static string WaitPlayerAnswer()
+    /// <summary>
+    /// Ожидание решения игрока о подключении оппонента
+    /// </summary>
+    private static void WaitPlayerAnswer()
     {
-        while (true)
+        while (_working)
         {
             if (OpponentStatus != null)
-            {
-                string answer = null;
-                if (OpponentStatus == "accept")
-                    answer = "accept";
-                else if (OpponentStatus == "denied")
-                    answer = "denied";
+                return;
 
-                OpponentStatus = null;
-                return answer;
-            }
+            if (_opponentCancelConnect == true)
+                return;
         }
     }
 
+    /// <summary>
+    /// Получения пинга оппонента
+    /// </summary>
     private static void CheckPing()
     {
+        _getPing = false;
         SendTcpMessage("ping");
         long StartPingTimeInTicks = DateTime.UtcNow.Ticks;
-        while (_searching)
+        while (_working)
         {
-            GetTcpMessageFromStream();
-            if (_opponent.TcpMessages.Count > 0)
+            if (_getPing == true)
             {
-                string[] mes = _opponent.TcpMessages[0].Split(' ');
-                if (mes[0] == "ping")
-                {
-                    _opponent.Ping = DateTime.UtcNow.Ticks - StartPingTimeInTicks;
-                    SendTcpMessage($"time {DateTime.UtcNow.Ticks - (_opponent.Ping / 2)}");
-                    _opponent.TcpMessages.RemoveAt(0);
-                    return;
-                }
-                _opponent.TcpMessages.RemoveAt(0);
+                Opponent.Ping = DateTime.UtcNow.Ticks - StartPingTimeInTicks;
+                SendTcpMessage($"time {DateTime.UtcNow.Ticks - (Opponent.Ping / 2)}");
+                return;
             }
+
+            if (_opponentCancelConnect == true)
+                return;
         }       
     }
     
@@ -196,13 +224,13 @@ public static class WifiServer_Host
         byte[] sizeInByte = BitConverter.GetBytes(buffer.Length);
         try
         {
-            _opponent.Client.GetStream().Write(sizeInByte, 0, sizeInByte.Length);
-            _opponent.Client.GetStream().Write(buffer, 0, buffer.Length);
+            Opponent.Client.GetStream().Write(sizeInByte, 0, sizeInByte.Length);
+            Opponent.Client.GetStream().Write(buffer, 0, buffer.Length);
         }
         catch { } //TODO: Тут могут быть какие-то проблемы типо реконнекта как на клиенте?
     }
 
-    private static void GetTcpMessageFromStream() //TODO: Мб сделать в отдельном потоке
+    private static void GetTcpMessageFromStream()
     {
         List<byte> buffer = new List<byte>();
         try
@@ -219,8 +247,8 @@ public static class WifiServer_Host
         catch { return; }
 
         string message = Encoding.UTF8.GetString(buffer.ToArray());
-        _opponent.TcpMessages.Add(message);
-        _opponent.LastReciveTime = DateTime.UtcNow;
+        Opponent.TcpMessages.Add(message);
+        Opponent.LastReciveTime = DateTime.UtcNow; //TODO: А тут вообще есть оставновки, или оно бесконечно берёт пустые сообщения?
     }
 
     private static void CheckStream(List<byte> Buffer)
@@ -229,50 +257,57 @@ public static class WifiServer_Host
         {
             int ReadByte = _streamGame.ReadByte();
             if (ReadByte > -1)
-            {
                 Buffer.Add((byte)ReadByte);
-            }
         }
     }
 
     private static void CheckDisconnect()
     {
-        if (_opponent != null)
-        {
-            if ((DateTime.UtcNow - _opponent.LastReciveTime).TotalSeconds > 5)
-            {
-                Disconnect();
-            }
-        }
+        if (Opponent != null)
+            if ((DateTime.UtcNow - Opponent.LastReciveTime).TotalSeconds > 5)
+                Disconnect();      
     }
 
     private static void Disconnect()
     {
         OpponentGaveUp?.Invoke();
-        CloseAll();
-        MainMenu.SetStartMenuType(MainMenu.MenuTypes.Null);
-        new Notification("Игрок отключился", Notification.ButtonTypes.ExitSingleGame); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
+        CloseConnection();
+        DataHolder.GameType = DataHolder.GameTypes.Null; //TODO: Надо ли?
+        new Notification("Игрок отключился", Notification.ButtonTypes.MenuButton); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
     }
 
-
-    public static void CancelWaiting()
+    public static void CancelConnect()
     {
-        _searching = false;
-        //CleanHostingUI?.Invoke();
-    }
-
-    public static void CloseAll()
-    {
-        _searching = false;
         _working = false;
-        OpponentIsReady = false;
+    }
+
+    private static void CloseConnection()
+    {
+        _working = false;
         Network.CloseWifiServerSearcher();
         ClearOpponentInfo();
+        StopListening();
+    }
 
+    private static void StopListening()
+    {
         if (_listener != null)
         {
             _listener.Stop();
             _listener = null;
+        }
+    }
+
+    private static void ClearOpponentInfo()
+    {
+        OpponentStatus = null;
+        OpponentIsReady = false;
+        _opponentCancelConnect = false;
+
+        if (Opponent != null)
+        {
+            Opponent.Client.Close();
+            Opponent = null;
         }
 
         if (_streamGame != null)
@@ -281,18 +316,11 @@ public static class WifiServer_Host
             _streamGame = null;
         }
 
-        OpponentStatus = null;
-        
-        //TODO: Мб Отправить сообщение подключённом игроку на всякий случай
-        //TODO: Вернуть в самое начало меню
-    }
-
-    private static void ClearOpponentInfo()
-    {
-        if (_opponent != null)
+        if (receiveThread != null)
         {
-            _opponent.Client.Close();
-            _opponent = null;
-        }
+            receiveThread.Abort();
+            receiveThread.Join();
+            receiveThread = null;
+        }       
     }
 }

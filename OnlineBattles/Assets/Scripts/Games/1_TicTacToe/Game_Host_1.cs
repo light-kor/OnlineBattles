@@ -30,9 +30,9 @@ public class Game_Host_1 : GameTemplate_WifiHost
                 }
             }
 
-            if (WifiServer_Host._opponent.MessageTCPforGame.Count > 0)
+            if (WifiServer_Host.Opponent.MessageTCPforGame.Count > 0)
             {
-                string[] mes = WifiServer_Host._opponent.MessageTCPforGame[0].Split(' ');
+                string[] mes = WifiServer_Host.Opponent.MessageTCPforGame[0].Split(' ');
                 if (mes[0] == "move")
                 {
                     Vector3Int place = new Vector3Int(int.Parse(mes[1]), int.Parse(mes[2]), 0);
@@ -40,7 +40,7 @@ public class Game_Host_1 : GameTemplate_WifiHost
                     CheckEndOfGame();
                     _myTurn = true;
                 }
-                WifiServer_Host._opponent.MessageTCPforGame.RemoveAt(0);
+                WifiServer_Host.Opponent.MessageTCPforGame.RemoveAt(0);
             }
         }
     }

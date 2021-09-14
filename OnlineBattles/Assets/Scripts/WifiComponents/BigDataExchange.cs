@@ -9,8 +9,8 @@ public class BigDataExchange<T>
     {
         BinaryFormatter formatter = new BinaryFormatter();
         NetworkStream stream = null;
-        if (WifiServer_Host._opponent != null)
-            stream = WifiServer_Host._opponent.Client.GetStream();
+        if (WifiServer_Host.Opponent != null)
+            stream = WifiServer_Host.Opponent.Client.GetStream();
         else return;
 
         using (var ms = new MemoryStream())

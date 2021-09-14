@@ -3,7 +3,7 @@ using UnityEngine;
 public class GameTypeHandler : MonoBehaviour
 {
     [SerializeField] private GameObject _singleGame, _wifiHost, _onlineGame;
-    private string _selectGameType;
+    private DataHolder.GameTypes _selectGameType;
 
     private void Awake()
     {
@@ -11,16 +11,13 @@ public class GameTypeHandler : MonoBehaviour
         _wifiHost.SetActive(false);
         _onlineGame.SetActive(false);
 
-        if (DataHolder.GameType == null)
-            DataHolder.GameType = "OnPhone";
-
         _selectGameType = DataHolder.GameType;
 
-        if (_selectGameType == "OnPhone")
+        if (_selectGameType == DataHolder.GameTypes.Single)
             _singleGame.SetActive(true);
-        else if (_selectGameType == "WifiServer")
+        else if (_selectGameType == DataHolder.GameTypes.WifiHost)
             _wifiHost.SetActive(true);
-        else if (_selectGameType == "WifiClient" || _selectGameType == "Multiplayer")
+        else if (_selectGameType == DataHolder.GameTypes.WifiClient || _selectGameType == DataHolder.GameTypes.Multiplayer)
             _onlineGame.SetActive(true);
 
         enabled = false;

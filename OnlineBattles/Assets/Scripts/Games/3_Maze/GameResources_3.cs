@@ -26,7 +26,7 @@ public class GameResources_3 : MonoBehaviour
     {
         PointEnterHandler.Catch += UpdateScore;
         UpdateScore(null); // Установить счёт 0 - 0, если в редакторе случайно изменю что-то
-        if (DataHolder.GameType == "OnPhone")
+        if (DataHolder.GameType == DataHolder.GameTypes.Single)
         {
             _mazeCreateButton2.SetActive(true);
             _secondJoystick.gameObject.SetActive(true);

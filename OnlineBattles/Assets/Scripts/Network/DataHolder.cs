@@ -13,9 +13,8 @@ public static class DataHolder
     public static DateTime LastSend { get; set; } = DateTime.UtcNow;
     public static string KeyCodeName { get; set; } = "123";
     public static string StartMenuView { get; set; } = null; //TODO: Удалить
-    public static bool Connected { get; set; } = false;
     public static long TimeDifferenceWithServer { get; set; }
-    public static string GameType { get; set; } = null;
+    public static GameTypes GameType { get; set; } = GameTypes.Null;
     public static int SelectedServerGame { get; set; } = -1;           
     public static int MyIDInServerSystem { get; set; }  = -1;   
     public static int LobbyID { get; set; } = -1;   
@@ -35,4 +34,13 @@ public static class DataHolder
     public static string WifiGameIp { get; set; } = null;
     public static int RemoteServerPort { get; } = 55555;
     public static int WifiPort { get; } = 55550;
+
+    public enum GameTypes
+    {
+        Null,
+        Single,
+        WifiHost,
+        WifiClient,
+        Multiplayer
+    }
 }

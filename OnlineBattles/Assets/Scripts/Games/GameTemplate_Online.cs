@@ -13,7 +13,6 @@ public class GameTemplate_Online : MonoBehaviour
     {
         Network.EndOfGame += FinishTheGame;
         LeaveGameButton.WantLeaveTheGame += GiveUp;
-        MainMenu.SetStartMenuType(MainMenu.MenuTypes.WifiClient);
         _gameType = type;
 
         if (_gameType == "udp")
@@ -23,7 +22,7 @@ public class GameTemplate_Online : MonoBehaviour
             DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
         }
 
-        if (DataHolder.GameType == "Multiplayer")
+        if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
             DataHolder.ClientTCP.SendMessage("start");    
     }
 
@@ -60,7 +59,7 @@ public class GameTemplate_Online : MonoBehaviour
         else if (_endStatus == "lose")
             notifText = "Вы проиграли";
 
-        new Notification(notifText, Notification.ButtonTypes.ExitSingleGame);
+        new Notification(notifText, Notification.ButtonTypes.MenuButton);
     }
 
     private void GiveUp()

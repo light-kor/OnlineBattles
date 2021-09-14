@@ -8,12 +8,14 @@ public static class Network
     public static event DataHolder.TextЕransmissionEnvent EndOfGame;
     public static event DataHolder.TextЕransmissionEnvent WifiServerAnswer;
 
-    public static bool TryRecconect = true;
+    public static bool TryRecconect = true;   
+    public static bool ConnectionInProgress = false;
 
     private const float TimeForWaitAnswer = 10f;   
     private static bool _loginSuccessful = false;
     private static bool _messageHandlerIsBusy = false;
     private static bool _earlyTerminationOfConnection = false;
+    private static bool _requestDenied = false;
 
     public static void MessageHandler()
     {
@@ -47,6 +49,7 @@ public static class Network
 
                     case "denied":
                         _earlyTerminationOfConnection = true;
+                        _requestDenied = true;
                         new Notification("Запрос отклонён", Notification.NotifTypes.Connection, Notification.ButtonTypes.SimpleClose);
                         WifiServerAnswer?.Invoke("denied");
                         break;
@@ -72,13 +75,10 @@ public static class Network
     public static void ConnectionLifeSupport()
     {
         // Поддержание жизни соединения с сервером.
-        if (DataHolder.ClientTCP != null && DataHolder.Connected == true && (DateTime.UtcNow - DataHolder.LastSend).TotalMilliseconds > 3000)
+        if (DataHolder.ClientTCP != null && DataHolder.ClientTCP.ConnectionIsReady == true && (DateTime.UtcNow - DataHolder.LastSend).TotalMilliseconds > 3000)
             DataHolder.ClientTCP.SendMessage("Check");           
     }
 
-    /// <summary>
-    /// Создание экземпляра ClientUDP и установка UDP "соединения".
-    /// </summary>
     public static void CreateUDP()
     {
         CloseUdpConnection();
@@ -91,48 +91,42 @@ public static class Network
         DataHolder.ServerSearcher = new WifiServer_Searcher(type);
     }
     
-    /// <summary>
-    /// Установка соединения с сервером (асинхронная): проверка интернета, создание экземпляра TcpConnect и авторизация в системе.
-    /// </summary>
-    public static void CreateTCP()
-    {
-        //TODO: Добавить анимацию загрузки, что было понятно, что надо подождать
-        var notifType = Notification.NotifTypes.Connection;       
-        new Notification("Ожидание подключения", notifType, Notification.ButtonTypes.Waiting);
+    public static async void CreateTCP()
+    {     
+        new Notification("Ожидание подключения", Notification.NotifTypes.Connection, Notification.ButtonTypes.Waiting);
+        await Task.Run(() => TcpConnectionProcess(Notification.NotifTypes.Connection));
 
-        TcpConnectionProcess(notifType);
-
-        if (DataHolder.Connected)
+        if (ConnectionInProgress)
         {
-            TcpConnectionIsDone?.Invoke();
-            if (DataHolder.ClientTCP != null)
-            {
-                DataHolder.ClientTCP.CanStartReconnect = true; //TODO: Чёт здесь какая-то фигня
-            }
+            ConnectionInProgress = false;
+            DataHolder.ClientTCP.ConnectionIsReady = true;
+
+            if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
+                TcpConnectionIsDone?.Invoke();
         }
     }
 
-    private static async void TcpConnectionProcess(Notification.NotifTypes type)
+    private static void TcpConnectionProcess(Notification.NotifTypes type)
     {
         CloseTcpConnection();
+        ConnectionInProgress = true;
 
-        if (DataHolder.GameType == "Multiplayer")
+        if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
         {
-            if (!await Task.Run(() => CheckForInternetConnection()))
+            if (!CheckForInternetConnection())
             {
                 new Notification("Отсутствует подключение к интернету.", type, Notification.ButtonTypes.SimpleClose);
                 return;
-            }        
+            }
         }
 
         if (CheckForEarlyTerminationOfConnection()) return;
 
-        // Асинхронность нужна чтоб сначала показать уведомление о начале подключения, а потом уже подключать. 
-        await Task.Run(() => DataHolder.ClientTCP = new TCPConnect());
+        DataHolder.ClientTCP = new TCPConnect();
 
         if (CheckForEarlyTerminationOfConnection()) return;
 
-        if (!DataHolder.Connected)
+        if (!ConnectionInProgress)
         {
             CloseTcpConnection();
             new Notification("Сервер недоступен", type, Notification.ButtonTypes.SimpleClose);
@@ -140,40 +134,39 @@ public static class Network
         }
 
         new Notification("Ожидание ответа сервера", type, Notification.ButtonTypes.Waiting);
-        await Task.Run(() => LoginInServerSystem());
+        LoginInServerSystem();
 
         if (CheckForEarlyTerminationOfConnection()) return;
 
-        if (!DataHolder.Connected)
+        if (!ConnectionInProgress)
         {
             CloseTcpConnection();
             new Notification("Ошибка доступа к серверу", type, Notification.ButtonTypes.SimpleClose);
             return;
         }
-    }
+    }   
 
     /// <summary>
     /// Отправка запроса на авторизацию в системе сервера и ожидание подтверждения (получение id и money).
     /// </summary>
     private static void LoginInServerSystem()
     {
-        if (DataHolder.GameType == "Multiplayer")
+        if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
             DataHolder.ClientTCP.SendMessage("login " + DataHolder.KeyCodeName);
-        else if (DataHolder.GameType == "WifiClient")
+        else if (DataHolder.GameType == DataHolder.GameTypes.WifiClient)
             DataHolder.ClientTCP.SendMessage("name " + DataHolder.NickName);
 
         DateTime StartTryConnect = DateTime.Now;
 
         while (true)
         {
-            if (_earlyTerminationOfConnection) return;
+            if (_earlyTerminationOfConnection) return; // Пользователь отменил коннект или Wifi запрос отклонён
 
-            if (_loginSuccessful == true) // Авторизация прошла успешно
-                return;
+            if (_loginSuccessful) return; // Авторизация прошла успешно
 
-            if (DataHolder.GameType == "Multiplayer" && ((DateTime.Now - StartTryConnect).TotalSeconds > TimeForWaitAnswer)) // Превышен лимит ожижания
+            if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer && ((DateTime.Now - StartTryConnect).TotalSeconds > TimeForWaitAnswer)) // Превышен лимит ожижания
             {
-                DataHolder.Connected = false;
+                ConnectionInProgress = false;
                 break;
             }
         }
@@ -182,19 +175,20 @@ public static class Network
     /// <summary>
     /// Функция реконнекта. Блокировка кнопок на экране, показ всех нужных уведомлений, проверка сети и запуск цикла запросов на повторное соединение с сервером.
     /// </summary>
-    public static void StartReconnect()
+    public static void StartReconnect() //TODO: Сделать async, как CreateTCP, тк теперь TcpConnectionProcess работает по-другому
     {
-        DataHolder.Connected = false;
         new Notification("Разрыв соединения.\r\nПереподключение...", Notification.NotifTypes.Reconnect, Notification.ButtonTypes.Waiting);
 
         while (TryRecconect)
         {
             TcpConnectionProcess(Notification.NotifTypes.Reconnect);
-            if (DataHolder.Connected)
+
+            if (ConnectionInProgress)
             {
                 // При полном успехе
+                ConnectionInProgress = false;
+                DataHolder.ClientTCP.ConnectionIsReady = true;
                 NotificationManager.NM.CloseStartReconnect();
-                DataHolder.ClientTCP.CanStartReconnect = true;
             }
         }
         TryRecconect = true;
@@ -219,19 +213,20 @@ public static class Network
     {
         if (_earlyTerminationOfConnection)
         {
+            if (!_requestDenied && DataHolder.ClientTCP != null)
+                DataHolder.ClientTCP.SendMessage("Cancel"); // Отправить хосту сообщение, что ты больше не ищешь игру.
+
             CloseTcpConnection();
             _earlyTerminationOfConnection = false;
+            ConnectionInProgress = false;           
+            _requestDenied = false;
             return true;
         }
         else return false;           
     }
 
-    /// <summary>
-    /// Очистка и удаление ClientTCP и всего TCP соединения.
-    /// </summary>
     public static void CloseTcpConnection()
     {
-        DataHolder.Connected = false;
         _loginSuccessful = false;
         if (DataHolder.ClientTCP != null)
         {
@@ -267,5 +262,5 @@ public static class Network
     public static void StopConnecting()
     {
         _earlyTerminationOfConnection = true;
-    }
+    }   
 }

@@ -9,7 +9,6 @@ public class MainMenu : MonoBehaviour
     private const int FrameRate = 60;
 
     [HideInInspector] public a_ChangePanel _panelAnim;
-    private static MenuTypes StartMenuView = MenuTypes.Null;
 
     [SerializeField] private GameObject _mainPanel, _wifiPanel, _settings, _nameField, _waitingForLevelSelection, _lvlPanel;
     [SerializeField] private MultiBackButton _multiBackButton;
@@ -72,11 +71,11 @@ public class MainMenu : MonoBehaviour
     {
         DataHolder.SelectedServerGame = lvlNum;
 
-        if (DataHolder.GameType == "OnPhone")
+        if (DataHolder.GameType == DataHolder.GameTypes.Single)
         {
             SceneManager.LoadScene("lvl" + lvlNum);
         }
-        else if (DataHolder.GameType == "WifiServer")
+        else if (DataHolder.GameType == DataHolder.GameTypes.WifiHost)
         {
             if (WifiServer_Host.OpponentIsReady == false)
             {
@@ -89,7 +88,7 @@ public class MainMenu : MonoBehaviour
                 //TODO: Отправить инфу второму игроку
             }
         }
-        else if (DataHolder.GameType == "Multiplayer")
+        else if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
         {
             //TODO: Добавить анимацию ожидания.
             new Notification("Поиск игры", Notification.ButtonTypes.CancelGameSearch);
@@ -100,21 +99,21 @@ public class MainMenu : MonoBehaviour
 
     public void ChoseStartView() //TODO: Мб добавить _panelAnim ко всему.
     {
-        if (StartMenuView == MenuTypes.Null)
+        if (DataHolder.GameType == DataHolder.GameTypes.Null)
             ActivateMainMenu();
-        else if (StartMenuView == MenuTypes.Single)
+        else if (DataHolder.GameType == DataHolder.GameTypes.Single)
             ActivateSingleplayerMenu();
-        else if (StartMenuView == MenuTypes.WifiHost)
+        else if (DataHolder.GameType == DataHolder.GameTypes.WifiHost)
         {
             ActivateCreateWifiMenu();
             _wifiComponents.ChangeOpponentNameAndButton(false);
         }
-        else if (StartMenuView == MenuTypes.WifiClient)
+        else if (DataHolder.GameType == DataHolder.GameTypes.WifiClient)
             ActivateWaitingWifiLvl();
-        else if (StartMenuView == MenuTypes.Multiplayer)
+        else if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
             ActivateMultiplayerMenu();
 
-        SetStartMenuType(MenuTypes.Null);
+        //DataHolder.GameType = DataHolder.GameTypes.Null; // Видимо это будет мешать
     }
 
     /// <summary>
@@ -122,8 +121,7 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     public void SelectSingleGame()
     {
-        DataHolder.GameType = "OnPhone";
-        SetStartMenuType(MenuTypes.Single); //TODO: По идее так же бы сделать в шаблоне одиночной игры, но его нет. Но лучше конечно делать это в другой сцене.
+        DataHolder.GameType = DataHolder.GameTypes.Single;
         _panelAnim.StartTransition(ActivateSingleplayerMenu);
     }
 
@@ -160,16 +158,13 @@ public class MainMenu : MonoBehaviour
 
     public void TcpConnectionIsReady()
     {
-        if (DataHolder.Connected)
-        {
-            if (DataHolder.GameType == "Multiplayer")
-                _panelAnim.StartTransition(ActivateMultiplayerMenu);
-        }
+        if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer) 
+            _panelAnim.StartTransition(ActivateMultiplayerMenu);
     }
 
     public void MultiBack() //TODO: !!Добавить кнопку и завершение всех соединений на момент, когда ты уже имеешь подключённого чела и хочешь выйти!!
     {
-        if (DataHolder.GameType == "WifiClient")
+        if (DataHolder.GameType == DataHolder.GameTypes.WifiClient)
         {
             Network.CloseWifiServerSearcher();
 
@@ -179,15 +174,12 @@ public class MainMenu : MonoBehaviour
                 Network.CloseTcpConnection();
             }
         }
-        else if (DataHolder.GameType == "WifiServer")
+        else if (DataHolder.GameType == DataHolder.GameTypes.WifiHost)
         {
-            if (WifiServer_Host._opponent != null)
-            {
+            if (WifiServer_Host.Opponent != null)
                 WifiServer_Host.SendTcpMessage("disconnect");
-                WifiServer_Host.CloseAll();
-            }
-            else
-                WifiServer_Host.CancelWaiting();
+           
+            WifiServer_Host.CancelConnect();
 
             //TODO: Добавть мультиплеер
         }
@@ -275,26 +267,24 @@ public class MainMenu : MonoBehaviour
         _multiBackButton.DeactivateButton();
     }
 
-    #endregion    
-
-    public static void SetStartMenuType(MenuTypes type)
-    {
-        StartMenuView = type;
-    }
-
-    public enum MenuTypes
-    {
-        Null,
-        Single,
-        WifiHost,
-        WifiClient,
-        Multiplayer
-    }
+    #endregion
 
     private void OnDestroy()
     {
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
     }
+
+    //TODO: Отмена со стороны клиента не доходит до хоста.
+
+    //TODO: Не выкидывать в меню, если тебе отказали
+
+    //TODO: Добавить Abort и Join всех тредов в коде
+
+    //TODO: Проблемы с анимацией скрытия и показа кнопки. Надо сделать задержку.
+
+    //TODO: Если ты сам отменил коннект или сервер недоступен, то очисти список серверов
+
+    //TODO: Пока отключил возможность реконнкта в TCPConnect.
 
     //TODO: Если чел попытался нажать на игру недождавшись второго игрока, то выйдет уведомление, и оно будет мешать уведомлению с одобрением 
 

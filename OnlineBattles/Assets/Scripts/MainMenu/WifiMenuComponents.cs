@@ -45,14 +45,14 @@ public class WifiMenuComponents : MonoBehaviour
 
     public void Wifi_SetHost()
     {
-        DataHolder.GameType = "WifiServer";
+        DataHolder.GameType = DataHolder.GameTypes.WifiHost;
         WifiServer_Host.StartHosting();
         _menuScr._panelAnim.StartTransition(_menuScr.ActivateCreateWifiMenu);
     }
 
     public void Wifi_Connect()
     {
-        DataHolder.GameType = "WifiClient";
+        DataHolder.GameType = DataHolder.GameTypes.WifiClient;
         DestroyAllWifiServersIcons();
         WifiServer_Connect.StartSearching();
         _menuScr._panelAnim.StartTransition(_menuScr.ActivateConnectWifiMenu);
@@ -131,7 +131,7 @@ public class WifiMenuComponents : MonoBehaviour
 
     private void ChangeText()
     {
-        _opponentName.text = "Подключён: " + WifiServer_Host._opponent.PlayerName;
+        _opponentName.text = "Подключён: " + WifiServer_Host.Opponent.PlayerName;
     }
 
     public void ActivateServerSearchPanel()

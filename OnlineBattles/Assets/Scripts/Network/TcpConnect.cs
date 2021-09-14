@@ -8,7 +8,7 @@ public class TCPConnect
 {
     public event DataHolder.Notification BigMessageReceived;
 
-    public bool CanStartReconnect = false;
+    public bool ConnectionIsReady = false;
 
     private const int ConnectionTimedOut = 3000;
     private const int MessageLengthLimit = 500;
@@ -34,12 +34,12 @@ public class TCPConnect
         string ip = null;
         int _port = 0;
 
-        if (DataHolder.GameType == "Multiplayer")
+        if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
         {
             ip = DataHolder.ServerIp;
             _port = DataHolder.RemoteServerPort;
         }
-        else if (DataHolder.GameType == "WifiClient")
+        else if (DataHolder.GameType == DataHolder.GameTypes.WifiClient)
         {
             ip = DataHolder.WifiGameIp;
             _port = DataHolder.WifiPort;
@@ -56,12 +56,19 @@ public class TCPConnect
 
                 _clientListener = new Thread(ReceivingMessagesLoop);
                 _clientListener.Start();
-                DataHolder.Connected = true;
+                Network.ConnectionInProgress = true;
             }
             else
+            {
                 CloseClient();
+                Network.ConnectionInProgress = false;
+            }                
         }
-        catch { CloseClient(); }           
+        catch 
+        { 
+            CloseClient();
+            Network.ConnectionInProgress = false;
+        }           
     }
 
     /// <summary>
@@ -143,12 +150,16 @@ public class TCPConnect
     /// </summary>
     private void TryStartReconnect()
     {
-        if (CanStartReconnect)
-        {
-            CanStartReconnect = false;
-            CloseClient();
-            Network.StartReconnect();
-        }
+        //TODO: Пока отключил возможность реконнкта.
+        //TODO: Получается, если реально будет ошибка сети, то она не обработается, но да ладно
+
+        //if (ConnectionIsReady)
+        //{
+        //    ConnectionIsReady = false;
+        //    CloseClient();
+        //    Network.StartReconnect();
+        //}
+        ////TODO: Наверное надо и else добавить?
     }
 
     /// <summary>

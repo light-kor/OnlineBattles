@@ -33,7 +33,7 @@ public class Notification
         StopReconnect, // num 2
         StopConnecting,
         CancelGameSearch, // num 3
-        ExitSingleGame, // num 4
+        MenuButton, // num 4
         
 
         CancelWifiOpponent,

@@ -29,7 +29,7 @@ public class a_ShowMovingPanel : MonoBehaviour
         if (_notification == null)
             StartCoroutine(_notificationBox.gameObject.MoveLocalY(0, AnimTime));
         else
-            StartCoroutine(_notificationBox.gameObject.MoveLocalY(0, AnimTime, _notification.ShowNotifButton));
+            StartCoroutine(_notificationBox.gameObject.MoveLocalY(0, AnimTime, _notification.ShowButtonPane));
     }
 
     public void ClosePanel()

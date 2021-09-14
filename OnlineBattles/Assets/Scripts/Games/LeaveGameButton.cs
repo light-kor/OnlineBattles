@@ -12,7 +12,7 @@ public class LeaveGameButton : MonoBehaviour
     }
     public void LeaveTheGame()
     {
-        if (DataHolder.GameType == "OnPhone")
+        if (DataHolder.GameType == DataHolder.GameTypes.Single)
             SceneManager.LoadScene(0); //TODO: Ћ”чше конечно возвращать в меню выбора уровн€
         else
              WantLeaveTheGame?.Invoke();

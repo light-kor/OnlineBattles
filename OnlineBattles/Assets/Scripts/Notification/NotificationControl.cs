@@ -17,9 +17,7 @@ public class NotificationControl : MonoBehaviour
 
     private void Start()
     {       
-        GetComponent<Canvas>().worldCamera = Camera.main;
-        _anim = GetComponent<a_ShowMovingPanel>();
-        _anim.ShowPanel(this);
+        GetComponent<Canvas>().worldCamera = Camera.main;          
     }
 
     private void NotificatonMultyButton()
@@ -50,7 +48,7 @@ public class NotificationControl : MonoBehaviour
                 DataHolder.ClientTCP.SendMessage("CancelSearch");
                 break;
 
-            case Notification.ButtonTypes.ExitSingleGame: // ExitPresentGame
+            case Notification.ButtonTypes.MenuButton: // ExitPresentGame
                 SceneManager.LoadScene("mainMenu");
                 break;
 
@@ -74,21 +72,17 @@ public class NotificationControl : MonoBehaviour
     {
         _notif = notif;
         _notif.SetController(this);
-        if (_notif.NotifType == Notification.NotifTypes.WifiRequest)
-        {
-            _wifiButtons.SetActive(true);
-            _accept.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.AcceptWifiOpponent));
-            _refuse.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.CancelWifiOpponent));
-        }
-        else
-            ActivateCloseButton();
+
+        ActivateButtons();
+        _anim = GetComponent<a_ShowMovingPanel>();
+        _anim.ShowPanel(this);
 
         if (_notif.NotifType == Notification.NotifTypes.Connection)
         {
             _cancelConnect.GetComponent<a_ShowCancelButton>().ShowButton();
             _cancelConnect.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.StopConnecting));
         }
-        else if (_notif.NotifType == Notification.NotifTypes.Reconnect)
+        else if (_notif.NotifType == Notification.NotifTypes.Reconnect) //TODO: Это вроде пока не имеет смысла
         {
             _cancelConnect.GetComponent<a_ShowCancelButton>().ShowButton();
             _cancelConnect.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.StopReconnect));
@@ -105,7 +99,7 @@ public class NotificationControl : MonoBehaviour
         if ((_notif.NotifType == Notification.NotifTypes.Connection || _notif.NotifType == Notification.NotifTypes.Reconnect) && _notif.ButtonType != Notification.ButtonTypes.Waiting)
             _cancelConnect.GetComponent<a_ShowCancelButton>().HideButton();
 
-        _textPane.ReplaceText(TransferText);
+        _textPane.ReplaceText(ChangeNotification);
     }
 
     public void ManualCloseNotif(Notification.ButtonTypes type)
@@ -114,25 +108,48 @@ public class NotificationControl : MonoBehaviour
         NotificatonMultyButton();
     }
 
-    private void ActivateCloseButton()
+    private void ActivateButtons()
     {
-        if (_notif.ButtonType != Notification.ButtonTypes.Waiting)
+        if (_notif.NotifType == Notification.NotifTypes.WifiRequest && _notif.ButtonType == 0)
+        {            
+            _accept.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.AcceptWifiOpponent));
+            _refuse.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.CancelWifiOpponent));
+            _wifiButtons.SetActive(true);
+        }
+        else if (_notif.ButtonType != Notification.ButtonTypes.Waiting)
         {
             _closeNotif.onClick.AddListener(() => NotificatonMultyButton());
             _closeNotif.gameObject.SetActive(true);
         }
     }
 
-    public void ShowNotifButton()
+    private void DeactivateButtons()
+    {
+        _wifiButtons.SetActive(false);
+        _closeNotif.gameObject.SetActive(false);
+    }
+
+    public void ShowButtonPane()
     {
         if (_notif.ButtonType != Notification.ButtonTypes.Waiting)
-            _buttonPane.ShowButton();
+            _buttonPane.ShowButton();       
     }
-    
-    private void TransferText()
+
+    private void ChangeNotification()
     {
         _messageText.text = _notif.NotifText;
-        ActivateCloseButton();
-        ShowNotifButton();
+
+        if (_notif.NotifType == Notification.NotifTypes.WifiRequest && _notif.ButtonType == Notification.ButtonTypes.SimpleClose)
+        {
+            _buttonPane.HideButton();
+            DeactivateButtons();
+            ActivateButtons();
+            ShowButtonPane();
+        }
+        else
+        {
+            ActivateButtons();
+            ShowButtonPane();
+        }       
     }    
 }

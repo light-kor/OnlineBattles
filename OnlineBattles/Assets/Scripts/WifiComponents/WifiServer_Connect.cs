@@ -16,10 +16,6 @@ public static class WifiServer_Connect
     {
         Network.CloseWifiServerSearcher();
         WifiServer_Searcher.GetWifiServer -= AddServerToList;
-
-        if (DataHolder.Connected)
-            Network.CloseTcpConnection();
-
         Network.CreateTCP();
     }
 

@@ -22,9 +22,9 @@ public class Game_Host_3 : GameTemplate_WifiHost
 
         if (_gameOn)
         {          
-            if (WifiServer_Host._opponent.MessageTCPforGame.Count > 0)
+            if (WifiServer_Host.Opponent.MessageTCPforGame.Count > 0)
             {
-                string[] mes = WifiServer_Host._opponent.MessageTCPforGame[0].Split(' ');
+                string[] mes = WifiServer_Host.Opponent.MessageTCPforGame[0].Split(' ');
                 if (mes[0] == "move")
                 {
                     GR._enemyVelocity = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
@@ -33,7 +33,7 @@ public class Game_Host_3 : GameTemplate_WifiHost
                 {
                     CreateMap();
                 }
-                WifiServer_Host._opponent.MessageTCPforGame.RemoveAt(0);
+                WifiServer_Host.Opponent.MessageTCPforGame.RemoveAt(0);
             }
 
             GR._myVelocity = new Vector2(GR._firstJoystick.Horizontal, GR._firstJoystick.Vertical);

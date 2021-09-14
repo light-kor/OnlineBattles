@@ -9,10 +9,9 @@ public class NotificationManager : MonoBehaviour
     [SerializeField] private GameObject _notifPrefab;
     private List<Notification> _newNotif = new List<Notification>();
     private List<Notification> _notifQueue = new List<Notification>();
-    private NotificationControl _serverConnectNotif = null;
     private Notification _presentNotif = null;
     private int _orderInLayer = 20;
-    private bool _flag = false;
+    private bool _closeFlag = false;
     private bool _notifOnScreen = false;
     private float _timeDelay = 0f;
 
@@ -34,10 +33,10 @@ public class NotificationManager : MonoBehaviour
     {
         _timeDelay += Time.deltaTime;
 
-        if (_flag)
+        if (_closeFlag)
         {
             _presentNotif.Controller.ManualCloseNotif(Notification.ButtonTypes.SimpleClose);
-            _flag = false;
+            _closeFlag = false;
         }
 
         if (_timeDelay > TimeBetweenNotif)
@@ -45,7 +44,7 @@ public class NotificationManager : MonoBehaviour
             if (_newNotif.Count > 0)
             {
                 if (_presentNotif != null && _presentNotif.NotifType != 0 && _newNotif[0].NotifType == _presentNotif.NotifType)
-                    CreateNewNotification(_newNotif[0]);
+                    ShowNotification(_newNotif[0]);
                 else
                     _notifQueue.Add(_newNotif[0]);
 
@@ -54,32 +53,26 @@ public class NotificationManager : MonoBehaviour
 
             if (!_notifOnScreen && _notifQueue.Count > 0)
             {
-                CreateNewNotification(_notifQueue[0]);
+                ShowNotification(_notifQueue[0]);
                 _notifQueue.RemoveAt(0);
                 _timeDelay = 0f;
             }
         }         
     }
 
-    private void CreateNewNotification(Notification notif)
+    private void ShowNotification(Notification notif)
     {
         _notifOnScreen = true;
-        _presentNotif = notif;
-        if (_presentNotif.NotifType == Notification.NotifTypes.Connection || _presentNotif.NotifType == Notification.NotifTypes.Reconnect)
-        {
-            if (_serverConnectNotif == null)
-            {
-                _serverConnectNotif = CreateNotifObj().GetComponent<NotificationControl>();
-                _serverConnectNotif.ShowNotification(_presentNotif);
-            }
-            else
-                _serverConnectNotif.UpdateNotification(_presentNotif);
-        }
-        else
+
+        if (_presentNotif == null)
         {
             var notification = CreateNotifObj().GetComponent<NotificationControl>();
-            notification.ShowNotification(_presentNotif);
+            notification.ShowNotification(notif);
         }
+        else
+            _presentNotif.Controller.UpdateNotification(notif);
+
+        _presentNotif = notif;        
     }
 
     private GameObject CreateNotifObj()
@@ -91,7 +84,7 @@ public class NotificationManager : MonoBehaviour
 
     public void CloseNotification()
     {
-        _flag = true;
+        _closeFlag = true;
     }
 
     public void CloseStartReconnect()
