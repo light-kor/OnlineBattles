@@ -177,9 +177,12 @@ public class MainMenu : MonoBehaviour
         else if (DataHolder.GameType == DataHolder.GameTypes.WifiHost)
         {
             if (WifiServer_Host.Opponent != null)
+            {
                 WifiServer_Host.SendTcpMessage("disconnect");
-           
-            WifiServer_Host.CancelConnect();
+                WifiServer_Host.CloseConnection(); // Это если игрок уже подключён
+            }
+            else
+                WifiServer_Host.CancelConnect(); // Это если игрок ещё не нашёлся
 
             //TODO: Добавть мультиплеер
         }
@@ -274,9 +277,11 @@ public class MainMenu : MonoBehaviour
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
     }
 
-    //TODO: Отмена со стороны клиента не доходит до хоста.
+    //TODO: Добавить проверку на то, готов ли играть оппонент. Если вы уже закончили игру, тебе надо дождаться, чтоб он вышел из прошлой игры.
 
-    //TODO: Не выкидывать в меню, если тебе отказали
+    //TODO: Если уже подлючённый игрок решит выйти, то всё вроде и отработает, но до финала цкла приёма ссобщшений в WifiServer_Host не доёдёт
+
+    //TODO: Если тебя отклонили, то просто закрой уведомление и обнови список. Не выкидывать в меню
 
     //TODO: Добавить Abort и Join всех тредов в коде
 
