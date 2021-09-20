@@ -12122,7 +12122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89a1a52fc49d9c4468d2a4b538c59b1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _notifPrefab: {fileID: 183802569826306518, guid: e84b926165ab96b42a88e823fe761c3e,
+  _notifPrefab: {fileID: 4727623607350168781, guid: e84b926165ab96b42a88e823fe761c3e,
     type: 3}
 --- !u!114 &1632653837
 MonoBehaviour:

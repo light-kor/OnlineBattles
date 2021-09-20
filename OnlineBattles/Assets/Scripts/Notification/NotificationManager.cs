@@ -6,7 +6,7 @@ public class NotificationManager : MonoBehaviour
     private const float TimeBetweenNotif = 1f;
 
     public static NotificationManager NM;
-    [SerializeField] private GameObject _notifPrefab;
+    [SerializeField] private NotificationControl _notifPrefab;
     private List<Notification> _newNotif = new List<Notification>();
     private List<Notification> _notifQueue = new List<Notification>();
     private Notification _presentNotif = null;
@@ -66,20 +66,14 @@ public class NotificationManager : MonoBehaviour
 
         if (_presentNotif == null)
         {
-            var notification = CreateNotifObj().GetComponent<NotificationControl>();
-            notification.ShowNotification(notif);
+            NotificationControl notifControl = Instantiate(_notifPrefab);
+            notifControl.SetStartSettings(_orderInLayer++);
+            notifControl.ShowNotification(notif);
         }
         else
             _presentNotif.Controller.UpdateNotification(notif);
 
         _presentNotif = notif;        
-    }
-
-    private GameObject CreateNotifObj()
-    {
-        GameObject obj = Instantiate(_notifPrefab);
-        obj.GetComponent<Canvas>().sortingOrder = _orderInLayer++;
-        return obj;
     }
 
     public void CloseNotification()

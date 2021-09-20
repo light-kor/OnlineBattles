@@ -15,11 +15,6 @@ public class NotificationControl : MonoBehaviour
     private Notification _notif;
     private Notification.ButtonTypes _fallBack = 0;
 
-    private void Start()
-    {       
-        GetComponent<Canvas>().worldCamera = Camera.main;          
-    }
-
     private void NotificatonMultyButton()
     {
         Notification.ButtonTypes buttonType;
@@ -151,5 +146,12 @@ public class NotificationControl : MonoBehaviour
             ActivateButtons();
             ShowButtonPane();
         }       
-    }    
+    }
+
+    public void SetStartSettings(int orderInLayer)
+    {
+        Canvas canvas = GetComponent<Canvas>();
+        canvas.worldCamera = Camera.main;
+        canvas.sortingOrder = orderInLayer;
+    }
 }

@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
 
 public static class WifiServer_Host
 {
@@ -20,14 +19,14 @@ public static class WifiServer_Host
        
     private static TcpListener _listener = null;
     private static NetworkStream _streamGame = null;
-    private static Thread receiveThread; //TODO: Удалить его in Close тоже.
-    private static bool _working, _opponentCancelConnect, _getPing, _messageHandlerWorking;
+    private static Thread receiveThread = null;
+    private static bool _working, _opponentCancelConnect, _pingReceived, _messageHandlerWorking, _messageHandlerClose;
 
     public static async void StartHosting()
     {
         Network.CloseTcpConnection();
         Network.CloseUdpConnection();
-        await Task.Run(() => CloseConnection());
+        CloseConnection();
         
         _working = true;
         Network.CreateWifiServerSearcher("spamming");
@@ -36,19 +35,8 @@ public static class WifiServer_Host
 
         while (true)
         {
-            await Task.Run(() => ClearOpponentInfo()); // Это нужно для каждого повторного круга            
-
-            await Task.Run(() => ListnerClientsTCP());
-
-            if (_working == false)
-            {
-                CloseConnection();
-                break;
-            }
-            else if (_opponentCancelConnect == true)
-                continue;
-
-            await Task.Run(() => WaitForLogin());
+            ClearOpponentInfo(); // Это нужно для каждого повторного круга            
+            await Task.Run(() => WaitingForTCPConnections());
 
             if (_working == false)
             {
@@ -58,7 +46,17 @@ public static class WifiServer_Host
             else if (_opponentCancelConnect == true)
                 continue;
 
-            await Task.Run(() => WaitPlayerAnswer());
+            await Task.Run(() => WaitingForLogin());
+
+            if (_working == false)
+            {
+                CloseConnection();
+                break;
+            }
+            else if (_opponentCancelConnect == true)
+                continue;
+
+            await Task.Run(() => WaitingPlayerAnswer());
 
             if (_working == false)
             {
@@ -74,7 +72,7 @@ public static class WifiServer_Host
                 SendTcpMessage("accept");
 
                 await Task.Delay(500); // Чтоб всё прогрузилось на клиенте, перед запросом пинга
-                await Task.Run(() => CheckPing());
+                await Task.Run(() => CheckPingReceipt());
 
                 if (_working == false)
                 {
@@ -99,6 +97,9 @@ public static class WifiServer_Host
 
     private static void TcpMessageHandler()
     {
+        bool needDisconnect = false;
+        _messageHandlerClose = false;
+
         while (_messageHandlerWorking)
         {
             GetTcpMessageFromStream();
@@ -112,8 +113,8 @@ public static class WifiServer_Host
                         break;
 
                     case "disconnect":
-                        Disconnect();
-                        return;
+                        needDisconnect = true; // Альтернатинвый выход, чтоб программа не циклилась
+                        goto Closing;
 
                     case "name":
                         Opponent.PlayerName = mes[1];
@@ -121,7 +122,7 @@ public static class WifiServer_Host
                         break;
 
                     case "ping":
-                        _getPing = true;
+                        _pingReceived = true;
                         break;
 
                     case "Cancel":
@@ -142,6 +143,12 @@ public static class WifiServer_Host
             }
             CheckDisconnect();
         }
+
+        Closing:
+        _messageHandlerClose = true;
+
+        if (needDisconnect)
+            Disconnect();
     }
 
     #region ConnectionSteps
@@ -149,7 +156,7 @@ public static class WifiServer_Host
     /// <summary>
     /// Ожидание подключения любого игрока.
     /// </summary>
-    private static void ListnerClientsTCP()
+    private static void WaitingForTCPConnections()
     {
         while (_working)
         {
@@ -168,7 +175,7 @@ public static class WifiServer_Host
     /// <summary>
     /// Ожидание получения имени оппонента.
     /// </summary>
-    private static void WaitForLogin()
+    private static void WaitingForLogin()
     {
         while (_working)
         {
@@ -181,9 +188,9 @@ public static class WifiServer_Host
     }
 
     /// <summary>
-    /// Ожидание решения игрока о подключении оппонента
+    /// Ожидание решения игрока о подключении оппонента.
     /// </summary>
-    private static void WaitPlayerAnswer()
+    private static void WaitingPlayerAnswer()
     {
         while (_working)
         {
@@ -196,16 +203,16 @@ public static class WifiServer_Host
     }
 
     /// <summary>
-    /// Получения пинга оппонента
+    /// Получения пинга оппонента.
     /// </summary>
-    private static void CheckPing()
+    private static void CheckPingReceipt()
     {
-        _getPing = false;
+        _pingReceived = false;
         SendTcpMessage("ping");
         long StartPingTimeInTicks = DateTime.UtcNow.Ticks;
         while (_working)
         {
-            if (_getPing == true)
+            if (_pingReceived == true)
             {
                 Opponent.Ping = DateTime.UtcNow.Ticks - StartPingTimeInTicks;
                 SendTcpMessage($"time {DateTime.UtcNow.Ticks - (Opponent.Ping / 2)}");
@@ -249,7 +256,7 @@ public static class WifiServer_Host
 
         string message = Encoding.UTF8.GetString(buffer.ToArray());
         Opponent.TcpMessages.Add(message);
-        Opponent.LastReciveTime = DateTime.UtcNow; //TODO: А тут вообще есть оставновки, или оно бесконечно берёт пустые сообщения?
+        Opponent.LastReciveTime = DateTime.UtcNow;
     }
 
     private static void CheckStream(List<byte> Buffer)
@@ -269,9 +276,9 @@ public static class WifiServer_Host
                 Disconnect();      
     }
 
-    private static async void Disconnect()
+    private static void Disconnect()
     {
-        await Task.Run(() => CloseConnection());
+        CloseConnection();
         OpponentGaveUp?.Invoke();
         DataHolder.GameType = DataHolder.GameTypes.Null; //TODO: Надо ли?
         new Notification("Игрок отключился", Notification.ButtonTypes.MenuButton); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
@@ -287,7 +294,7 @@ public static class WifiServer_Host
         _working = false;
         Network.CloseWifiServerSearcher();
         ClearOpponentInfo();
-        StopListening();
+        StopListening();       
     }
 
     private static void StopListening()
@@ -320,8 +327,8 @@ public static class WifiServer_Host
         _messageHandlerWorking = false;
         if (receiveThread != null)
         {
-            receiveThread.Join();
+            while (_messageHandlerClose == false) { } // Ожидание просто для надёжности
             receiveThread = null;
-        }
+        }                    
     }
 }
