@@ -5,15 +5,15 @@ public class GameTemplate_WifiHost : MonoBehaviour
     protected bool _gameOn = true;
     protected string[] messege;
     private string _earlyOpponentStatus = null;
-    private string _gameType = null;
+    private GameType _gameType;
 
-    protected void BaseStart(string type)
+    protected void BaseStart(GameType type)
     {
         WifiServer_Host.OpponentGaveUp += OpponentGiveUp;
         LeaveGameButton.WantLeaveTheGame += IGiveUp;
         _gameType = type;
 
-        if (_gameType == "udp")
+        if (_gameType == GameType.UDP)
         {
             StartUdpConnection();
             InvokeRepeating("SendAllChanges", 0f, WifiServer_Host.UpdateRate);
@@ -80,7 +80,7 @@ public class GameTemplate_WifiHost : MonoBehaviour
     {
         _gameOn = false;
 
-        if (_gameType == "udp")
+        if (_gameType == GameType.UDP)
         {
             CancelInvoke();
             Network.CloseUdpConnection();
@@ -93,6 +93,12 @@ public class GameTemplate_WifiHost : MonoBehaviour
     public virtual void SendAllChanges()
     {
 
+    }
+
+    public enum GameType
+    {
+        TCP,
+        UDP        
     }
 
     private void OnDestroy()

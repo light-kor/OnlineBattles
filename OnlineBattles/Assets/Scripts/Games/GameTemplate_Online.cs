@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Globalization;
+using UnityEngine;
 
 public class GameTemplate_Online : MonoBehaviour
 {
@@ -6,16 +7,17 @@ public class GameTemplate_Online : MonoBehaviour
     protected bool _finishTheGame = false;
     protected bool _gameOn = true;
     protected string[] frame = null, frame2 = null;
-    private string _gameType = null;
+    private GameType _gameType;
     private string _endStatus = null;
 
-    protected void BaseStart(string type)
+    protected void BaseStart(GameType type)
     {
+
         Network.EndOfGame += FinishTheGame;
         LeaveGameButton.WantLeaveTheGame += GiveUp;
         _gameType = type;
 
-        if (_gameType == "udp")
+        if (_gameType == GameType.UDP)
         {
             Network.CreateUDP();
             DataHolder.MessageUDPget.Clear();
@@ -90,7 +92,7 @@ public class GameTemplate_Online : MonoBehaviour
     {
         _gameOn = false;
 
-        if (_gameType == "udp")
+        if (_gameType == GameType.UDP)
         {
             Network.CloseUdpConnection();
         }
@@ -102,6 +104,12 @@ public class GameTemplate_Online : MonoBehaviour
     public virtual void SendAllChanges()
     {
 
+    }
+
+    public enum GameType
+    {
+        TCP,
+        UDP
     }
 
     private void OnDestroy()

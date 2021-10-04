@@ -530,7 +530,7 @@ GameObject:
   - component: {fileID: 100349397}
   - component: {fileID: 100349396}
   m_Layer: 5
-  m_Name: 3
+  m_Name: 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -550,11 +550,11 @@ RectTransform:
   m_Children:
   - {fileID: 490770571}
   m_Father: {fileID: 1539542539}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -415}
+  m_AnchoredPosition: {x: 50, y: -245}
   m_SizeDelta: {x: 650, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &100349396
@@ -602,9 +602,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1632653834}
-        m_TargetAssemblyTypeName: MainMenuScr, Assembly-CSharp
-        m_MethodName: 
-        m_Mode: 1
+        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
+        m_MethodName: SelectGame
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -4097,7 +4097,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ...
+  m_text: 2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 05d2f385c4cf0b549a45d9a6fd146b0f, type: 2}
   m_sharedMaterial: {fileID: -5035941864085348471, guid: 05d2f385c4cf0b549a45d9a6fd146b0f,
@@ -11322,8 +11322,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2095711715}
-  - {fileID: 1678408318}
   - {fileID: 100349395}
+  - {fileID: 1678408318}
   - {fileID: 215188867}
   - {fileID: 1155531702}
   - {fileID: 1022386760}
@@ -12459,11 +12459,11 @@ RectTransform:
   m_Children:
   - {fileID: 437779170}
   m_Father: {fileID: 1539542539}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -245}
+  m_AnchoredPosition: {x: 50, y: -415}
   m_SizeDelta: {x: 650, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1678408319

@@ -13,11 +13,11 @@ public class GameTypeHandler : MonoBehaviour
 
         _selectGameType = DataHolder.GameType;
 
-        if (_selectGameType == DataHolder.GameTypes.Single)
+        if (_selectGameType == DataHolder.GameTypes.Single || _selectGameType == DataHolder.GameTypes.Null) // Для тестов
             _singleGame.SetActive(true);
         else if (_selectGameType == DataHolder.GameTypes.WifiHost)
             _wifiHost.SetActive(true);
-        else if (_selectGameType == DataHolder.GameTypes.WifiClient || _selectGameType == DataHolder.GameTypes.Multiplayer)
+        else if (_selectGameType == DataHolder.GameTypes.WifiClient || _selectGameType == DataHolder.GameTypes.Multiplayer )
             _onlineGame.SetActive(true);
 
         enabled = false;

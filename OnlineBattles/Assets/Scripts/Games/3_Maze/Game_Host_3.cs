@@ -9,7 +9,7 @@ public class Game_Host_3 : GameTemplate_WifiHost
     {
         ManualCreateMapButton.Click += CreateMap;
         GR = transform.parent.GetComponent<GameResources_3>();
-        BaseStart("udp");
+        BaseStart(GameType.UDP);
 
         GR.StartInHost();
         CreateMap();        
@@ -27,7 +27,10 @@ public class Game_Host_3 : GameTemplate_WifiHost
                 string[] mes = WifiServer_Host.Opponent.MessageTCPforGame[0].Split(' ');
                 if (mes[0] == "move")
                 {
-                    GR._enemyVelocity = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
+                    Debug.Log("mes " + WifiServer_Host.Opponent.MessageTCPforGame[0]);
+                    var velocity = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
+                    GR._enemyVelocity = velocity;
+                    Debug.Log($"enemy: {velocity.x} {velocity.y}");
                 }
                 else if (mes[0] == "change")
                 {
@@ -36,7 +39,9 @@ public class Game_Host_3 : GameTemplate_WifiHost
                 WifiServer_Host.Opponent.MessageTCPforGame.RemoveAt(0);
             }
 
-            GR._myVelocity = new Vector2(GR._firstJoystick.Horizontal, GR._firstJoystick.Vertical);
+            Vector2 myVelocity = new Vector2(GR._firstJoystick.Horizontal, GR._firstJoystick.Vertical);
+            GR._myVelocity = myVelocity;
+            Debug.Log($"my: {myVelocity.x} {myVelocity.y}");
 
             GR._lastChangeMazeTime += Time.deltaTime;
 
@@ -96,7 +101,11 @@ public class Game_Host_3 : GameTemplate_WifiHost
 
     public override void SendAllChanges()
     {
-        DataHolder.ClientUDP.SendMessage($"g {DateTime.UtcNow.Ticks} {GR._enemy.transform.position.x} {GR._enemy.transform.position.y} {GR._me.transform.position.x} {GR._me.transform.position.y}");
+        Vector2Int enemyPos = new Vector2Int((int)(GR._enemy.transform.position.x * 100), (int)(GR._enemy.transform.position.y * 100));
+        Vector2Int myPos = new Vector2Int((int)(GR._me.transform.position.x * 100), (int)(GR._me.transform.position.y * 100));
+        string dd = $"g {DateTime.UtcNow.Ticks} {enemyPos.x} {enemyPos.y} {myPos.x} {myPos.y}";
+        DataHolder.ClientUDP.SendMessage(dd);
+        Debug.Log("Send " + dd);
     }
 
     private void OnDestroy()

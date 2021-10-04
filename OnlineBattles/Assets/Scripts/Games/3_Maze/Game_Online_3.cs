@@ -19,7 +19,7 @@ public class Game_Online_3 : GameTemplate_Online
         Cell cell = GR._cellPrefab.GetComponent<Cell>();
         cell.WallLeft.GetComponent<EdgeCollider2D>().enabled = false;
         cell.WallBottom.GetComponent<EdgeCollider2D>().enabled = false; 
-        BaseStart("udp");       
+        BaseStart(GameType.UDP);       
     }
 
     protected override void Update()
@@ -41,12 +41,16 @@ public class Game_Online_3 : GameTemplate_Online
                 string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
                 if (mes[0] == "point")
                 {
-                    Instantiate(GR._pointPref, new Vector2(float.Parse(mes[1]), float.Parse(mes[2])), Quaternion.identity, GR._points.transform);
+                    Vector2 position = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
+                    Instantiate(GR._pointPref, position, Quaternion.identity, GR._points.transform);
                 }
                 else if (mes[0] == "position")
                 {
-                    GR._me.transform.position = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
-                    GR._enemy.transform.position = new Vector2(float.Parse(mes[3]), float.Parse(mes[4]));
+                    Vector2 myPosition = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
+                    Vector2 enemyPosition = new Vector2(float.Parse(mes[3]), float.Parse(mes[4]));
+
+                    GR._me.transform.position = myPosition;
+                    GR._enemy.transform.position = enemyPosition;
                 }
                 DataHolder.MessageTCPforGame.RemoveAt(0);
             }
@@ -95,8 +99,16 @@ public class Game_Online_3 : GameTemplate_Online
                 return;
             }
 
-            GR._me.transform.position = Vector2.MoveTowards(GR._me.transform.position, new Vector2(float.Parse(frame[2]), float.Parse(frame[3])), 1.0f);
-            GR._enemy.transform.position = Vector2.MoveTowards(GR._enemy.transform.position, new Vector2(float.Parse(frame[4]), float.Parse(frame[5])), 1.0f);
+            Vector2 myPosition = new Vector2(gg(frame[2]), gg(frame[3]));
+            Vector2 enemyPosition = new Vector2(gg(frame[4]), gg(frame[5]));
+
+            //GR._me.transform.position = Vector2.MoveTowards(GR._me.transform.position, myPosition, 1.0f);
+            //GR._enemy.transform.position = Vector2.MoveTowards(GR._enemy.transform.position, enemyPosition, 1.0f);
+
+            //Debug.Log(DataHolder.MessageUDPget[0]);
+
+            GR._me.transform.position = myPosition;
+            GR._enemy.transform.position = enemyPosition;
 
             DataHolder.MessageUDPget.RemoveAt(0);      
         }
@@ -105,7 +117,13 @@ public class Game_Online_3 : GameTemplate_Online
     private void SendChangeMazeRequest()
     {
         DataHolder.ClientTCP.SendMessage("change");
-    } 
+    }
+
+    private float gg(string d)
+    {
+        int fd = Convert.ToInt32(d);
+        return (float)fd / 100;
+    }
 
     public void CreateMap()
     {
@@ -130,6 +148,7 @@ public class Game_Online_3 : GameTemplate_Online
         if (move != _lastMove)
         {
             DataHolder.ClientTCP.SendMessage($"move {move.x} {move.y}");
+            Debug.Log($"move {move.x} {move.y}");
             _lastMove = move;
         }
     }

@@ -8,7 +8,7 @@ public class Game_Host_1 : GameTemplate_WifiHost
     private void Start()
     {
         GR = transform.parent.GetComponent<GameResources_1>();
-        BaseStart(null);
+        BaseStart(GameType.TCP);
     }
 
     protected override void Update()
