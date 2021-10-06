@@ -277,6 +277,11 @@ public class MainMenu : MonoBehaviour
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
     }
 
+
+    //TODO: Добавить camera shake. Видос в вк
+
+    //TODO: На всех сценах сделать match width or height
+
     //TODO: Если к тебе кто-то подключается, может выпасть пустое сообщение с опросом. Видимо уведомление загружается быстрее, чем контент для него
 
     //TODO: Вроде как может появитьяс баг, если ты клиент, и нажал отмену через секунду после начала коннекта.

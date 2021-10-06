@@ -4,15 +4,31 @@ using UnityEngine;
 
 public class GameResources_2 : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public static GameResources_2 GameResources;
+    [SerializeField] private Player player1, player2;
+
+    public bool GameOn { get; private set; } = false;
+
+    private void Awake()
+    {
+        GameResources = this;
+    }
+
     void Start()
+    {
+        GameOn = true;
+
+    }
+
+    void Update()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
+    public void PauseGame()
     {
-        
+        GameOn = false;
+        player1.StopTrail();
+        player2.StopTrail();
     }
 }
