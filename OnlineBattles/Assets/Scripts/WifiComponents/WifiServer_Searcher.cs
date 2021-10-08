@@ -10,7 +10,7 @@ public class WifiServer_Searcher
     private int _port = DataHolder.WifiPort;
     private IPEndPoint _remoteIp = null;
     private UdpClient _client = null;
-    private Timer _timer = null;
+    private System.Threading.Timer _timer = null;
     private Thread _receiveThread = null;
     private bool _working = true;
     private string _typeOfUDP = null;
@@ -41,7 +41,7 @@ public class WifiServer_Searcher
             _client.ExclusiveAddressUse = false;
 
             TimerCallback tm = new TimerCallback(SpammingSeverIp);
-            _timer = new Timer(tm, null, 1000, 2000);    
+            _timer = new System.Threading.Timer(tm, null, 1000, 2000);    
         }       
     }
 

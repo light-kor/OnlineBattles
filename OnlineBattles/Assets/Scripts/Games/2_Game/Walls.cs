@@ -7,7 +7,7 @@ public class Walls : MonoBehaviour
 
     private EdgeCollider2D _collider;
     private List<Vector2> _points = new List<Vector2>();
-    private float offset = 20f;
+    private float _offset = 20f;
 
     private void Start()
     {
@@ -19,14 +19,14 @@ public class Walls : MonoBehaviour
     {
         if (collision.TryGetComponent(out Player player))
         {
-            player.PlayExplosionAnim();
+            player.LoseRound();
         }
     }
 
     private void SetWallsCollider()
     {
-        float halfWidth = Screen.width / _canvas.scaleFactor / 2 + offset;
-        float halfHeight = Screen.height / _canvas.scaleFactor / 2 + offset;
+        float halfWidth = Screen.width / _canvas.scaleFactor / 2 + _offset;
+        float halfHeight = Screen.height / _canvas.scaleFactor / 2 + _offset;
 
         _points.Add(new Vector2(halfWidth, halfHeight));
         _points.Add(new Vector2(halfWidth, -halfHeight));

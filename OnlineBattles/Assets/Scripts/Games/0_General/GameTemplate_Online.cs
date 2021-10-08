@@ -1,7 +1,6 @@
-﻿using System.Globalization;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class GameTemplate_Online : MonoBehaviour
+public abstract class GameTemplate_Online : MonoBehaviour
 {
     protected const int _delay = 3125 * 100; // 31.25 ms для интерполяции
     protected bool _finishTheGame = false;
@@ -12,7 +11,6 @@ public class GameTemplate_Online : MonoBehaviour
 
     protected void BaseStart(GameType type)
     {
-
         Network.EndOfGame += FinishTheGame;
         LeaveGameButton.WantLeaveTheGame += GiveUp;
         _gameType = type;

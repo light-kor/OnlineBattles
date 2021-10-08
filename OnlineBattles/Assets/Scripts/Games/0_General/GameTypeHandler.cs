@@ -7,6 +7,8 @@ public class GameTypeHandler : MonoBehaviour
 
     private void Awake()
     {
+        GetComponentInParent<Canvas>().worldCamera = Camera.main;
+
         _singleGame.SetActive(false);
         _wifiHost.SetActive(false);
         _onlineGame.SetActive(false);

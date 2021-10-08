@@ -6,7 +6,7 @@ public class TrailCollider : MonoBehaviour
     {
         if (collision.TryGetComponent(out Player player))
         {
-            player.PlayExplosionAnim();
+            player.LoseRound();
         }
     }
 }

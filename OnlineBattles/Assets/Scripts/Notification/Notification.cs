@@ -46,6 +46,7 @@ public class Notification
         Null,
         Connection,
         Reconnect,
-        WifiRequest
+        WifiRequest,
+        EndGame
     }
 }

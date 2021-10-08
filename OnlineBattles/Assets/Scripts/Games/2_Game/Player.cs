@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Player: MonoBehaviour
 {
+    [SerializeField] GeneralResources.PlayerType _playerType;
     [SerializeField] private Joystick _joystick;
     [SerializeField] private EdgeCollider2D _trailCollider;
     [SerializeField] private ParticleSystem _explosion;
@@ -15,13 +16,20 @@ public class Player: MonoBehaviour
     private float _timer = 0f;
     private float _currentAngle = 0f;
 
-    private const float RotateSpeed = 200f;
+    private const float MoveSpeed = 1.8f;
+    private const float RotateSpeed = 300f;
+    
 
     private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
         GR = GameResources_2.GameResources;
-    } //TODO: Если врезались в друг-друга, то ничья
+    }
+
+    //TODO: Добавить подтверждение готовности при игре онлайн
+    //TODO: Настроить якоря игроков и джойстиков
+    //TODO: На кнопку выхода сделать паузы с выбором: Выход или продолжить. В том числе и для онлайна
+    //TODO: В конце, на уведомление о победе одного, добавить кнопку рестарта. Для онлайна наверное не следует.
 
     private void Update()
     {
@@ -36,14 +44,23 @@ public class Player: MonoBehaviour
     {
         if (GR.GameOn)
         {
-            _rb.MovePosition(transform.position + gameObject.transform.up * Time.fixedDeltaTime * 2);
+            _rb.MovePosition(transform.position + gameObject.transform.up * Time.fixedDeltaTime * MoveSpeed);
         }
     }
 
-    public void PlayExplosionAnim()
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.TryGetComponent(out Player player))
+        {
+            _explosion.Play();
+            GR.PauseGame(null);
+        }
+    }
+
+    public void LoseRound()
     {
         _explosion.Play();
-        GR.PauseGame();
+        GR.PauseGame(gameObject);    
     }
 
     public void StopTrail()
@@ -75,7 +92,11 @@ public class Player: MonoBehaviour
 
     private void ChangeDirection()
     {
-        Vector2 normalizedJoystick = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
+        Vector2 normalizedJoystick = Vector2.zero;
+        if (_playerType == GeneralResources.PlayerType.BluePlayer)
+            normalizedJoystick = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
+        else if (_playerType == GeneralResources.PlayerType.RedPlayer)
+            normalizedJoystick = new Vector2(-_joystick.Horizontal, -_joystick.Vertical).normalized;
 
         if (normalizedJoystick != Vector2.zero)
         {
