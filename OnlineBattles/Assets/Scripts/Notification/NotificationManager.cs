@@ -18,10 +18,6 @@ public class NotificationManager : MonoBehaviour
     private void Awake()
     {
         NM = this;
-        //TODO: Следующая строчка - это костыль от Таблички "Поиск новый игры" 
-        //в начале сцены тк запрос с опоздание переходит с прошлой сцены в эту, если игра нашлась слишком быстро
-        _newNotif.Clear();
-        _notifQueue.Clear();
     }
 
     public void AddNotificationToQueue(Notification notification)
@@ -67,8 +63,7 @@ public class NotificationManager : MonoBehaviour
         if (_presentNotif == null)
         {
             NotificationControl notifControl = Instantiate(_notifPrefab);
-            notifControl.SetStartSettings(_orderInLayer++);
-            notifControl.ShowNotification(notif);
+            notifControl.CreateNotification(notif, _orderInLayer++);
         }
         else
             _presentNotif.Controller.UpdateNotification(notif);

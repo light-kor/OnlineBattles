@@ -116,10 +116,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b9af8d30a566264d84c0290889a3be1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wifiButtons: {fileID: 9188604716172197771}
-  _closeNotif: {fileID: 3465569608649407022}
-  _accept: {fileID: 4234907052160772900}
-  _refuse: {fileID: 4180976689944837472}
+  _doubleButton: {fileID: 9188604716172197771}
+  _main: {fileID: 3465569608649407022}
+  _left: {fileID: 4234907052160772900}
+  _right: {fileID: 4180976689944837472}
   _cancelConnect: {fileID: 3562694274726224570}
   _messageText: {fileID: 6779773486494757557}
   _buttonPane: {fileID: 5113932156465044755}
@@ -228,7 +228,7 @@ GameObject:
   - component: {fileID: 1950175790468678238}
   - component: {fileID: 4180976689944837472}
   m_Layer: 5
-  m_Name: RefuseButton
+  m_Name: RightButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1337,7 +1337,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8456452235477874526
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1529,7 +1529,7 @@ GameObject:
   - component: {fileID: 977803376427245105}
   - component: {fileID: 4234907052160772900}
   m_Layer: 5
-  m_Name: AcceptButton
+  m_Name: LeftButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1964,7 +1964,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7923341185509027683}
   m_Layer: 5
-  m_Name: WifiButtons
+  m_Name: DoubleButtons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class NotificationControl : MonoBehaviour
 {
-    [SerializeField] private GameObject _wifiButtons;
-    [SerializeField] private Button _closeNotif, _accept, _refuse, _cancelConnect;
+    [SerializeField] private GameObject _doubleButton;
+    [SerializeField] private Button _main, _left, _right, _cancelConnect;
     [SerializeField] private TMP_Text _messageText;
     [SerializeField] private a_MoveNotifButton _buttonPane;
     [SerializeField] private a_TextReplacement _textPane;
@@ -47,6 +47,11 @@ public class NotificationControl : MonoBehaviour
                 SceneManager.LoadScene("mainMenu");
                 break;
 
+            case Notification.ButtonTypes.RestartLevel: // Начать игру заново
+                DataHolder.ResetScore();
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name); //TODO: Работает только для оффлайн игры
+                break;
+
             case Notification.ButtonTypes.CancelWifiOpponent: // Искать другого противника по wifi
             case Notification.ButtonTypes.AcceptWifiOpponent: // Принять противника по wifi?
                 if (buttonType == Notification.ButtonTypes.CancelWifiOpponent)
@@ -63,11 +68,26 @@ public class NotificationControl : MonoBehaviour
         NotificationManager.NM.ReleaseNotification();
     }
 
-    public void ShowNotification(Notification notif) //TODO: А если будет несколько уведомлений по очереди, надо сделать очередь.
+    public void ManualCloseNotif(Notification.ButtonTypes type)
     {
+        _fallBack = type;
+        NotificatonMultyButton();
+    }
+
+    public void CreateNotification(Notification notif, int orderInLayer)
+    {
+        Canvas canvas = GetComponent<Canvas>();
+        canvas.worldCamera = Camera.main;
+        canvas.sortingOrder = orderInLayer;
+
         _notif = notif;
         _notif.SetController(this);
 
+        ShowNotification();
+    }
+
+    private void ShowNotification()
+    {       
         ActivateButtons();
         _anim = GetComponent<a_ShowMovingPanel>();
         _anim.ShowPanel(this);
@@ -95,33 +115,37 @@ public class NotificationControl : MonoBehaviour
             _cancelConnect.GetComponent<a_ShowCancelButton>().HideButton();
 
         _textPane.ReplaceText(ChangeNotification);
-    }
-
-    public void ManualCloseNotif(Notification.ButtonTypes type)
-    {
-        _fallBack = type;
-        NotificatonMultyButton();
-    }
+    }   
 
     private void ActivateButtons()
     {
-        if (_notif.NotifType == Notification.NotifTypes.WifiRequest && _notif.ButtonType == 0)
+        if (_notif.NotifType == Notification.NotifTypes.EndGame)
         {            
-            _accept.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.AcceptWifiOpponent));
-            _refuse.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.CancelWifiOpponent));
-            _wifiButtons.SetActive(true);
+            _left.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.RestartLevel));
+            _right.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.MenuButton));
+            _left.GetComponentInChildren<TMP_Text>().text = "Ещё раз";
+            _right.GetComponentInChildren<TMP_Text>().text = "Выход";
+            _doubleButton.SetActive(true);
+        }
+        else if (_notif.NotifType == Notification.NotifTypes.WifiRequest && _notif.ButtonType == 0) //TODO: Зачем проверка на ноль?
+        {
+            _left.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.AcceptWifiOpponent));
+            _right.onClick.AddListener(() => ManualCloseNotif(Notification.ButtonTypes.CancelWifiOpponent));
+            _left.GetComponentInChildren<TMP_Text>().text = "Принять";
+            _right.GetComponentInChildren<TMP_Text>().text = "Отклонить";
+            _doubleButton.SetActive(true);
         }
         else if (_notif.ButtonType != Notification.ButtonTypes.Waiting)
         {
-            _closeNotif.onClick.AddListener(() => NotificatonMultyButton());
-            _closeNotif.gameObject.SetActive(true);
+            _main.onClick.AddListener(() => NotificatonMultyButton());
+            _main.gameObject.SetActive(true);
         }
     }
 
     private void DeactivateButtons()
     {
-        _wifiButtons.SetActive(false);
-        _closeNotif.gameObject.SetActive(false);
+        _doubleButton.SetActive(false);
+        _main.gameObject.SetActive(false);
     }
 
     public void ShowButtonPane()
@@ -146,12 +170,5 @@ public class NotificationControl : MonoBehaviour
             ActivateButtons();
             ShowButtonPane();
         }       
-    }
-
-    public void SetStartSettings(int orderInLayer)
-    {
-        Canvas canvas = GetComponent<Canvas>();
-        canvas.worldCamera = Camera.main;
-        canvas.sortingOrder = orderInLayer;
-    }
+    }   
 }

@@ -14,7 +14,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private MultiBackButton _multiBackButton;
     [SerializeField] private ScrollRect _lvlScrollbar;
     private WifiMenuComponents _wifiComponents;
-    private string _lvlName = "";
+    private string _lvlName = string.Empty;
 
     private void Start()
     {

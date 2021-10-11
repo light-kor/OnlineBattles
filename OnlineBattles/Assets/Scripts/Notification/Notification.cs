@@ -20,6 +20,13 @@ public class Notification
         NotificationManager.NM.AddNotificationToQueue(this);
     }
 
+    public Notification(string notif, NotifTypes notifType)
+    {
+        NotifText = notif;
+        NotifType = notifType;
+        NotificationManager.NM.AddNotificationToQueue(this);
+    }
+
     public void SetController(NotificationControl controller)
     {
         Controller = controller;
@@ -34,8 +41,8 @@ public class Notification
         StopConnecting,
         CancelGameSearch, // num 3
         MenuButton, // num 4
+        RestartLevel,
         
-
         CancelWifiOpponent,
         AcceptWifiOpponent,
         StopTryingReconnect

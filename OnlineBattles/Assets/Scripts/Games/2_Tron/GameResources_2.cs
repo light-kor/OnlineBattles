@@ -1,6 +1,5 @@
 using UnityEngine;
 
-
 public class GameResources_2 : MonoBehaviour
 {
     public static GameResources_2 GameResources;
@@ -55,7 +54,7 @@ public class GameResources_2 : MonoBehaviour
             else if (enemyPoints > myPoints)
                 notifText = "Красный победил";
 
-            new Notification(notifText, Notification.ButtonTypes.MenuButton);
+            new Notification(notifText, Notification.NotifTypes.EndGame);
             return true;
         }
         else return false;
