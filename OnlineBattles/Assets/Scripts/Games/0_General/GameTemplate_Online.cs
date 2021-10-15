@@ -5,14 +5,14 @@ public abstract class GameTemplate_Online : MonoBehaviour
     protected const int _delay = 3125 * 100; // 31.25 ms для интерполяции
     protected bool _finishTheGame = false;
     protected bool _gameOn = true;
-    protected string[] frame = null, frame2 = null;
+    protected string[] _frame = null, _frame2 = null;
     private GameType _gameType;
     private string _endStatus = null;
 
     protected void BaseStart(GameType type)
     {
         Network.EndOfGame += FinishTheGame;
-        LeaveGameButton.WantLeaveTheGame += GiveUp;
+        PauseMenu.WantLeaveTheGame += GiveUp;
         _gameType = type;
 
         if (_gameType == GameType.UDP)
@@ -69,15 +69,15 @@ public abstract class GameTemplate_Online : MonoBehaviour
 
     protected bool SplitFramesAndChechTrash()
     {
-        frame = DataHolder.MessageUDPget[0].Split(' ');
-        frame2 = DataHolder.MessageUDPget[1].Split(' ');
+        _frame = DataHolder.MessageUDPget[0].Split(' ');
+        _frame2 = DataHolder.MessageUDPget[1].Split(' ');
 
-        if (frame[0] != "g")
+        if (_frame[0] != "g")
         {
             DataHolder.MessageUDPget.RemoveAt(0);
             return false;
         }
-        else if (frame2[0] != "g")
+        else if (_frame2[0] != "g")
         {
             DataHolder.MessageUDPget.RemoveAt(1);
             return false;
@@ -113,6 +113,6 @@ public abstract class GameTemplate_Online : MonoBehaviour
     private void OnDestroy()
     {
         Network.EndOfGame -= FinishTheGame;
-        LeaveGameButton.WantLeaveTheGame -= GiveUp;
+        PauseMenu.WantLeaveTheGame -= GiveUp;
     }
 }

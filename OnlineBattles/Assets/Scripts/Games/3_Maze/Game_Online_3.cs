@@ -66,8 +66,8 @@ public class Game_Online_3 : GameTemplate_Online
             if (!SplitFramesAndChechTrash())
                 return;
 
-            long time = Convert.ToInt64(frame[1]);
-            long time2 = Convert.ToInt64(frame2[1]);
+            long time = Convert.ToInt64(_frame[1]);
+            long time2 = Convert.ToInt64(_frame2[1]);
             long vrem = DateTime.UtcNow.Ticks - DataHolder.TimeDifferenceWithServer / 2 - _delay; //TODO: Так вроде нормально, но чёт нелогично
             //long vrem = DateTime.UtcNow.Ticks - _delay;
 
@@ -81,8 +81,8 @@ public class Game_Online_3 : GameTemplate_Online
                 //normalized = (x - min(x)) / (max(x) - min(x));
                 float delta = (vrem - time) / (time2 - time);
 
-                GR._me.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame[2]), float.Parse(frame[3])), new Vector2(float.Parse(frame2[2]), float.Parse(frame2[3])), delta);
-                GR._enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(frame[4]), float.Parse(frame[5])), new Vector2(float.Parse(frame2[4]), float.Parse(frame2[5])), delta);
+                GR._me.transform.position = Vector2.Lerp(new Vector2(float.Parse(_frame[2]), float.Parse(_frame[3])), new Vector2(float.Parse(_frame2[2]), float.Parse(_frame2[3])), delta);
+                GR._enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(_frame[4]), float.Parse(_frame[5])), new Vector2(float.Parse(_frame2[4]), float.Parse(_frame2[5])), delta);
             }
             //else if (time > vrem) return; //По идее это бессмысленная строчка            
         }
@@ -92,15 +92,15 @@ public class Game_Online_3 : GameTemplate_Online
     {
         if (DataHolder.MessageUDPget.Count > 0)
         {
-            frame = DataHolder.MessageUDPget[0].Split(' ');
-            if (frame[0] != "g")
+            _frame = DataHolder.MessageUDPget[0].Split(' ');
+            if (_frame[0] != "g")
             {
                 DataHolder.MessageUDPget.RemoveAt(0);
                 return;
             }
 
-            Vector2 myPosition = new Vector2(gg(frame[2]), gg(frame[3]));
-            Vector2 enemyPosition = new Vector2(gg(frame[4]), gg(frame[5]));
+            Vector2 myPosition = new Vector2(gg(_frame[2]), gg(_frame[3]));
+            Vector2 enemyPosition = new Vector2(gg(_frame[4]), gg(_frame[5]));
 
             //GR._me.transform.position = Vector2.MoveTowards(GR._me.transform.position, myPosition, 1.0f);
             //GR._enemy.transform.position = Vector2.MoveTowards(GR._enemy.transform.position, enemyPosition, 1.0f);

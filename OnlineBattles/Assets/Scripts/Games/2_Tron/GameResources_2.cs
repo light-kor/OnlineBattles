@@ -1,49 +1,48 @@
 using UnityEngine;
 
-public class GameResources_2 : MonoBehaviour
+public class GameResources_2 : GameResourcesTemplate
 {
+    public event DataHolder.Notification StopTrail;
+    public event DataHolder.Notification ResumeTrail;
+
     public static GameResources_2 GameResources;
 
-    private GeneralResources _res;
-    [SerializeField] private Player _player1, _player2;
-
-
-    private bool _pauseGame = false;
     public readonly int WinScore = 5;
 
-    public bool GameOn { get; private set; } = false;
-
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         GameResources = this;
-        _res = GetComponent<GeneralResources>();
-        _res.UpdateScore(null);
     }
 
-    void Start()
+    public void RoundResults(GameObject loserPlayer) 
     {
-        _res.StartTimer(3f, () => GameOn = true);
-    }
+        PauseTheGame(PauseType.EndRound);
 
-    public void PauseGame(GameObject loserPlayer)
-    {
-        if (_pauseGame == false) //  Чтобы оба объекта не делали одно и то же
-        {
-            GameOn = false;
-            _player1.StopTrail();
-            _player2.StopTrail();           
-            _pauseGame = true;
-        }
+        UpdateScore(loserPlayer, Result.Lose);
 
-        _res.UpdateScore(loserPlayer);
         if (CheckEndOfGame() == false)
-            _res.OpenEndRoundPanel();
+            OpenEndRoundPanel();
+    }
+
+    protected override void PauseTheGame(PauseType pauseType)
+    {
+        base.PauseTheGame(pauseType);
+        StopTrail?.Invoke();
+    }
+
+    protected override void ResumeTheGame()
+    {
+        base.ResumeTheGame();
+
+        if (_gameOver == false)
+            ResumeTrail?.Invoke();
     }
 
     private bool CheckEndOfGame()
     {
-        int myPoints = DataHolder.MyScore;
-        int enemyPoints = DataHolder.EnemyScore;
+        int myPoints = _blueScore;
+        int enemyPoints = _redScore;
 
         if (myPoints >= WinScore || enemyPoints >= WinScore)
         {
@@ -58,5 +57,5 @@ public class GameResources_2 : MonoBehaviour
             return true;
         }
         else return false;
-    }   
+    }
 }

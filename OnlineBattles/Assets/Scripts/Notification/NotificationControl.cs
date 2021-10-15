@@ -48,7 +48,7 @@ public class NotificationControl : MonoBehaviour
                 break;
 
             case Notification.ButtonTypes.RestartLevel: // Начать игру заново
-                DataHolder.ResetScore();
+                GameResourcesTemplate.ResetScore();
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name); //TODO: Работает только для оффлайн игры
                 break;
 

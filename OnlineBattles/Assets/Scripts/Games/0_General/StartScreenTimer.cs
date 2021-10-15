@@ -1,20 +1,27 @@
-using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
 
 public class StartScreenTimer : MonoBehaviour
 {
+    public event DataHolder.Notification StartGame;
+
     [SerializeField] private TMP_Text _text;
-    private Coroutine _countDown = null, _fontScaler = null;
-    private const float FontSize = 350f;
+    private Coroutine _countDown = null, _fontScaler = null;   
     private float _time = 0f;
 
-    public void StartTimer(float time, Action setOnComplete)
+    private const float FontSize = 350f;
+    private const float CountTime = 3f;
+
+    public void StartTimer()
     {
-        _time = time + 1;
+        _time = CountTime + 1;
         _text.gameObject.SetActive(true);
-        _countDown = StartCoroutine(CountDown(setOnComplete));
+
+        if (_countDown != null)
+            StopCoroutine(_countDown);
+
+        _countDown = StartCoroutine(CountDown());
     }
 
     public void StopTimer()
@@ -32,7 +39,7 @@ public class StartScreenTimer : MonoBehaviour
         _fontScaler = StartCoroutine(ScaleFontSize());
     }
 
-    private IEnumerator CountDown(Action setOnComplete)
+    private IEnumerator CountDown()
     {
          int count = (int)_time + 1;
 
@@ -60,8 +67,7 @@ public class StartScreenTimer : MonoBehaviour
         }               
         _text.gameObject.SetActive(false);
 
-        if (setOnComplete != null)
-            setOnComplete();
+        StartGame?.Invoke();
     }
 
     private IEnumerator ScaleFontSize()

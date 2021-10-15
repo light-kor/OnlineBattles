@@ -19,9 +19,7 @@ public static class DataHolder
     public static int MyIDInServerSystem { get; set; }  = -1;   
     public static int LobbyID { get; set; } = -1;   
     public static int IDInThisGame { get; set; } = -1;
-    public static int Money { get; set; } = -1;
-    public static int MyScore { get; set; } = 0;
-    public static int EnemyScore { get; set; } = 0;
+    public static int Money { get; set; } = -1;  
 
     // Settings
     public static string NickName { get; set; } = null;
@@ -35,13 +33,7 @@ public static class DataHolder
     public static string ServerIp { get; } = "188.134.87.78";
     public static string WifiGameIp { get; set; } = null;
     public static int RemoteServerPort { get; } = 55555;
-    public static int WifiPort { get; } = 55550;
-
-    public static void ResetScore()
-    {
-        MyScore = 0;
-        EnemyScore = 0;
-    }
+    public static int WifiPort { get; } = 55550;    
 
     public enum GameTypes
     {

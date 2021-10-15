@@ -25,7 +25,7 @@ public class MainMenu : MonoBehaviour
         _wifiComponents = GetComponent<WifiMenuComponents>();
         _panelAnim = GetComponent<a_ChangePanel>();
         _settings.GetComponent<PlayerSettings>().LoadSettings(); // Нужно это сделать тут, а то тот объект со скриптом в начале неактивен
-        DataHolder.ResetScore();
+        GameResourcesTemplate.ResetScore();
         ChoseStartView();
     }
 
@@ -278,6 +278,11 @@ public class MainMenu : MonoBehaviour
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
     }
 
+    //TODO: Добавить подтверждение готовности при игре онлайн
+
+    //TODO: Сделать надпись "Старт" двухсторонней.
+
+    //TODO: Надо бы деактивировать джойстики, когда игры вставла на паузу
 
     //TODO: Добавить camera shake. Видос в вк
 

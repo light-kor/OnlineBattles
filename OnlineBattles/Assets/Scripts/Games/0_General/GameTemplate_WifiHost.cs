@@ -1,16 +1,16 @@
 using UnityEngine;
 
-public class GameTemplate_WifiHost : MonoBehaviour
+public abstract class GameTemplate_WifiHost : MonoBehaviour
 {
     protected bool _gameOn = true;
-    protected string[] messege;
+    protected string[] _messages;
     private string _earlyOpponentStatus = null;
     private GameType _gameType;
 
     protected void BaseStart(GameType type)
     {
         WifiServer_Host.OpponentGaveUp += OpponentGiveUp;
-        LeaveGameButton.WantLeaveTheGame += IGiveUp;
+        PauseMenu.WantLeaveTheGame += IGiveUp;
         _gameType = type;
 
         if (_gameType == GameType.UDP)
@@ -39,8 +39,8 @@ public class GameTemplate_WifiHost : MonoBehaviour
 
     protected bool SplitFramesAndChechTrash()
     {
-        messege = DataHolder.MessageUDPget[0].Split(' ');
-        if (messege[0] != "g")
+        _messages = DataHolder.MessageUDPget[0].Split(' ');
+        if (_messages[0] != "g")
         {
             DataHolder.MessageUDPget.RemoveAt(0);
             return false;
@@ -104,6 +104,6 @@ public class GameTemplate_WifiHost : MonoBehaviour
     private void OnDestroy()
     {
         WifiServer_Host.OpponentGaveUp -= OpponentGiveUp;
-        LeaveGameButton.WantLeaveTheGame -= IGiveUp;
+        PauseMenu.WantLeaveTheGame -= IGiveUp;
     }
 }

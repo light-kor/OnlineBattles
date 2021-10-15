@@ -3,11 +3,12 @@ using UnityEngine;
 
 public class Player: MonoBehaviour
 {
-    [SerializeField] GeneralResources.PlayerType _playerType;
+    [SerializeField] GameResourcesTemplate.PlayerType _playerType;
     [SerializeField] private Joystick _joystick;
     [SerializeField] private EdgeCollider2D _trailCollider;
     [SerializeField] private ParticleSystem _explosion;
     [SerializeField] private TrailRenderer _trail;
+    [SerializeField] private float _trailTime = 3.2f;
 
     private Rigidbody2D _rb;
     private GameResources_2 GR;
@@ -19,19 +20,13 @@ public class Player: MonoBehaviour
     private const float MoveSpeed = 1.8f;
     private const float RotateSpeed = 300f;
     
-
     private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
         GR = GameResources_2.GameResources;
-    }
-
-    //TODO: Добавить подтверждение готовности при игре онлайн
-    //TODO: Настроить якоря игроков и джойстиков
-    //TODO: На кнопку выхода сделать паузы с выбором: Выход или продолжить. В том числе и для онлайна
-    //TODO: В конце, на уведомление о победе одного, добавить кнопку рестарта. Для онлайна наверное не следует.
-    //TODO: Они могут врезаться однвременно. Надо предусмотреть и такую ничью
-    //TODO: Сделать надпись "Старт" двухсторонней.
+        GR.StopTrail += StopTrail;
+        GR.ResumeTrail += ResumeTrail;
+    }   
 
     private void Update()
     {
@@ -55,19 +50,24 @@ public class Player: MonoBehaviour
         if (collision.gameObject.TryGetComponent(out Player player))
         {
             _explosion.Play();
-            GR.PauseGame(null);
+            GR.RoundResults(null);
         }
     }
 
     public void LoseRound()
     {
         _explosion.Play();
-        GR.PauseGame(gameObject);    
+        GR.RoundResults(gameObject);    
     }
 
     public void StopTrail()
     {
         _trail.time = Mathf.Infinity;
+    }
+
+    public void ResumeTrail()
+    {
+        _trail.time = _trailTime;
     }
 
     private void CreateTrailsCollider()
@@ -95,9 +95,9 @@ public class Player: MonoBehaviour
     private void ChangeDirection()
     {
         Vector2 normalizedJoystick = Vector2.zero;
-        if (_playerType == GeneralResources.PlayerType.BluePlayer)
+        if (_playerType == GameResourcesTemplate.PlayerType.BluePlayer)
             normalizedJoystick = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
-        else if (_playerType == GeneralResources.PlayerType.RedPlayer)
+        else if (_playerType == GameResourcesTemplate.PlayerType.RedPlayer)
             normalizedJoystick = new Vector2(-_joystick.Horizontal, -_joystick.Vertical).normalized;
 
         if (normalizedJoystick != Vector2.zero)
@@ -125,5 +125,11 @@ public class Player: MonoBehaviour
                 }
             }
         }
+    }
+
+    private void OnDestroy()
+    {
+        GR.StopTrail -= StopTrail;
+        GR.ResumeTrail -= ResumeTrail;
     }
 }
