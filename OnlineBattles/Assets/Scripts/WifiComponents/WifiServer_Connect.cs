@@ -21,9 +21,9 @@ public static class WifiServer_Connect
 
     private static void AddServerToList()
     {
-        while (DataHolder.MessageUDPget.Count > 0)
+        while (Network.UDPMessages.Count > 0)
         {
-            string[] mes = DataHolder.MessageUDPget[0].Split(' ');
+            string[] mes = Network.UDPMessages[0].Split(' ');
             if (mes[0] == "server")
             {                
                 if (_wifiServers.Find(x => x == mes[2]) == null)
@@ -32,7 +32,7 @@ public static class WifiServer_Connect
                     AddWifiServerToScreen?.Invoke($"{mes[1]} {mes[2]}");                    
                 }
             }
-            DataHolder.MessageUDPget.RemoveAt(0);
+            Network.UDPMessages.RemoveAt(0);
         }
     }
 }

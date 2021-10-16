@@ -1,12 +1,15 @@
 using UnityEngine;
 
-public class TrailCollider : MonoBehaviour
+namespace Game2
 {
-    private void OnTriggerEnter2D(Collider2D collision)
+    public class TrailCollider : MonoBehaviour
     {
-        if (collision.TryGetComponent(out Player player))
+        private void OnTriggerEnter2D(Collider2D collision)
         {
-            player.LoseRound();
+            if (collision.TryGetComponent(out Player player))
+            {
+                player.LoseRound();
+            }
         }
     }
 }

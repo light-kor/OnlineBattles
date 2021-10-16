@@ -40,7 +40,7 @@ public class NotificationControl : MonoBehaviour
                 break;
 
             case Notification.ButtonTypes.CancelGameSearch: // CancelGameSearch
-                DataHolder.ClientTCP.SendMessage("CancelSearch");
+                Network.ClientTCP.SendMessage("CancelSearch");
                 break;
 
             case Notification.ButtonTypes.MenuButton: // ExitPresentGame

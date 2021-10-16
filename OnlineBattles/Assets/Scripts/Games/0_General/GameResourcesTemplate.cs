@@ -122,5 +122,5 @@ public abstract class GameResourcesTemplate : MonoBehaviour
         Win,
         Lose,
         Draw
-    }
+    }   
 }

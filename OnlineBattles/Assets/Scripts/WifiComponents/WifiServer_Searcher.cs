@@ -86,7 +86,7 @@ public class WifiServer_Searcher
             {
                 byte[] data = _client.Receive(ref _remoteIp);
                 string messList = Encoding.UTF8.GetString(data);               
-                DataHolder.MessageUDPget.Add($"{messList} {_remoteIp.Address}");
+                Network.UDPMessages.Add($"{messList} {_remoteIp.Address}");
                 GetWifiServer?.Invoke();
             }
             catch { TryReconnect(); }

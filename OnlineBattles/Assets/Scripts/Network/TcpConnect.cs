@@ -9,6 +9,8 @@ public class TCPConnect
     public event DataHolder.Notification BigMessageReceived;
 
     public bool ConnectionIsReady = false;
+    public DateTime LastSend = DateTime.UtcNow;
+    public List<byte> BigArray = new List<byte>();
 
     private const int ConnectionTimedOut = 3000;
     private const int MessageLengthLimit = 500;
@@ -84,7 +86,7 @@ public class TCPConnect
 
             _client.GetStream().Write(sizeInByte, 0, sizeInByte.Length);
             _client.GetStream().Write(buffer, 0, buffer.Length);
-            DataHolder.LastSend = DateTime.UtcNow;
+            LastSend = DateTime.UtcNow;
         }
         catch { TryStartReconnect(); }
     }
@@ -119,12 +121,11 @@ public class TCPConnect
             if (buffer.Count < MessageLengthLimit)
             {
                 string message = Encoding.UTF8.GetString(buffer.ToArray());
-                DataHolder.MessageTCP.Add(message);
-                Network.MessageHandler();
+                Network.AddNewTCPMessage(message);
             }
             else
             {
-                DataHolder.BigArray = buffer;
+                BigArray = buffer;
                 BigMessageReceived?.Invoke();
             }
         }

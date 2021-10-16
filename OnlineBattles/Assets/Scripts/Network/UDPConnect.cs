@@ -61,6 +61,15 @@ public class UDPConnect
         catch { TryReconnect(); }
     }
 
+    public void SendMessage(byte[] data) //TODO: Может сделать что-то типо переопределения, чтоб только один раз выбрать, а не делать проверку GameType каждый раз.
+    {
+        try
+        {
+            _client.Send(data, data.Length);
+        }
+        catch { TryReconnect(); }
+    }
+
     /// <summary>
     /// Цикл приёма UDP сообщений и помещение их в DataHolder.MessageUDPget.
     /// </summary>
@@ -71,8 +80,10 @@ public class UDPConnect
             try
             {
                 byte[] data = _client.Receive(ref _remoteIp);
-                string messList = Encoding.UTF8.GetString(data);
-                DataHolder.MessageUDPget.Add(messList);
+                //string messList = Encoding.UTF8.GetString(data);
+                //Network.UDPMessages.Add(messList);
+
+                Network.UDPMessagesBig.Add(data);
             }
             catch { TryReconnect(); }
         }

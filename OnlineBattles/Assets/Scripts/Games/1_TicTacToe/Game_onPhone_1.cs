@@ -1,51 +1,54 @@
 using UnityEngine;
 
-public class Game_onPhone_1 : MonoBehaviour
+namespace Game1
 {
-    private GameResources_1 GR;
-    private bool _firstPlayerTurn = true;
-
-    void Start()
+    public class Game_onPhone_1 : MonoBehaviour
     {
-        GR = transform.parent.GetComponent<GameResources_1>();
-    }
+        private GameResources_1 GR;
+        private bool _firstPlayerTurn = true;
 
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
+        void Start()
         {
-            Vector3 clickWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3Int clickCellPosition = GR.Map.WorldToCell(clickWorldPosition);
-            if (GR.Map.GetTile(clickCellPosition) == GR.MainTile)
+            GR = transform.parent.GetComponent<GameResources_1>();
+        }
+
+        void Update()
+        {
+            if (Input.GetMouseButtonDown(0))
             {
-                if (_firstPlayerTurn)
-                    GR.Map.SetTile(clickCellPosition, GR.MyTile);
-                else
-                    GR.Map.SetTile(clickCellPosition, GR.EnemyTile);
+                Vector3 clickWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector3Int clickCellPosition = GR.Map.WorldToCell(clickWorldPosition);
+                if (GR.Map.GetTile(clickCellPosition) == GR.MainTile)
+                {
+                    if (_firstPlayerTurn)
+                        GR.Map.SetTile(clickCellPosition, GR.MyTile);
+                    else
+                        GR.Map.SetTile(clickCellPosition, GR.EnemyTile);
 
-                if (!_firstPlayerTurn)
-                    CheckEndOfGame();
+                    if (!_firstPlayerTurn)
+                        CheckEndOfGame();
 
-                _firstPlayerTurn = !_firstPlayerTurn;
+                    _firstPlayerTurn = !_firstPlayerTurn;
+                }
             }
         }
-    }
 
-    public void CheckEndOfGame()
-    {
-        string result = GR.CheckWin();
-
-        if (result != null)
+        public void CheckEndOfGame()
         {
-            string notifText = null;
-            if (result == "draw")
-                notifText = "Ничья";
-            else if (result == "first")
-                notifText = "Синий победил";
-            else if (result == "second")
-                notifText = "Красный победил";
+            string result = GR.CheckWin();
 
-            new Notification(notifText, Notification.ButtonTypes.MenuButton);
+            if (result != null)
+            {
+                string notifText = null;
+                if (result == "draw")
+                    notifText = "Ничья";
+                else if (result == "first")
+                    notifText = "Синий победил";
+                else if (result == "second")
+                    notifText = "Красный победил";
+
+                new Notification(notifText, Notification.ButtonTypes.MenuButton);
+            }
         }
     }
 }

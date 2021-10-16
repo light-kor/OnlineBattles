@@ -1,13 +1,16 @@
 using UnityEngine;
 
-public class PointEnterHandler : MonoBehaviour
+namespace Game3
 {
-    public delegate void CatchPoint(GameObject obj);
-    public static event CatchPoint Catch;
-
-    private void OnTriggerEnter2D(Collider2D player)
+    public class PointEnterHandler : MonoBehaviour
     {
-        Catch?.Invoke(player.gameObject);
-        Destroy(gameObject);
+        public delegate void CatchPoint(GameObject obj);
+        public static event CatchPoint Catch;
+
+        private void OnTriggerEnter2D(Collider2D player)
+        {
+            Catch?.Invoke(player.gameObject);
+            Destroy(gameObject);
+        }
     }
 }

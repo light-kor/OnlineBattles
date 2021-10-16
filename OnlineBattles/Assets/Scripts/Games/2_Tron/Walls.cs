@@ -1,39 +1,42 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Walls : MonoBehaviour
+namespace Game2
 {
-    [SerializeField] private Canvas _canvas;
-
-    private EdgeCollider2D _collider;
-    private List<Vector2> _points = new List<Vector2>();
-    private float _offset = 20f;
-
-    private void Start()
+    public class Walls : MonoBehaviour
     {
-        _collider = GetComponent<EdgeCollider2D>();
-        SetWallsCollider();
-    }
+        [SerializeField] private Canvas _canvas;
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.TryGetComponent(out Player player))
+        private EdgeCollider2D _collider;
+        private List<Vector2> _points = new List<Vector2>();
+        private float _offset = 20f;
+
+        private void Start()
         {
-            player.LoseRound();
+            _collider = GetComponent<EdgeCollider2D>();
+            SetWallsCollider();
         }
-    }
 
-    private void SetWallsCollider()
-    {
-        float halfWidth = Screen.width / _canvas.scaleFactor / 2 + _offset;
-        float halfHeight = Screen.height / _canvas.scaleFactor / 2 + _offset;
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (collision.TryGetComponent(out Player player))
+            {
+                player.LoseRound();
+            }
+        }
 
-        _points.Add(new Vector2(halfWidth, halfHeight));
-        _points.Add(new Vector2(halfWidth, -halfHeight));
-        _points.Add(new Vector2(-halfWidth, -halfHeight));
-        _points.Add(new Vector2(-halfWidth, halfHeight));
-        _points.Add(new Vector2(halfWidth, halfHeight));
+        private void SetWallsCollider()
+        {
+            float halfWidth = Screen.width / _canvas.scaleFactor / 2 + _offset;
+            float halfHeight = Screen.height / _canvas.scaleFactor / 2 + _offset;
 
-        _collider.SetPoints(_points);
+            _points.Add(new Vector2(halfWidth, halfHeight));
+            _points.Add(new Vector2(halfWidth, -halfHeight));
+            _points.Add(new Vector2(-halfWidth, -halfHeight));
+            _points.Add(new Vector2(-halfWidth, halfHeight));
+            _points.Add(new Vector2(halfWidth, halfHeight));
+
+            _collider.SetPoints(_points);
+        }
     }
 }

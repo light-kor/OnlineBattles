@@ -6,24 +6,24 @@ public abstract class GameTemplate_Online : MonoBehaviour
     protected bool _finishTheGame = false;
     protected bool _gameOn = true;
     protected string[] _frame = null, _frame2 = null;
-    private GameType _gameType;
+    private DataHolder.ConnectType _gameType;
     private string _endStatus = null;
 
-    protected void BaseStart(GameType type)
+    protected void BaseStart(DataHolder.ConnectType type)
     {
         Network.EndOfGame += FinishTheGame;
         PauseMenu.WantLeaveTheGame += GiveUp;
         _gameType = type;
 
-        if (_gameType == GameType.UDP)
+        if (_gameType == DataHolder.ConnectType.UDP)
         {
             Network.CreateUDP();
-            DataHolder.MessageUDPget.Clear();
-            DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
+            Network.UDPMessagesBig.Clear();
+            Network.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
         }
 
         if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
-            DataHolder.ClientTCP.SendMessage("start");    
+            Network.ClientTCP.SendMessage("start");    
     }
 
     protected virtual void Update()
@@ -64,33 +64,14 @@ public abstract class GameTemplate_Online : MonoBehaviour
 
     private void GiveUp()
     {
-        DataHolder.ClientTCP.SendMessage("GiveUp");
-    }
-
-    protected bool SplitFramesAndChechTrash()
-    {
-        _frame = DataHolder.MessageUDPget[0].Split(' ');
-        _frame2 = DataHolder.MessageUDPget[1].Split(' ');
-
-        if (_frame[0] != "g")
-        {
-            DataHolder.MessageUDPget.RemoveAt(0);
-            return false;
-        }
-        else if (_frame2[0] != "g")
-        {
-            DataHolder.MessageUDPget.RemoveAt(1);
-            return false;
-        }
-
-        return true;
+        Network.ClientTCP.SendMessage("GiveUp");
     }
 
     protected void CloseAll()
     {
         _gameOn = false;
 
-        if (_gameType == GameType.UDP)
+        if (_gameType == DataHolder.ConnectType.UDP)
         {
             Network.CloseUdpConnection();
         }
@@ -103,13 +84,7 @@ public abstract class GameTemplate_Online : MonoBehaviour
     {
 
     }
-
-    public enum GameType
-    {
-        TCP,
-        UDP
-    }
-
+   
     private void OnDestroy()
     {
         Network.EndOfGame -= FinishTheGame;

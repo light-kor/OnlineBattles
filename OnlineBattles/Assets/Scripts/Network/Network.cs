@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -10,6 +11,16 @@ public static class Network
 
     public static bool TryRecconect = true;   
     public static bool ConnectionInProgress = false;
+    
+    public static List<string> TCPMessagesForGames = new List<string>();
+    public static List<string> UDPMessages = new List<string>();
+    public static List<byte[]> UDPMessagesBig = new List<byte[]>();
+    public static TCPConnect ClientTCP = null;
+    public static UDPConnect ClientUDP = null;
+    public static long TimeDifferenceWithServer;
+
+    private static List<string> _messagesTCP = new List<string>();
+    private static WifiServer_Searcher _serverSearcher = null;
 
     private const float TimeForWaitAnswer = 10f;   
     private static bool _loginSuccessful = false;
@@ -17,14 +28,14 @@ public static class Network
     private static bool _earlyTerminationOfConnection = false;
     private static bool _requestDenied = false;
 
-    public static void MessageHandler()
+    private static void MessageHandler()
     {
         if (!_messageHandlerIsBusy)
         {
             _messageHandlerIsBusy = true;
-            while (DataHolder.MessageTCP.Count > 0)
+            while (_messagesTCP.Count > 0)
             {
-                string[] mes = DataHolder.MessageTCP[0].Split(' ');
+                string[] mes = _messagesTCP[0].Split(' ');
                 switch (mes[0])
                 {
                     case "win":
@@ -40,11 +51,11 @@ public static class Network
                         break;
 
                     case "ping":
-                        DataHolder.ClientTCP.SendMessage("ping");
+                        ClientTCP.SendMessage("ping");
                         break;                   
 
                     case "time":
-                        DataHolder.TimeDifferenceWithServer = DateTime.UtcNow.Ticks - Convert.ToInt64(mes[1]);
+                        TimeDifferenceWithServer = DateTime.UtcNow.Ticks - Convert.ToInt64(mes[1]);
                         break;
 
                     case "denied":
@@ -61,11 +72,11 @@ public static class Network
                         break;                   
 
                     default:
-                        DataHolder.MessageTCPforGame.Add(DataHolder.MessageTCP[0]);
+                        TCPMessagesForGames.Add(_messagesTCP[0]);
                         break;
 
                 }
-                DataHolder.MessageTCP.RemoveAt(0);
+                _messagesTCP.RemoveAt(0);
             }
             _messageHandlerIsBusy = false;
         }       
@@ -75,20 +86,26 @@ public static class Network
     public static void ConnectionLifeSupport()
     {
         // Поддержание жизни соединения с сервером.
-        if (DataHolder.ClientTCP != null && DataHolder.ClientTCP.ConnectionIsReady == true && (DateTime.UtcNow - DataHolder.LastSend).TotalMilliseconds > 3000)
-            DataHolder.ClientTCP.SendMessage("Check");           
+        if (ClientTCP != null && ClientTCP.ConnectionIsReady == true && (DateTime.UtcNow - ClientTCP.LastSend).TotalMilliseconds > 3000)
+            ClientTCP.SendMessage("Check");           
     }
 
     public static void CreateUDP()
     {
         CloseUdpConnection();
-        DataHolder.ClientUDP = new UDPConnect();
+        ClientUDP = new UDPConnect();
+    }
+
+    public static void AddNewTCPMessage(string message)
+    {
+        _messagesTCP.Add(message);
+        MessageHandler();
     }
 
     public static void CreateWifiServerSearcher(string type)
     {
         CloseWifiServerSearcher();
-        DataHolder.ServerSearcher = new WifiServer_Searcher(type);
+        _serverSearcher = new WifiServer_Searcher(type);
     }
     
     public static async void CreateTCP()
@@ -99,7 +116,7 @@ public static class Network
         if (ConnectionInProgress)
         {
             ConnectionInProgress = false;
-            DataHolder.ClientTCP.ConnectionIsReady = true;
+            ClientTCP.ConnectionIsReady = true;
 
             if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
                 TcpConnectionIsDone?.Invoke();
@@ -122,7 +139,7 @@ public static class Network
 
         if (CheckForEarlyTerminationOfConnection()) return;
 
-        DataHolder.ClientTCP = new TCPConnect();
+        ClientTCP = new TCPConnect();
 
         if (CheckForEarlyTerminationOfConnection()) return;
 
@@ -152,9 +169,9 @@ public static class Network
     private static void LoginInServerSystem()
     {
         if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
-            DataHolder.ClientTCP.SendMessage("login " + DataHolder.KeyCodeName);
+            ClientTCP.SendMessage("login " + "DataHolder.KeyCodeName");
         else if (DataHolder.GameType == DataHolder.GameTypes.WifiClient)
-            DataHolder.ClientTCP.SendMessage("name " + DataHolder.NickName);
+            ClientTCP.SendMessage("name " + DataHolder.NickName);
 
         DateTime StartTryConnect = DateTime.Now;
 
@@ -187,7 +204,7 @@ public static class Network
             {
                 // При полном успехе
                 ConnectionInProgress = false;
-                DataHolder.ClientTCP.ConnectionIsReady = true;
+                ClientTCP.ConnectionIsReady = true;
                 NotificationManager.NM.CloseStartReconnect();
             }
         }
@@ -213,8 +230,8 @@ public static class Network
     {
         if (_earlyTerminationOfConnection)
         {
-            if (!_requestDenied && DataHolder.ClientTCP != null)
-                DataHolder.ClientTCP.SendMessage("Cancel"); // Отправить хосту сообщение, что ты больше не ищешь игру.
+            if (!_requestDenied && ClientTCP != null)
+                ClientTCP.SendMessage("Cancel"); // Отправить хосту сообщение, что ты больше не ищешь игру.
 
             CloseTcpConnection();
             _earlyTerminationOfConnection = false;
@@ -225,31 +242,32 @@ public static class Network
         else return false;           
     }
 
+    #region CloseConnection
     public static void CloseTcpConnection()
     {
         _loginSuccessful = false;
-        if (DataHolder.ClientTCP != null)
+        if (ClientTCP != null)
         {
-            DataHolder.ClientTCP.CloseClient();
-            DataHolder.ClientTCP = null;
+            ClientTCP.CloseClient();
+            ClientTCP = null;
         }
     }
 
     public static void CloseUdpConnection()
     {
-        if (DataHolder.ClientUDP != null)
+        if (ClientUDP != null)
         {
-            DataHolder.ClientUDP.CloseAll();
-            DataHolder.ClientUDP = null;
+            ClientUDP.CloseAll();
+            ClientUDP = null;
         }
     }
 
     public static void CloseWifiServerSearcher()
     {
-        if (DataHolder.ServerSearcher != null)
+        if (_serverSearcher != null)
         {
-            DataHolder.ServerSearcher.CloseAll();
-            DataHolder.ServerSearcher = null;
+            _serverSearcher.CloseAll();
+            _serverSearcher = null;
         }
     }
 
@@ -262,5 +280,6 @@ public static class Network
     public static void StopConnecting()
     {
         _earlyTerminationOfConnection = true;
-    }   
+    }
+    #endregion
 }

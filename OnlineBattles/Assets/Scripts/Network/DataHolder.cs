@@ -1,19 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-
-public static class DataHolder
-{
-    public static List<string> MessageTCP { get; set; } = new List<string>();
-    public static List<string> MessageTCPforGame { get; set; } = new List<string>();
-    public static List<string> MessageUDPget { get; set; } = new List<string>();
-    public static List<byte> BigArray { get; set; } = new List<byte>();
-    public static TCPConnect ClientTCP { get; set; } = null;
-    public static UDPConnect ClientUDP { get; set; } = null;
-    public static WifiServer_Searcher ServerSearcher { get; set; } = null;
-    public static DateTime LastSend { get; set; } = DateTime.UtcNow;
-    public static string KeyCodeName { get; set; } = "123";
-    public static string StartMenuView { get; set; } = null; //TODO: Удалить
-    public static long TimeDifferenceWithServer { get; set; }
+﻿public static class DataHolder
+{   
     public static GameTypes GameType { get; set; } = GameTypes.Null;
     public static int SelectedServerGame { get; set; } = -1;           
     public static int MyIDInServerSystem { get; set; }  = -1;   
@@ -42,5 +28,11 @@ public static class DataHolder
         WifiHost,
         WifiClient,
         Multiplayer
+    }
+
+    public enum ConnectType
+    {
+        TCP,
+        UDP
     }
 }

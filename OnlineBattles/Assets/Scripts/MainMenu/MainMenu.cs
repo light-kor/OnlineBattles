@@ -33,9 +33,9 @@ public class MainMenu : MonoBehaviour
     {
         Network.ConnectionLifeSupport(); //TODO: Может вынести как-то поудобнее
 
-        if (DataHolder.MessageTCPforGame.Count > 0)
+        if (Network.TCPMessagesForGames.Count > 0)
         {
-            string[] mes = DataHolder.MessageTCPforGame[0].Split(' ');
+            string[] mes = Network.TCPMessagesForGames[0].Split(' ');
             if (mes[0] == "S")
             {
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[1]);
@@ -64,7 +64,7 @@ public class MainMenu : MonoBehaviour
                 _panelAnim.StartTransition(ActivateMainMenu);
                 new Notification("Сервер отключён", Notification.ButtonTypes.SimpleClose);
             }
-            DataHolder.MessageTCPforGame.RemoveAt(0);
+            Network.TCPMessagesForGames.RemoveAt(0);
         }
     }
 
@@ -94,7 +94,7 @@ public class MainMenu : MonoBehaviour
             //TODO: Добавить анимацию ожидания.
             new Notification("Поиск игры", Notification.ButtonTypes.CancelGameSearch);
             _lvlName = "lvl" + lvlNum;
-            DataHolder.ClientTCP.SendMessage($"game {lvlNum}");
+            Network.ClientTCP.SendMessage($"game {lvlNum}");
         }
     }
 
@@ -169,9 +169,9 @@ public class MainMenu : MonoBehaviour
         {
             Network.CloseWifiServerSearcher();
 
-            if (DataHolder.ClientTCP != null)
+            if (Network.ClientTCP != null)
             {
-                DataHolder.ClientTCP.SendMessage("disconnect");
+                Network.ClientTCP.SendMessage("disconnect");
                 Network.CloseTcpConnection();
             }
         }

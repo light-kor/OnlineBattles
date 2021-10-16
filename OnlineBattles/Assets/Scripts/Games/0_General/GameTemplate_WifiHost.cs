@@ -5,17 +5,19 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
     protected bool _gameOn = true;
     protected string[] _messages;
     private string _earlyOpponentStatus = null;
-    private GameType _gameType;
+    private DataHolder.ConnectType _gameType;
 
-    protected void BaseStart(GameType type)
+    protected void BaseStart(DataHolder.ConnectType type)
     {
         WifiServer_Host.OpponentGaveUp += OpponentGiveUp;
         PauseMenu.WantLeaveTheGame += IGiveUp;
         _gameType = type;
 
-        if (_gameType == GameType.UDP)
+        if (_gameType == DataHolder.ConnectType.UDP)
         {
-            StartUdpConnection();
+            Network.UDPMessagesBig.Clear();
+            Network.CreateUDP();
+            Network.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес   
             InvokeRepeating("SendAllChanges", 0f, WifiServer_Host.UpdateRate);
         }
     }
@@ -28,24 +30,6 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
             EndOfGame(_earlyOpponentStatus);
             _earlyOpponentStatus = null;
         }
-    }
-
-    private void StartUdpConnection()
-    {
-        DataHolder.MessageUDPget.Clear();
-        Network.CreateUDP();
-        DataHolder.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес       
-    }
-
-    protected bool SplitFramesAndChechTrash()
-    {
-        _messages = DataHolder.MessageUDPget[0].Split(' ');
-        if (_messages[0] != "g")
-        {
-            DataHolder.MessageUDPget.RemoveAt(0);
-            return false;
-        }
-        return true;
     }
 
     /// <summary>
@@ -80,7 +64,7 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
     {
         _gameOn = false;
 
-        if (_gameType == GameType.UDP)
+        if (_gameType == DataHolder.ConnectType.UDP)
         {
             CancelInvoke();
             Network.CloseUdpConnection();
@@ -93,12 +77,6 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
     public virtual void SendAllChanges()
     {
 
-    }
-
-    public enum GameType
-    {
-        TCP,
-        UDP        
     }
 
     private void OnDestroy()

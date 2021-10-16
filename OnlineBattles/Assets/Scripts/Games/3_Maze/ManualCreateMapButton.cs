@@ -4,44 +4,47 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ManualCreateMapButton : MonoBehaviour, IPointerClickHandler
+namespace Game3
 {
-    public static event DataHolder.Notification Click;
-    private float _timer;
-    private TMP_Text _time;
-    private bool _waiting = false;
-
-    public void OnPointerClick(PointerEventData eventData)
+    public class ManualCreateMapButton : MonoBehaviour, IPointerClickHandler
     {
-        if (!_waiting)
+        public static event DataHolder.Notification Click;
+        private float _timer;
+        private TMP_Text _time;
+        private bool _waiting = false;
+
+        public void OnPointerClick(PointerEventData eventData)
         {
-            Click?.Invoke();
-            _waiting = true;
-            GetComponent<Button>().interactable = false;
-            _timer = 9f;
-            _time.gameObject.SetActive(true);
-        }
-    }
-
-    private void Start()
-    {
-        _time = GetComponentInChildren<TMP_Text>();
-        _time.gameObject.SetActive(false);
-    }
-
-    private void Update()
-    {
-        if (_waiting)
-        {
-            if (_timer < 0)
+            if (!_waiting)
             {
-                GetComponent<Button>().interactable = true;
-                _waiting = false;
-                _time.gameObject.SetActive(false);
+                Click?.Invoke();
+                _waiting = true;
+                GetComponent<Button>().interactable = false;
+                _timer = 9f;
+                _time.gameObject.SetActive(true);
             }
+        }
 
-            _timer -= Time.deltaTime;
-            _time.text = Math.Round(_timer).ToString();
+        private void Start()
+        {
+            _time = GetComponentInChildren<TMP_Text>();
+            _time.gameObject.SetActive(false);
+        }
+
+        private void Update()
+        {
+            if (_waiting)
+            {
+                if (_timer < 0)
+                {
+                    GetComponent<Button>().interactable = true;
+                    _waiting = false;
+                    _time.gameObject.SetActive(false);
+                }
+
+                _timer -= Time.deltaTime;
+                _time.text = Math.Round(_timer).ToString();
+            }
         }
     }
 }

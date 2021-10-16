@@ -5,28 +5,46 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public class BigDataExchange<T>
 {
-    public static void SendBigMessage(T data)
+    public static void SendBigMessage(T data, DataHolder.ConnectType type)
     {
         BinaryFormatter formatter = new BinaryFormatter();
         NetworkStream stream = null;
         if (WifiServer_Host.Opponent != null)
-            stream = WifiServer_Host.Opponent.Client.GetStream();
-        else return;
-
-        using (var ms = new MemoryStream())
         {
-            formatter.Serialize(ms, data);
-            byte[] bytedMaze = ms.ToArray();
-            byte[] sizeInByte = BitConverter.GetBytes(bytedMaze.Length);
-            stream.Write(sizeInByte, 0, sizeInByte.Length);
-            stream.Write(bytedMaze, 0, bytedMaze.Length);
-        }
+            using (var ms = new MemoryStream())
+            {
+                formatter.Serialize(ms, data);
+                byte[] bytedMessage = ms.ToArray();
+                byte[] messageSize = BitConverter.GetBytes(bytedMessage.Length);
+
+                if (type == DataHolder.ConnectType.TCP)
+                {
+                    stream = WifiServer_Host.Opponent.Client.GetStream();
+                    stream.Write(messageSize, 0, messageSize.Length);
+                    stream.Write(bytedMessage, 0, bytedMessage.Length);
+                }
+                else if (type == DataHolder.ConnectType.UDP)
+                {
+                    Network.ClientUDP.SendMessage(bytedMessage);
+                }                
+            }
+        }           
+        else return;       
     }
 
     public static T GetBigMessage()
     {
         var formatter = new BinaryFormatter();
-        using (var ms = new MemoryStream(DataHolder.BigArray.ToArray()))
+        using (var ms = new MemoryStream(Network.ClientTCP.BigArray.ToArray()))
+        {
+            return (T)formatter.Deserialize(ms);
+        }
+    }
+
+    public static T GetBigMessage(byte[] data)
+    {
+        var formatter = new BinaryFormatter();
+        using (var ms = new MemoryStream(data))
         {
             return (T)formatter.Deserialize(ms);
         }
