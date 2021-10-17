@@ -24,6 +24,11 @@ namespace Game3
             BaseStart(DataHolder.ConnectType.UDP);
         }
 
+        private void FixedUpdate()
+        {
+            SendAllChanges();
+        }
+
         protected override void Update()
         {
             base.Update();
@@ -134,14 +139,14 @@ namespace Game3
                     Destroy(GR._maze);
 
                 GR._maze = new GameObject("Maze");
-                MazeGeneratorCell[,] maze = BigDataExchange<MazeGeneratorCell[,]>.GetBigMessage();
+                MazeGeneratorCell[,] maze = Serializer<MazeGeneratorCell[,]>.GetMessage();
                 GR.BuildMaze(maze);
 
                 GR._lock = false;
             }
         }
 
-        public override void SendAllChanges()
+        private void SendAllChanges()
         {
             Vector2 move = new Vector2(GR._firstJoystick.Horizontal, GR._firstJoystick.Vertical);
             if (move != _lastMove)

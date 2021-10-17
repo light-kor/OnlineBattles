@@ -3,9 +3,9 @@ using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 
-public class BigDataExchange<T>
+public class Serializer<T>
 {
-    public static void SendBigMessage(T data, DataHolder.ConnectType type)
+    public static void SendMessage(T data, DataHolder.ConnectType type)
     {
         BinaryFormatter formatter = new BinaryFormatter();
         NetworkStream stream = null;
@@ -32,7 +32,7 @@ public class BigDataExchange<T>
         else return;       
     }
 
-    public static T GetBigMessage()
+    public static T GetMessage()
     {
         var formatter = new BinaryFormatter();
         using (var ms = new MemoryStream(Network.ClientTCP.BigArray.ToArray()))
@@ -41,7 +41,7 @@ public class BigDataExchange<T>
         }
     }
 
-    public static T GetBigMessage(byte[] data)
+    public static T GetMessage(byte[] data)
     {
         var formatter = new BinaryFormatter();
         using (var ms = new MemoryStream(data))

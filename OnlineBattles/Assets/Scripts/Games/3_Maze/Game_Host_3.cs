@@ -58,6 +58,7 @@ namespace Game3
         {
             GR._myRB.MovePosition(GR._myRB.position + GR._myVelocity * Time.fixedDeltaTime * GR.PlayersSpeed);
             GR._enemyRB.MovePosition(GR._enemyRB.position + GR._enemyVelocity * Time.fixedDeltaTime * GR.PlayersSpeed);
+            SendAllChanges();
         }
 
         public void CreateMap()
@@ -71,7 +72,7 @@ namespace Game3
                 GR._maze = new GameObject("Cells");
                 MazeGenerator generator = new MazeGenerator(GR.Width, GR.Height);
                 MazeGeneratorCell[,] maze = generator.GenerateMaze();
-                BigDataExchange<MazeGeneratorCell[,]>.SendBigMessage(maze, DataHolder.ConnectType.TCP);
+                Serializer<MazeGeneratorCell[,]>.SendMessage(maze, DataHolder.ConnectType.TCP);
                 GR.BuildMaze(maze);
 
                 GR._lastChangeMazeTime = 0f;
@@ -101,7 +102,7 @@ namespace Game3
             }
         }
 
-        public override void SendAllChanges()
+        private void SendAllChanges()
         {
             Vector2Int enemyPos = new Vector2Int((int)(GR._enemy.transform.position.x * 100), (int)(GR._enemy.transform.position.y * 100));
             Vector2Int myPos = new Vector2Int((int)(GR._me.transform.position.x * 100), (int)(GR._me.transform.position.y * 100));

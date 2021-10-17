@@ -35,9 +35,7 @@ public abstract class GameTemplate_Online : MonoBehaviour
             CloseAll();
             _finishTheGame = false;
             EndOfGame();
-        }
-
-        SendAllChanges();
+        }       
     }
 
     private void FinishTheGame(string Status)
@@ -75,14 +73,6 @@ public abstract class GameTemplate_Online : MonoBehaviour
         {
             Network.CloseUdpConnection();
         }
-    }
-
-    /// <summary>
-    /// Регулярная отправка сообщений. Переопределяется в наследуемых классах.
-    /// </summary>
-    public virtual void SendAllChanges()
-    {
-
     }
    
     private void OnDestroy()

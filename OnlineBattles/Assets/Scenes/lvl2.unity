@@ -2216,6 +2216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b844b6214cf4684ea47ec3aab776a65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _joystick: {fileID: 355289334}
 --- !u!1 &8821578334833022528 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1488814074524420058, guid: 04a1711649d37134faf9b539dc13ef5c,
@@ -2235,6 +2236,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _turnOnStartTimer: 1
+  RemoteJoystick: []
   _blue: {fileID: 426430830}
   _red: {fileID: 1805030218}
 --- !u!1 &8821578335880218845 stripped

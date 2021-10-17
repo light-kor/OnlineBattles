@@ -1,17 +1,16 @@
-using System;
 using UnityEngine;
 
 namespace Game2
 {
     public class Game_Host_2 : GameTemplate_WifiHost
-    {
+    {       
         private GameResources_2 GR;
-
+        
         private void Start()
         {
             GR = GameResources_2.GameResources;
             BaseStart(DataHolder.ConnectType.UDP);
-            GR.SendFrame();
+            GR.SetControlTypes(GameResourcesTemplate.ControlType.Local, GameResourcesTemplate.ControlType.Remote);
         }
 
         protected override void Update()
@@ -25,7 +24,7 @@ namespace Game2
                     string[] mes = WifiServer_Host.Opponent.MessageTCPforGame[0].Split(' ');
                     if (mes[0] == "move")
                     {
-
+                        GR.RemoteJoystick.Add(new Vector2(float.Parse(mes[1]), float.Parse(mes[2])));
                     }
                     WifiServer_Host.Opponent.MessageTCPforGame.RemoveAt(0);
                 }
@@ -33,6 +32,12 @@ namespace Game2
                 //CheckEndOfGame();
             }
         }
+
+        private void FixedUpdate()
+        {
+            SendAllChanges();
+        }
+
 
         //public void CheckEndOfGame()
         //{
@@ -51,7 +56,7 @@ namespace Game2
         //    }
         //}
 
-        public override void SendAllChanges()
+        private void SendAllChanges()
         {
             GR.SendFrame();
         }

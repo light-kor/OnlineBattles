@@ -6,12 +6,14 @@ namespace Game2
     public class Game_Online_2 : GameTemplate_Online
     {
         private GameResources_2 GR;
+        [SerializeField] private Joystick _joystick;
         private Vector2 _lastMove = Vector2.zero;
 
         private void Start()
         {
             GR = GameResources_2.GameResources;
             BaseStart(DataHolder.ConnectType.UDP);
+            GR.SetControlTypes(GameResourcesTemplate.ControlType.Broadcast, GameResourcesTemplate.ControlType.Broadcast);
         }
 
         protected override void Update()
@@ -19,9 +21,6 @@ namespace Game2
             base.Update();
             if (_gameOn)
             {
-                //UpdateThread();
-                //SendJoy();
-
                 if (Network.TCPMessagesForGames.Count > 0)
                 {
                     string[] mes = Network.TCPMessagesForGames[0].Split(' ');       
@@ -32,8 +31,23 @@ namespace Game2
                     }
                     Network.TCPMessagesForGames.RemoveAt(0);
                 }
+            }
+        }
 
-                UpdateThread();
+        private void FixedUpdate()
+        {
+            UpdateThread();
+            SendJoystick();
+        }
+
+        private void UpdateThread()
+        {
+            if (Network.UDPMessagesBig.Count > 0)
+            {
+                NetInfo frame = Serializer<NetInfo>.GetMessage(Network.UDPMessagesBig[0]);
+                Network.UDPMessagesBig.RemoveAt(0);
+
+                GR.MoveToPosition(frame);
             }
         }
 
@@ -49,7 +63,7 @@ namespace Game2
                 if (vrem >= time2)
                 {
                     Network.UDPMessages.RemoveAt(0);
-                    UpdateThread(); // Чтоб в этом кадре тоже что-то показали
+                    //UpdateThread(); // Чтоб в этом кадре тоже что-то показали
                 }
                 else if (time <= vrem && vrem < time2)
                 {
@@ -63,7 +77,7 @@ namespace Game2
             }
         }
 
-        private void UpdateThread()
+        private void UpdateThreaid()
         {
             if (Network.UDPMessages.Count > 0)
             {
@@ -89,21 +103,14 @@ namespace Game2
             }
         }
 
-        private void SendChangeMazeRequest()
+        private void SendJoystick()
         {
-            Network.ClientTCP.SendMessage("change");
-        }
-
-
-        public override void SendAllChanges()
-        {
-            //Vector2 move = new Vector2(GR._firstJoystick.Horizontal, GR._firstJoystick.Vertical);
-            //if (move != _lastMove)
-            //{
-            //    Network.ClientTCP.SendMessage($"move {move.x} {move.y}");
-            //    Debug.Log($"move {move.x} {move.y}");
-            //    _lastMove = move;
-            //}
+            Vector2 move = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
+            if (move != _lastMove)
+            {
+                Network.ClientTCP.SendMessage($"move {move.x} {move.y}");
+                _lastMove = move;
+            }
         }
     }
 }

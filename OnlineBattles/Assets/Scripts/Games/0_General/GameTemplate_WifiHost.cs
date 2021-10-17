@@ -71,14 +71,6 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// –егул€рна€ отправка сообщений. ѕереопредел€етс€ в наследуемых классах.
-    /// </summary>
-    public virtual void SendAllChanges()
-    {
-
-    }
-
     private void OnDestroy()
     {
         WifiServer_Host.OpponentGaveUp -= OpponentGiveUp;

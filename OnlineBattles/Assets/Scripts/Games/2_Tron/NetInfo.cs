@@ -6,16 +6,25 @@ namespace Game2
     [Serializable]
     public class NetInfo
     {
-        private Vector3 _firstPosition, _secondPosition;
-        private Quaternion _firstRotation, _secondRotation;
+        public float X_pos1 { get; private set; }
+        public float Y_pos1 { get; private set; }
+        public float Z_rotation1 { get; private set; }
+
+        public float X_pos2 { get; private set; }
+        public float Y_pos2 { get; private set; }
+        public float Z_rotation2 { get; private set; }
 
         public NetInfo(Player player1, Player player2)
         {
-            _firstPosition = player1.gameObject.transform.position;
-            _secondPosition = player2.gameObject.transform.position;
+            Transform transform1 = player1.gameObject.transform, transform2 = player2.gameObject.transform;
 
-            _firstRotation = player1.gameObject.transform.rotation;
-            _secondRotation = player2.gameObject.transform.rotation;
+            X_pos1 = transform1.position.x;
+            Y_pos1 = transform1.position.y;
+            Z_rotation1 = transform1.rotation.z;
+
+            X_pos2 = transform2.position.x;
+            Y_pos2 = transform2.position.y;
+            Z_rotation2 = transform2.rotation.z;
         }
     }
 }

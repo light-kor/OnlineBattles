@@ -12,13 +12,13 @@ namespace Game2
         [SerializeField] private TrailRenderer _trail;
         [SerializeField] private float _trailTime = 3.2f;
 
-        private Rigidbody2D _rb;
         private GameResources_2 GR;
+        private Rigidbody2D _rb;
         private List<Vector2> _points = new List<Vector2>();
         private List<Vector2> _bufferPoints = new List<Vector2>();
+        private GameResourcesTemplate.ControlType _controlType = GameResourcesTemplate.ControlType.Local;
         private float _timer = 0f;
         private float _currentAngle = 0f;
-        private bool _turnOnTrailCollider = true;
 
         private const float MoveSpeed = 1.8f;
         private const float RotateSpeed = 300f;
@@ -35,16 +35,17 @@ namespace Game2
         {
             if (GR.GameOn)
             {
-                if (_turnOnTrailCollider)
+                if (_controlType != GameResourcesTemplate.ControlType.Broadcast)
+                {
                     CreateTrailsCollider();
-
-                ChangeDirection();
+                    ChangeDirection();
+                }             
             }
         }
 
         private void FixedUpdate()
         {
-            if (GR.GameOn)
+            if (GR.GameOn && _controlType != GameResourcesTemplate.ControlType.Broadcast)
             {
                 _rb.MovePosition(transform.position + gameObject.transform.up * Time.fixedDeltaTime * MoveSpeed);
             }
@@ -98,13 +99,25 @@ namespace Game2
         }
 
         private void ChangeDirection()
-        {
+        {          
             Vector2 normalizedJoystick = Vector2.zero;
-            if (_playerType == GameResourcesTemplate.PlayerType.BluePlayer)
-                normalizedJoystick = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
-            else if (_playerType == GameResourcesTemplate.PlayerType.RedPlayer)
-                normalizedJoystick = new Vector2(-_joystick.Horizontal, -_joystick.Vertical).normalized;
 
+            if (_controlType == GameResourcesTemplate.ControlType.Local)
+            {
+                if (_playerType == GameResourcesTemplate.PlayerType.BluePlayer)
+                    normalizedJoystick = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
+                else if (_playerType == GameResourcesTemplate.PlayerType.RedPlayer)
+                    normalizedJoystick = new Vector2(-_joystick.Horizontal, -_joystick.Vertical).normalized;
+            }
+            else if (_controlType == GameResourcesTemplate.ControlType.Remote)
+            {
+                if (GR.RemoteJoystick.Count > 0)
+                {
+                    normalizedJoystick = GR.RemoteJoystick[0];
+                    GR.RemoteJoystick.RemoveAt(0);
+                }
+            }
+                
             if (normalizedJoystick != Vector2.zero)
             {
                 float targetAngle = Vector2.SignedAngle(Vector2.up, normalizedJoystick);
@@ -131,10 +144,23 @@ namespace Game2
                 }
             }
         }
-        public void SetOnlineView()
+
+        public void SetControlType(GameResourcesTemplate.ControlType type)
         {
-            _joystick.gameObject.SetActive(false);
-            _turnOnTrailCollider = false;
+            _controlType = type;
+
+            if (type == GameResourcesTemplate.ControlType.Broadcast)
+            {
+                if (_playerType == GameResourcesTemplate.PlayerType.RedPlayer)
+                    _joystick.gameObject.SetActive(false);
+
+            }
+        }
+
+        public void SetBroadcastPositions(Vector3 position, Quaternion rotation)
+        {
+            _rb.MovePosition(position);
+            _rb.MoveRotation(rotation);
         }
 
         private void OnDestroy()

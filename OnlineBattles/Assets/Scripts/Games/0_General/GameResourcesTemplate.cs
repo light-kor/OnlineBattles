@@ -122,5 +122,12 @@ public abstract class GameResourcesTemplate : MonoBehaviour
         Win,
         Lose,
         Draw
-    }   
+    }
+
+    public enum ControlType
+    {
+        Local,
+        Remote,
+        Broadcast
+    }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game2
@@ -8,6 +9,7 @@ namespace Game2
         public event DataHolder.Notification ResumeTrail;
 
         public static GameResources_2 GameResources;
+        public List<Vector2> RemoteJoystick = new List<Vector2>();
 
         [SerializeField] private Player _blue, _red;
 
@@ -17,7 +19,6 @@ namespace Game2
         {
             base.Awake();
             GameResources = this;
-            DeactivateSecondJoyStick();
         }
 
         public void RoundResults(GameObject loserPlayer)
@@ -64,15 +65,28 @@ namespace Game2
             else return false;
         }
 
-        public void DeactivateSecondJoyStick()
+        public void SetControlTypes(ControlType blueType, ControlType redType)
         {
-            _red.SetOnlineView();
-            //NetInfo dsvfe = new NetInfo(_blue, _red);
+            _blue.SetControlType(blueType);
+            _red.SetControlType(redType);
         }
 
         public void SendFrame()
         {
-            BigDataExchange<NetInfo>.SendBigMessage(new NetInfo(_blue, _red), DataHolder.ConnectType.UDP);
+            if (Network.ClientUDP != null)
+                Serializer<NetInfo>.SendMessage(new NetInfo(_blue, _red), DataHolder.ConnectType.UDP);
+        }
+
+        public void MoveToPosition(NetInfo frame)
+        {
+            Vector3 position1 = new Vector3(frame.X_pos1, frame.Y_pos1);
+            Vector3 position2 = new Vector3(frame.X_pos2, frame.Y_pos2);
+
+            Quaternion rotation1 = new Quaternion(0, 0, frame.Z_rotation1, 0);
+            Quaternion rotation2 = new Quaternion(0, 0, frame.Z_rotation2, 0);
+
+            _blue.SetBroadcastPositions(position1, rotation1);
+            _red.SetBroadcastPositions(position2, rotation2);
         }
     }
 }
