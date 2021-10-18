@@ -1,19 +1,16 @@
+using GameEnumerations;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game2
 {
     public class GameResources_2 : GameResourcesTemplate
-    {
-        public event DataHolder.Notification StopTrail;
-        public event DataHolder.Notification ResumeTrail;
-
+    {      
         public static GameResources_2 GameResources;
-        public List<Vector2> RemoteJoystick = new List<Vector2>();
-
+        [HideInInspector] public List<Vector2> RemoteJoystick = new List<Vector2>();
         [SerializeField] private Player _blue, _red;
-
-        public readonly int WinScore = 5;
+        
+        private readonly int WinScore = 5;
 
         protected override void Awake()
         {
@@ -23,41 +20,33 @@ namespace Game2
 
         public void RoundResults(GameObject loserPlayer)
         {
-            PauseTheGame(PauseType.EndRound);
+            PauseGame(PauseType.EndRound);
 
-            UpdateScore(loserPlayer, Result.Lose);
+            UpdateScore(loserPlayer, GameResult.Lose);
 
             if (CheckEndOfGame() == false)
                 OpenEndRoundPanel();
         }
 
-        protected override void PauseTheGame(PauseType pauseType)
+        protected override void ResetLevel()
         {
-            base.PauseTheGame(pauseType);
-            StopTrail?.Invoke();
-        }
-
-        protected override void ResumeTheGame()
-        {
-            base.ResumeTheGame();
-
-            if (_gameOver == false)
-                ResumeTrail?.Invoke();
+            base.ResetLevel();
+            _blue.ResetLevel();
+            _red.ResetLevel();           
         }
 
         private bool CheckEndOfGame()
         {
-            int myPoints = _blueScore;
-            int enemyPoints = _redScore;
-
-            if (myPoints >= WinScore || enemyPoints >= WinScore)
+            if (_blueScore >= WinScore || _redScore >= WinScore)
             {
                 string notifText = null;
 
-                if (myPoints > enemyPoints)
+                if (_blueScore > _redScore)
                     notifText = "Синий победил";
-                else if (enemyPoints > myPoints)
+                else if (_redScore > _blueScore)
                     notifText = "Красный победил";
+                else if (_redScore == _blueScore)
+                    notifText = "Ничья";
 
                 new Notification(notifText, Notification.NotifTypes.EndGame);
                 return true;
@@ -65,7 +54,7 @@ namespace Game2
             else return false;
         }
 
-        public void SetControlTypes(ControlType blueType, ControlType redType)
+        public void SetControlTypes(PlayerControl blueType, PlayerControl redType)
         {
             _blue.SetControlType(blueType);
             _red.SetControlType(redType);
@@ -74,19 +63,19 @@ namespace Game2
         public void SendFrame()
         {
             if (Network.ClientUDP != null)
-                Serializer<NetInfo>.SendMessage(new NetInfo(_blue, _red), DataHolder.ConnectType.UDP);
+            {
+                FrameInfo data = new FrameInfo(_blue, _red);
+                Serializer<FrameInfo>.SendMessage(data, DataHolder.ConnectType.UDP);
+            }              
         }
 
-        public void MoveToPosition(NetInfo frame)
+        public void MoveToPosition(FrameInfo frame)
         {
             Vector3 position1 = new Vector3(frame.X_pos1, frame.Y_pos1);
             Vector3 position2 = new Vector3(frame.X_pos2, frame.Y_pos2);
 
-            Quaternion rotation1 = new Quaternion(0, 0, frame.Z_rotation1, 0);
-            Quaternion rotation2 = new Quaternion(0, 0, frame.Z_rotation2, 0);
-
-            _blue.SetBroadcastPositions(position1, rotation1);
-            _red.SetBroadcastPositions(position2, rotation2);
+            _blue.SetBroadcastPositions(position1, frame.GetQuaternion(frame.Quaternion1));
+            _red.SetBroadcastPositions(position2, frame.GetQuaternion(frame.Quaternion2));
         }
     }
 }

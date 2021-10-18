@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameEnumerations;
+using System;
 using UnityEngine;
 
 namespace Game2
@@ -13,7 +14,7 @@ namespace Game2
         {
             GR = GameResources_2.GameResources;
             BaseStart(DataHolder.ConnectType.UDP);
-            GR.SetControlTypes(GameResourcesTemplate.ControlType.Broadcast, GameResourcesTemplate.ControlType.Broadcast);
+            GR.SetControlTypes(PlayerControl.Broadcast, PlayerControl.Broadcast);
         }
 
         protected override void Update()
@@ -44,7 +45,7 @@ namespace Game2
         {
             if (Network.UDPMessagesBig.Count > 0)
             {
-                NetInfo frame = Serializer<NetInfo>.GetMessage(Network.UDPMessagesBig[0]);
+                FrameInfo frame = Serializer<FrameInfo>.GetMessage(Network.UDPMessagesBig[0]);
                 Network.UDPMessagesBig.RemoveAt(0);
 
                 GR.MoveToPosition(frame);

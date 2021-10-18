@@ -25,7 +25,6 @@ public class MainMenu : MonoBehaviour
         _wifiComponents = GetComponent<WifiMenuComponents>();
         _panelAnim = GetComponent<a_ChangePanel>();
         _settings.GetComponent<PlayerSettings>().LoadSettings(); // Нужно это сделать тут, а то тот объект со скриптом в начале неактивен
-        GameResourcesTemplate.ResetScore();
         ChoseStartView();
     }
 

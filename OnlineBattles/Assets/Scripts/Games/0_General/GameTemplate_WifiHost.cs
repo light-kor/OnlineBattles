@@ -18,7 +18,7 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
             Network.UDPMessagesBig.Clear();
             Network.CreateUDP();
             Network.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес   
-            InvokeRepeating("SendAllChanges", 0f, WifiServer_Host.UpdateRate);
+            InvokeRepeating("SendFramesUDP", 0f, WifiServer_Host.UpdateRate);
         }
     }
 
@@ -69,6 +69,11 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
             CancelInvoke();
             Network.CloseUdpConnection();
         }
+    }
+
+    protected virtual void SendFramesUDP()
+    {
+
     }
 
     private void OnDestroy()

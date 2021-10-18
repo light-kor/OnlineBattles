@@ -7,7 +7,6 @@ public class EndRoundPanel : MonoBehaviour, IPointerClickHandler
     public event DataHolder.Notification RestartLevel;
 
     [SerializeField] private TMP_Text _text;
-
     private int _sign = 1;
     private float _fontSize, _currentFontSize;
 
@@ -16,6 +15,7 @@ public class EndRoundPanel : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         RestartLevel?.Invoke();
+        gameObject.SetActive(false);
     }
 
     private void Start()

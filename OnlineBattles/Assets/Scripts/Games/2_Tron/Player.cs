@@ -1,23 +1,21 @@
-using System.Collections.Generic;
+using GameEnumerations;
 using UnityEngine;
 
 namespace Game2
 {
     public class Player : MonoBehaviour
     {
-        [SerializeField] GameResourcesTemplate.PlayerType _playerType;
+        [SerializeField] PlayerType _playerType;
         [SerializeField] private Joystick _joystick;
-        [SerializeField] private EdgeCollider2D _trailCollider;
+        [SerializeField] private TrailCollider _trailCollider;
         [SerializeField] private ParticleSystem _explosion;
-        [SerializeField] private TrailRenderer _trail;
-        [SerializeField] private float _trailTime = 3.2f;
+        [SerializeField] private PlayerTrailRenderer _trailRenderer;
 
         private GameResources_2 GR;
         private Rigidbody2D _rb;
-        private List<Vector2> _points = new List<Vector2>();
-        private List<Vector2> _bufferPoints = new List<Vector2>();
-        private GameResourcesTemplate.ControlType _controlType = GameResourcesTemplate.ControlType.Local;
-        private float _timer = 0f;
+        private Vector3 _startPosition;
+        private Quaternion _startRotation;       
+        private PlayerControl _controlType = PlayerControl.Local;       
         private float _currentAngle = 0f;
 
         private const float MoveSpeed = 1.8f;
@@ -27,17 +25,16 @@ namespace Game2
         {
             _rb = GetComponent<Rigidbody2D>();
             GR = GameResources_2.GameResources;
-            GR.StopTrail += StopTrail;
-            GR.ResumeTrail += ResumeTrail;
+            SetStartSettings();
         }
 
         private void Update()
         {
             if (GR.GameOn)
             {
-                if (_controlType != GameResourcesTemplate.ControlType.Broadcast)
+                if (_controlType != PlayerControl.Broadcast)
                 {
-                    CreateTrailsCollider();
+                    _trailCollider.CreateTrailsCollider(transform.localPosition);
                     ChangeDirection();
                 }             
             }
@@ -45,7 +42,7 @@ namespace Game2
 
         private void FixedUpdate()
         {
-            if (GR.GameOn && _controlType != GameResourcesTemplate.ControlType.Broadcast)
+            if (GR.GameOn && _controlType != PlayerControl.Broadcast)
             {
                 _rb.MovePosition(transform.position + gameObject.transform.up * Time.fixedDeltaTime * MoveSpeed);
             }
@@ -53,11 +50,14 @@ namespace Game2
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if (collision.gameObject.TryGetComponent(out Player player))
+            if (_controlType != PlayerControl.Broadcast)
             {
-                _explosion.Play();
-                GR.RoundResults(null);
-            }
+                if (collision.gameObject.TryGetComponent(out Player player))
+                {
+                    _explosion.Play();
+                    GR.RoundResults(null);
+                }
+            }               
         }
 
         public void LoseRound()
@@ -65,51 +65,19 @@ namespace Game2
             _explosion.Play();
             GR.RoundResults(gameObject);
         }
-
-        public void StopTrail()
-        {
-            _trail.time = Mathf.Infinity;
-        }
-
-        public void ResumeTrail()
-        {
-            _trail.time = _trailTime;
-        }
-
-        private void CreateTrailsCollider()
-        {
-            _timer += Time.deltaTime;
-            if (_timer >= 0.1f)
-            {
-                Vector3 position = transform.localPosition;
-                _bufferPoints.Add(new Vector2(position.x, position.y));
-
-                if (_bufferPoints.Count >= 3) // Чтобы пропустить первые точки, во избежание стоолкновений линии и персонажа
-                {
-                    _points.Add(_bufferPoints[0]);
-                    _bufferPoints.RemoveAt(0);
-                }
-
-                if (_points.Count > 30)
-                    _points.RemoveAt(0);
-
-                _trailCollider.SetPoints(_points);
-                _timer = 0f;
-            }
-        }
-
+              
         private void ChangeDirection()
         {          
             Vector2 normalizedJoystick = Vector2.zero;
 
-            if (_controlType == GameResourcesTemplate.ControlType.Local)
+            if (_controlType == PlayerControl.Local)
             {
-                if (_playerType == GameResourcesTemplate.PlayerType.BluePlayer)
+                if (_playerType == PlayerType.BluePlayer)
                     normalizedJoystick = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
-                else if (_playerType == GameResourcesTemplate.PlayerType.RedPlayer)
+                else if (_playerType == PlayerType.RedPlayer)
                     normalizedJoystick = new Vector2(-_joystick.Horizontal, -_joystick.Vertical).normalized;
             }
-            else if (_controlType == GameResourcesTemplate.ControlType.Remote)
+            else if (_controlType == PlayerControl.Remote)
             {
                 if (GR.RemoteJoystick.Count > 0)
                 {
@@ -145,15 +113,14 @@ namespace Game2
             }
         }
 
-        public void SetControlType(GameResourcesTemplate.ControlType type)
+        public void SetControlType(PlayerControl type)
         {
             _controlType = type;
 
-            if (type == GameResourcesTemplate.ControlType.Broadcast)
+            if (type == PlayerControl.Broadcast)
             {
-                if (_playerType == GameResourcesTemplate.PlayerType.RedPlayer)
+                if (_playerType == PlayerType.RedPlayer)
                     _joystick.gameObject.SetActive(false);
-
             }
         }
 
@@ -163,10 +130,20 @@ namespace Game2
             _rb.MoveRotation(rotation);
         }
 
-        private void OnDestroy()
+        public void ResetLevel()
         {
-            GR.StopTrail -= StopTrail;
-            GR.ResumeTrail -= ResumeTrail;
+            _trailRenderer.ClearTrail();
+            _trailCollider.ClearCollider();
+            _explosion.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            transform.localPosition = _startPosition;
+            transform.localRotation = _startRotation;
         }
+
+        private void SetStartSettings()
+        {
+            _startPosition = transform.localPosition;
+            _startRotation = transform.localRotation;
+        }        
     }
 }

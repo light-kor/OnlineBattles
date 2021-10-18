@@ -1,43 +1,48 @@
+using GameEnumerations;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public abstract class GameResourcesTemplate : MonoBehaviour
 {
-    [SerializeField] private bool _turnOnStartTimer = true;
-    protected static int _blueScore { get; private set; } = 0;
-    protected static int _redScore { get; private set; } = 0;
+    public event DataHolder.Notification StartTheGame;
+    public event DataHolder.Notification PauseTheGame;
+    public event DataHolder.Notification ResumeTheGame;
+
     public bool GameOn { get; protected set; } = false;
+
+    [SerializeField] private bool _turnOnStartTimer = true;
+    protected int _blueScore { get; private set; } = 0;
+    protected int _redScore { get; private set; } = 0;   
     protected bool _gameStarted = false, _gameOver = false;   
     private GeneralUIResources _res;
 
     protected virtual void Awake()
     {
         _res = GetComponent<GeneralUIResources>();
-        _res.Timer.StartGame += StartTheGame;
-        _res.EndRoundPanel.RestartLevel += RestartLevel;
-        _res.PauseButton.PauseGame += PauseTheGame;
-        _res.PauseMenu.ResumeGame += ResumeTheGame;
+        _res.Timer.StartGame += StartGame;
+        _res.EndRoundPanel.RestartLevel += ResetLevel;
+        _res.PauseButton.PauseGame += PauseGame;
+        _res.PauseMenu.ResumeGame += ResumeGame;
 
         DisplayScore();
         StartTimer();
     }
 
-    protected void UpdateScore(GameObject player, Result result)
+    protected void UpdateScore(GameObject player, GameResult result)
     {
         if (player != null)
         {
             if (player.name == "BluePlayer")
             {
-                if (result == Result.Lose)
+                if (result == GameResult.Lose)
                     _redScore++;
-                else if (result == Result.Win)
+                else if (result == GameResult.Win)
                     _blueScore++;
             }
             else if (player.name == "RedPlayer")
             {
-                if (result == Result.Lose)
+                if (result == GameResult.Lose)
                     _blueScore++;
-                else if (result == Result.Win)
+                else if (result == GameResult.Win)
                     _redScore++;
             }
         }
@@ -55,7 +60,7 @@ public abstract class GameResourcesTemplate : MonoBehaviour
         if (_turnOnStartTimer)
             _res.Timer.StartTimer();
         else 
-            StartTheGame();
+            StartGame();
     }
 
     protected void OpenEndRoundPanel()
@@ -63,12 +68,16 @@ public abstract class GameResourcesTemplate : MonoBehaviour
         _res.EndRoundPanel.gameObject.SetActive(true);
     }
 
-    private void RestartLevel()
+    protected virtual void ResetLevel()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        _gameOver = false;
+        _gameStarted = false;
+
+        DisplayScore();
+        StartTimer();
     }
 
-    protected virtual void PauseTheGame(PauseType pauseType)
+    protected virtual void PauseGame(PauseType pauseType)
     {
         if (pauseType == PauseType.ManualPause)
         {
@@ -80,54 +89,31 @@ public abstract class GameResourcesTemplate : MonoBehaviour
         else if (pauseType == PauseType.EndRound)
             _gameOver = true;
 
+        PauseTheGame?.Invoke();
         GameOn = false;
     }
 
-    protected virtual void ResumeTheGame()
+    protected virtual void ResumeGame()
     {
         if (_gameStarted == false)
             StartTimer();
         else if (_gameOver == false)
+        {
             GameOn = true;
+            ResumeTheGame?.Invoke();
+        }              
     }
 
-    protected virtual void StartTheGame()
+    protected virtual void StartGame()
     {
         _gameStarted = true;
         GameOn = true;
+        StartTheGame?.Invoke();
     }
 
-    public static void ResetScore()
+    public void ResetScore()
     {
         _blueScore = 0;
         _redScore = 0;
-    }
-
-    public enum PlayerType
-    {
-        Null,
-        BluePlayer,
-        RedPlayer
-    }
-
-    public enum PauseType
-    {
-        Null,
-        ManualPause,
-        EndRound
-    }
-
-    public enum Result
-    {       
-        Win,
-        Lose,
-        Draw
-    }
-
-    public enum ControlType
-    {
-        Local,
-        Remote,
-        Broadcast
-    }
+    }  
 }

@@ -48,8 +48,7 @@ public class NotificationControl : MonoBehaviour
                 break;
 
             case Notification.ButtonTypes.RestartLevel: // Начать игру заново
-                GameResourcesTemplate.ResetScore();
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name); //TODO: Работает только для оффлайн игры
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name); //TODO: Работает только для оффлайн игры. Да и вообще надо бы загрузки сцены сделать.
                 break;
 
             case Notification.ButtonTypes.CancelWifiOpponent: // Искать другого противника по wifi

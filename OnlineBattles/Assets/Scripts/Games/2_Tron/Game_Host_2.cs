@@ -1,3 +1,5 @@
+using GameEnumerations;
+using System.Globalization;
 using UnityEngine;
 
 namespace Game2
@@ -5,12 +7,13 @@ namespace Game2
     public class Game_Host_2 : GameTemplate_WifiHost
     {       
         private GameResources_2 GR;
-        
+        private NumberFormatInfo _numberInfo = new CultureInfo("en-US").NumberFormat;
+
         private void Start()
         {
             GR = GameResources_2.GameResources;
             BaseStart(DataHolder.ConnectType.UDP);
-            GR.SetControlTypes(GameResourcesTemplate.ControlType.Local, GameResourcesTemplate.ControlType.Remote);
+            GR.SetControlTypes(PlayerControl.Local, PlayerControl.Remote);
         }
 
         protected override void Update()
@@ -24,7 +27,7 @@ namespace Game2
                     string[] mes = WifiServer_Host.Opponent.MessageTCPforGame[0].Split(' ');
                     if (mes[0] == "move")
                     {
-                        GR.RemoteJoystick.Add(new Vector2(float.Parse(mes[1]), float.Parse(mes[2])));
+                        GR.RemoteJoystick.Add(new Vector2(float.Parse(mes[1], _numberInfo), float.Parse(mes[2], _numberInfo)));
                     }
                     WifiServer_Host.Opponent.MessageTCPforGame.RemoveAt(0);
                 }
@@ -32,12 +35,6 @@ namespace Game2
                 //CheckEndOfGame();
             }
         }
-
-        private void FixedUpdate()
-        {
-            SendAllChanges();
-        }
-
 
         //public void CheckEndOfGame()
         //{
@@ -55,6 +52,14 @@ namespace Game2
         //            EndOfGame("win");
         //    }
         //}
+
+        protected override void SendFramesUDP()
+        {
+            if (_gameOn)
+            {
+                SendAllChanges();
+            }
+        }
 
         private void SendAllChanges()
         {
