@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameEnumerations;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -119,6 +120,10 @@ public static class WifiServer_Host
                     case "name":
                         Opponent.PlayerName = mes[1];
                         new Notification("Подключился игрок:\r\n" + Opponent.PlayerName, Notification.NotifTypes.WifiRequest, 0);
+                        break;
+
+                    case "ContinueGame":
+                        
                         break;
 
                     case "ping":
@@ -280,7 +285,7 @@ public static class WifiServer_Host
     {
         CloseConnection();
         OpponentGaveUp?.Invoke();
-        DataHolder.GameType = DataHolder.GameTypes.Null; //TODO: Надо ли?
+        DataHolder.GameType = GameTypes.Null; //TODO: Надо ли?
         new Notification("Игрок отключился", Notification.ButtonTypes.MenuButton); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
     }
 

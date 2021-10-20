@@ -1,3 +1,4 @@
+using GameEnumerations;
 using System;
 using UnityEngine;
 
@@ -21,7 +22,7 @@ namespace Game3
             Cell cell = GR._cellPrefab.GetComponent<Cell>();
             cell.WallLeft.GetComponent<EdgeCollider2D>().enabled = false;
             cell.WallBottom.GetComponent<EdgeCollider2D>().enabled = false;
-            BaseStart(DataHolder.ConnectType.UDP);
+            BaseStart(ConnectTypes.UDP);
         }
 
         private void FixedUpdate()

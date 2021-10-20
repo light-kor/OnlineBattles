@@ -5,9 +5,9 @@ namespace Game2
     [RequireComponent(typeof(TrailRenderer))]
     public class PlayerTrailRenderer : MonoBehaviour
     {
+        private GameResources_2 GR;
         private const float TrailTime = 3.2f;
         private TrailRenderer _trail;
-        private GameResources_2 GR;
         
         private void Start()
         {
@@ -45,6 +45,7 @@ namespace Game2
         {
             GR.PauseTheGame -= StopTrail;
             GR.ResumeTheGame -= ResumeTrail;
+            GR.StartTheGame -= StartTrail;
         }
     }
 }

@@ -1,9 +1,10 @@
+using GameEnumerations;
 using TMPro;
 using UnityEngine;
 
 namespace Game3
 {
-    public class GameResources_3 : GameResourcesTemplate
+    public class GameResources_3 : GeneralController
     {
         [SerializeField] private GameObject _mazeCreateButton2;
         [SerializeField] private TMP_Text _firstScore, _secondScore;
@@ -28,7 +29,7 @@ namespace Game3
         {
             PointEnterHandler.Catch += UpdateScore;
             UpdateScore(null); // Установить счёт 0 - 0, если в редакторе случайно изменю что-то
-            if (DataHolder.GameType == DataHolder.GameTypes.Single)
+            if (DataHolder.GameType == GameTypes.Single)
             {
                 _mazeCreateButton2.SetActive(true);
                 _secondJoystick.gameObject.SetActive(true);

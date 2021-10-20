@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameEnumerations;
+using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
@@ -36,12 +37,12 @@ public class TCPConnect
         string ip = null;
         int _port = 0;
 
-        if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
+        if (DataHolder.GameType == GameTypes.Multiplayer)
         {
             ip = DataHolder.ServerIp;
             _port = DataHolder.RemoteServerPort;
         }
-        else if (DataHolder.GameType == DataHolder.GameTypes.WifiClient)
+        else if (DataHolder.GameType == GameTypes.WifiClient)
         {
             ip = DataHolder.WifiGameIp;
             _port = DataHolder.WifiPort;

@@ -12,8 +12,8 @@ namespace Game2
         private void Start()
         {
             GR = GameResources_2.GameResources;
-            BaseStart(DataHolder.ConnectType.UDP);
-            GR.SetControlTypes(PlayerControl.Local, PlayerControl.Remote);
+            BaseStart(ConnectTypes.UDP);
+            GR.SetControlTypes(ControlTypes.Local, ControlTypes.Remote);
         }
 
         protected override void Update()
@@ -27,7 +27,7 @@ namespace Game2
                     string[] mes = WifiServer_Host.Opponent.MessageTCPforGame[0].Split(' ');
                     if (mes[0] == "move")
                     {
-                        GR.RemoteJoystick.Add(new Vector2(float.Parse(mes[1], _numberInfo), float.Parse(mes[2], _numberInfo)));
+                        GR.RemoteJoystick.Add(new Vector2(-float.Parse(mes[1], _numberInfo), -float.Parse(mes[2], _numberInfo)));
                     }
                     WifiServer_Host.Opponent.MessageTCPforGame.RemoveAt(0);
                 }

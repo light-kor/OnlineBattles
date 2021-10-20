@@ -13,8 +13,8 @@ namespace Game2
         private void Start()
         {
             GR = GameResources_2.GameResources;
-            BaseStart(DataHolder.ConnectType.UDP);
-            GR.SetControlTypes(PlayerControl.Broadcast, PlayerControl.Broadcast);
+            BaseStart(ConnectTypes.UDP);
+            GR.SetControlTypes(ControlTypes.Broadcast, ControlTypes.Broadcast);
         }
 
         protected override void Update()
@@ -106,12 +106,15 @@ namespace Game2
 
         private void SendJoystick()
         {
-            Vector2 move = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
-            if (move != _lastMove)
+            if (_gameOn)
             {
-                Network.ClientTCP.SendMessage($"move {move.x} {move.y}");
-                _lastMove = move;
-            }
+                Vector2 move = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
+                if (move != _lastMove)
+                {
+                    Network.ClientTCP.SendMessage($"move {move.x} {move.y}");
+                    _lastMove = move;
+                }
+            }           
         }
     }
 }

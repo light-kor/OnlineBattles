@@ -1,3 +1,4 @@
+using GameEnumerations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,6 +7,7 @@ using UnityEngine.UI;
 public class PauseMenu : MonoBehaviour
 {
     public static event DataHolder.Notification WantLeaveTheGame;
+    //public static event DataHolder.Notification SendResumeGame;
     public event DataHolder.Notification ResumeGame;
 
     [SerializeField] private Button _left, _right;
@@ -28,7 +30,7 @@ public class PauseMenu : MonoBehaviour
 
     private void QuitTheGame()
     {
-        if (DataHolder.GameType == DataHolder.GameTypes.Single || DataHolder.GameType == DataHolder.GameTypes.Null)
+        if (DataHolder.GameType == GameTypes.Single || DataHolder.GameType == GameTypes.Null)
         {
             SceneManager.LoadScene("mainMenu");
             _anim.ClosePanel();
@@ -42,13 +44,13 @@ public class PauseMenu : MonoBehaviour
 
     private void ResumeTheGame()
     {
-        if (DataHolder.GameType == DataHolder.GameTypes.Single || DataHolder.GameType == DataHolder.GameTypes.Null)
+        if (DataHolder.GameType == GameTypes.Single || DataHolder.GameType == GameTypes.Null)
         {
             ResumeGame?.Invoke();
         }
         else
         {
-
+            //SendResumeGame?.Invoke();
         }
 
         _anim.ClosePanel();

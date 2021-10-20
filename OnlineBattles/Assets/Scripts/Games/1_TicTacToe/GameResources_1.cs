@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 
 namespace Game1
 {
-    public class GameResources_1 : GameResourcesTemplate
+    public class GameResources_1 : GeneralController
     {
         public Tile MainTile, MyTile, EnemyTile;
         public Tilemap Map, PlayLayer;

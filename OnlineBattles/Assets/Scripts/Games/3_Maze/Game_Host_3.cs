@@ -1,3 +1,4 @@
+using GameEnumerations;
 using System;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ namespace Game3
         {
             ManualCreateMapButton.Click += CreateMap;
             GR = transform.parent.GetComponent<GameResources_3>();
-            BaseStart(DataHolder.ConnectType.UDP);
+            BaseStart(ConnectTypes.UDP);
 
             GR.StartInHost();
             CreateMap();
@@ -72,7 +73,7 @@ namespace Game3
                 GR._maze = new GameObject("Cells");
                 MazeGenerator generator = new MazeGenerator(GR.Width, GR.Height);
                 MazeGeneratorCell[,] maze = generator.GenerateMaze();
-                Serializer<MazeGeneratorCell[,]>.SendMessage(maze, DataHolder.ConnectType.TCP);
+                Serializer<MazeGeneratorCell[,]>.SendMessage(maze, ConnectTypes.TCP);
                 GR.BuildMaze(maze);
 
                 GR._lastChangeMazeTime = 0f;

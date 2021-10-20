@@ -1,3 +1,4 @@
+using GameEnumerations;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -45,14 +46,14 @@ public class WifiMenuComponents : MonoBehaviour
 
     public void Wifi_SetHost()
     {
-        DataHolder.GameType = DataHolder.GameTypes.WifiHost;
+        DataHolder.GameType = GameTypes.WifiHost;
         WifiServer_Host.StartHosting();
         _menuScr._panelAnim.StartTransition(_menuScr.ActivateCreateWifiMenu);
     }
 
     public void Wifi_Connect()
     {
-        DataHolder.GameType = DataHolder.GameTypes.WifiClient;
+        DataHolder.GameType = GameTypes.WifiClient;
         DestroyAllWifiServersIcons();
         WifiServer_Connect.StartSearching();
         _menuScr._panelAnim.StartTransition(_menuScr.ActivateConnectWifiMenu);

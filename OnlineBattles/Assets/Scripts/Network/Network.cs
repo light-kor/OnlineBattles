@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameEnumerations;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ public static class Network
     public static event DataHolder.Notification TcpConnectionIsDone;
     public static event DataHolder.TextЕransmissionEnvent EndOfGame;
     public static event DataHolder.TextЕransmissionEnvent WifiServerAnswer;
+    public static event DataHolder.TextЕransmissionEnvent UpdateScore;
 
     public static bool TryRecconect = true;   
     public static bool ConnectionInProgress = false;
@@ -56,6 +58,14 @@ public static class Network
 
                     case "time":
                         TimeDifferenceWithServer = DateTime.UtcNow.Ticks - Convert.ToInt64(mes[1]);
+                        break;
+
+                    case "Resume":
+
+                        break;
+
+                    case "UpdateScore":
+                        UpdateScore?.Invoke(_messagesTCP[0]);
                         break;
 
                     case "denied":
@@ -118,7 +128,7 @@ public static class Network
             ConnectionInProgress = false;
             ClientTCP.ConnectionIsReady = true;
 
-            if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
+            if (DataHolder.GameType == GameTypes.Multiplayer)
                 TcpConnectionIsDone?.Invoke();
         }
     }
@@ -128,7 +138,7 @@ public static class Network
         CloseTcpConnection();
         ConnectionInProgress = true;
 
-        if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
+        if (DataHolder.GameType == GameTypes.Multiplayer)
         {
             if (!CheckForInternetConnection())
             {
@@ -168,9 +178,9 @@ public static class Network
     /// </summary>
     private static void LoginInServerSystem()
     {
-        if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
+        if (DataHolder.GameType == GameTypes.Multiplayer)
             ClientTCP.SendMessage("login " + "DataHolder.KeyCodeName");
-        else if (DataHolder.GameType == DataHolder.GameTypes.WifiClient)
+        else if (DataHolder.GameType == GameTypes.WifiClient)
             ClientTCP.SendMessage("name " + DataHolder.NickName);
 
         DateTime StartTryConnect = DateTime.Now;
@@ -181,7 +191,7 @@ public static class Network
 
             if (_loginSuccessful) return; // Авторизация прошла успешно
 
-            if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer && ((DateTime.Now - StartTryConnect).TotalSeconds > TimeForWaitAnswer)) // Превышен лимит ожижания
+            if (DataHolder.GameType == GameTypes.Multiplayer && ((DateTime.Now - StartTryConnect).TotalSeconds > TimeForWaitAnswer)) // Превышен лимит ожижания
             {
                 ConnectionInProgress = false;
                 break;

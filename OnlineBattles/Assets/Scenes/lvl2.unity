@@ -312,6 +312,7 @@ GameObject:
   - component: {fileID: 426430824}
   - component: {fileID: 426430828}
   - component: {fileID: 426430830}
+  - component: {fileID: 426430831}
   m_Layer: 5
   m_Name: BluePlayer
   m_TagString: Untagged
@@ -468,10 +469,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerType: 1
-  _joystick: {fileID: 355289334}
   _trailCollider: {fileID: 445019742}
   _explosion: {fileID: 580534324}
   _trailRenderer: {fileID: 380111583}
+--- !u!114 &426430831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 426430822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80ede88d222b1e64190513cd826a242a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _joystick: {fileID: 355289334}
 --- !u!1 &445019739
 GameObject:
   m_ObjectHideFlags: 0
@@ -1824,6 +1837,7 @@ GameObject:
   - component: {fileID: 1805030212}
   - component: {fileID: 1805030216}
   - component: {fileID: 1805030218}
+  - component: {fileID: 1805030219}
   m_Layer: 5
   m_Name: RedPlayer
   m_TagString: Untagged
@@ -1980,10 +1994,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerType: 2
-  _joystick: {fileID: 22608060}
   _trailCollider: {fileID: 1438662874}
   _explosion: {fileID: 1689158887}
   _trailRenderer: {fileID: 659732064}
+--- !u!114 &1805030219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1805030210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80ede88d222b1e64190513cd826a242a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _joystick: {fileID: 22608060}
 --- !u!1 &2059275905
 GameObject:
   m_ObjectHideFlags: 0
@@ -2230,7 +2256,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b844b6214cf4684ea47ec3aab776a65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _joystick: {fileID: 355289334}
+  _joystick: {fileID: 22608060}
 --- !u!1 &8821578334833022528 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1488814074524420058, guid: 04a1711649d37134faf9b539dc13ef5c,
@@ -2251,25 +2277,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _turnOnStartTimer: 1
   RemoteJoystick: []
-  _explosion: {fileID: 6215593671630228762, guid: c8c737f164d14624db6de8d7228a8918,
-    type: 3}
   _blue: {fileID: 426430830}
   _red: {fileID: 1805030218}
---- !u!1 &8821578335880218845 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1488814073487055175, guid: 04a1711649d37134faf9b539dc13ef5c,
-    type: 3}
-  m_PrefabInstance: {fileID: 7982030293905199514}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &8821578335880218846
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8821578335880218845}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32ab26349c3e5b346bf2cc1fe76acc03, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

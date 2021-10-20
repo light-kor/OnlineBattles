@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using GameEnumerations;
+using UnityEngine;
 
 public abstract class GameTemplate_Online : MonoBehaviour
 {
@@ -6,23 +7,25 @@ public abstract class GameTemplate_Online : MonoBehaviour
     protected bool _finishTheGame = false;
     protected bool _gameOn = true;
     protected string[] _frame = null, _frame2 = null;
-    private DataHolder.ConnectType _gameType;
+    private ConnectTypes _gameType;
     private string _endStatus = null;
 
-    protected void BaseStart(DataHolder.ConnectType type)
+    protected void BaseStart(ConnectTypes type)
     {
         Network.EndOfGame += FinishTheGame;
         PauseMenu.WantLeaveTheGame += GiveUp;
+        //PauseButton.SendPauseGame += SendPauseRequest;
+        //ExitMenu.SendResumeGame += SendResumeRequest;
         _gameType = type;
 
-        if (_gameType == DataHolder.ConnectType.UDP)
+        if (_gameType == ConnectTypes.UDP)
         {
             Network.CreateUDP();
             Network.UDPMessagesBig.Clear();
             Network.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
         }
 
-        if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
+        if (DataHolder.GameType == GameTypes.Multiplayer)
             Network.ClientTCP.SendMessage("start");    
     }
 
@@ -65,11 +68,21 @@ public abstract class GameTemplate_Online : MonoBehaviour
         Network.ClientTCP.SendMessage("GiveUp");
     }
 
+    private void SendPauseRequest()
+    {
+        Network.ClientTCP.SendMessage("Pause");
+    }
+
+    private void SendResumeRequest()
+    {
+        Network.ClientTCP.SendMessage("Resume");
+    }
+
     protected void CloseAll()
     {
         _gameOn = false;
 
-        if (_gameType == DataHolder.ConnectType.UDP)
+        if (_gameType == ConnectTypes.UDP)
         {
             Network.CloseUdpConnection();
         }
@@ -79,5 +92,7 @@ public abstract class GameTemplate_Online : MonoBehaviour
     {
         Network.EndOfGame -= FinishTheGame;
         PauseMenu.WantLeaveTheGame -= GiveUp;
+        //PauseButton.SendPauseGame -= SendPauseRequest;
+        //ExitMenu.SendResumeGame -= SendResumeRequest;
     }
 }

@@ -1,30 +1,46 @@
 namespace GameEnumerations
 {
-    public enum PlayerType
+    public enum PlayerTypes
     {
         Null,
         BluePlayer,
         RedPlayer
     }
 
-    public enum PauseType
+    public enum PauseTypes
     {
         Null,
         ManualPause,
         EndRound
     }
 
-    public enum GameResult
+    public enum GameResults
     {
+        Null,
         Win,
         Lose,
-        Draw
+        Draw,
     }
 
-    public enum PlayerControl
+    public enum ControlTypes
     {
         Local,
         Remote,
         Broadcast
+    }
+
+    public enum GameTypes
+    {
+        Null,
+        Single,
+        WifiHost,
+        WifiClient,
+        Multiplayer
+    }
+
+    public enum ConnectTypes
+    {
+        TCP,
+        UDP
     }
 }

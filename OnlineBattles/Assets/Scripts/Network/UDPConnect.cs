@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using GameEnumerations;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -24,7 +25,7 @@ public class UDPConnect
     private void CreateClass()
     {
         _working = true;
-        if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
+        if (DataHolder.GameType == GameTypes.Multiplayer)
         {
             _ip = DataHolder.ServerIp;
             _port = DataHolder.RemoteServerPort;
@@ -51,7 +52,7 @@ public class UDPConnect
         byte[] data = null;
         try
         {
-            if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
+            if (DataHolder.GameType == GameTypes.Multiplayer)
                 data = Encoding.UTF8.GetBytes($"{DataHolder.SelectedServerGame} {DataHolder.LobbyID} {DataHolder.IDInThisGame} " + mes);
             else
                 data = Encoding.UTF8.GetBytes(mes);

@@ -1,9 +1,10 @@
+using GameEnumerations;
 using UnityEngine;
 
 public class GameTypeHandler : MonoBehaviour
 {
     [SerializeField] private GameObject _singleGame, _wifiHost, _onlineGame;
-    private DataHolder.GameTypes _selectGameType;
+    private GameTypes _selectGameType;
 
     private void Awake()
     {
@@ -15,11 +16,11 @@ public class GameTypeHandler : MonoBehaviour
 
         _selectGameType = DataHolder.GameType;
 
-        if (_selectGameType == DataHolder.GameTypes.Single || _selectGameType == DataHolder.GameTypes.Null) // Null для тестов. Когда заходишь в игру, минуя меню.
+        if (_selectGameType == GameTypes.Single || _selectGameType == GameTypes.Null) // Null для тестов. Когда заходишь в игру, минуя меню.
             _singleGame.SetActive(true);
-        else if (_selectGameType == DataHolder.GameTypes.WifiHost)
+        else if (_selectGameType == GameTypes.WifiHost)
             _wifiHost.SetActive(true);
-        else if (_selectGameType == DataHolder.GameTypes.WifiClient || _selectGameType == DataHolder.GameTypes.Multiplayer )
+        else if (_selectGameType == GameTypes.WifiClient || _selectGameType == GameTypes.Multiplayer )
             _onlineGame.SetActive(true);
 
         enabled = false;

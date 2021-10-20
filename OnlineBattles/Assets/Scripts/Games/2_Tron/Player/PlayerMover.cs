@@ -3,19 +3,13 @@ using UnityEngine;
 
 namespace Game2
 {
-    public class Player : MonoBehaviour
+    public class PlayerMover : MonoBehaviour
     {
-        [SerializeField] PlayerType _playerType;
         [SerializeField] private Joystick _joystick;
-        [SerializeField] private TrailCollider _trailCollider;
-        [SerializeField] private ParticleSystem _explosion;
-        [SerializeField] private PlayerTrailRenderer _trailRenderer;
-
         private GameResources_2 GR;
-        private Rigidbody2D _rb;
-        private Vector3 _startPosition;
-        private Quaternion _startRotation;       
-        private PlayerControl _controlType = PlayerControl.Local;       
+        private ControlTypes _controlType = ControlTypes.Local;
+        private Rigidbody2D _rb;       
+        private Player _player;
         private float _currentAngle = 0f;
 
         private const float MoveSpeed = 1.8f;
@@ -24,60 +18,35 @@ namespace Game2
         private void Start()
         {
             _rb = GetComponent<Rigidbody2D>();
-            GR = GameResources_2.GameResources;
-            SetStartSettings();
+            _player = GetComponent<Player>();
+            GR = GameResources_2.GameResources;           
         }
 
         private void Update()
         {
             if (GR.GameOn)
-            {
-                if (_controlType != PlayerControl.Broadcast)
-                {
-                    _trailCollider.CreateTrailsCollider(transform.localPosition);
+                if (_controlType != ControlTypes.Broadcast)
                     ChangeDirection();
-                }             
-            }
         }
 
         private void FixedUpdate()
         {
-            if (GR.GameOn && _controlType != PlayerControl.Broadcast)
-            {
+            if (GR.GameOn && _controlType != ControlTypes.Broadcast)
                 _rb.MovePosition(transform.position + gameObject.transform.up * Time.fixedDeltaTime * MoveSpeed);
-            }
         }
 
-        private void OnCollisionEnter2D(Collision2D collision)
+        private void ChangeDirection() //TODO: Переделать на принцип отлавливания изменений, чтоб реже можно было присылать сообщения
         {
-            if (_controlType != PlayerControl.Broadcast)
-            {
-                if (collision.gameObject.TryGetComponent(out Player player))
-                {
-                    _explosion.Play();
-                    GR.RoundResults(null);
-                }
-            }               
-        }
-
-        public void LoseRound()
-        {
-            _explosion.Play();
-            GR.RoundResults(gameObject);
-        }
-              
-        private void ChangeDirection()
-        {          
             Vector2 normalizedJoystick = Vector2.zero;
 
-            if (_controlType == PlayerControl.Local)
+            if (_controlType == ControlTypes.Local)
             {
-                if (_playerType == PlayerType.BluePlayer)
+                if (_player.PlayerType == PlayerTypes.BluePlayer)
                     normalizedJoystick = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
-                else if (_playerType == PlayerType.RedPlayer)
+                else if (_player.PlayerType == PlayerTypes.RedPlayer)
                     normalizedJoystick = new Vector2(-_joystick.Horizontal, -_joystick.Vertical).normalized;
             }
-            else if (_controlType == PlayerControl.Remote)
+            else if (_controlType == ControlTypes.Remote)
             {
                 if (GR.RemoteJoystick.Count > 0)
                 {
@@ -85,7 +54,7 @@ namespace Game2
                     GR.RemoteJoystick.RemoveAt(0);
                 }
             }
-                
+
             if (normalizedJoystick != Vector2.zero)
             {
                 float targetAngle = Vector2.SignedAngle(Vector2.up, normalizedJoystick);
@@ -113,37 +82,29 @@ namespace Game2
             }
         }
 
-        public void SetControlType(PlayerControl type)
+        public void SetControlType(ControlTypes type)
         {
             _controlType = type;
 
-            if (type == PlayerControl.Broadcast)
+            if (type == ControlTypes.Broadcast)
             {
-                if (_playerType == PlayerType.RedPlayer)
+                if (_player.PlayerType == PlayerTypes.BluePlayer)
                     _joystick.gameObject.SetActive(false);
+
+                if (_player.PlayerType == PlayerTypes.RedPlayer)
+                {
+                    Vector2 joyPosition = new Vector2(-_joystick.transform.position.x, -_joystick.transform.position.y);
+                    _joystick.transform.position = joyPosition;
+                }
             }
+            else if (type == ControlTypes.Remote)
+                _joystick.gameObject.SetActive(false);          
         }
 
         public void SetBroadcastPositions(Vector3 position, Quaternion rotation)
         {
             _rb.MovePosition(position);
-            _rb.MoveRotation(rotation);
-        }
-
-        public void ResetLevel()
-        {
-            _trailRenderer.ClearTrail();
-            _trailCollider.ClearCollider();
-            _explosion.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-
-            transform.localPosition = _startPosition;
-            transform.localRotation = _startRotation;
-        }
-
-        private void SetStartSettings()
-        {
-            _startPosition = transform.localPosition;
-            _startRotation = transform.localRotation;
+            transform.localRotation = rotation;
         }        
     }
 }

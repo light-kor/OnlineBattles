@@ -1,3 +1,4 @@
+using GameEnumerations;
 using UnityEngine;
 
 namespace Game1
@@ -10,7 +11,7 @@ namespace Game1
         private void Start()
         {
             GR = transform.parent.GetComponent<GameResources_1>();
-            BaseStart(DataHolder.ConnectType.TCP);
+            BaseStart(ConnectTypes.TCP);
         }
 
         protected override void Update()

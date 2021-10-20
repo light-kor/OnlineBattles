@@ -1,3 +1,4 @@
+using GameEnumerations;
 using UnityEngine;
 
 public abstract class GameTemplate_WifiHost : MonoBehaviour
@@ -5,15 +6,16 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
     protected bool _gameOn = true;
     protected string[] _messages;
     private string _earlyOpponentStatus = null;
-    private DataHolder.ConnectType _gameType;
+    private ConnectTypes _gameType;
 
-    protected void BaseStart(DataHolder.ConnectType type)
+    protected void BaseStart(ConnectTypes type)
     {
         WifiServer_Host.OpponentGaveUp += OpponentGiveUp;
         PauseMenu.WantLeaveTheGame += IGiveUp;
+
         _gameType = type;
 
-        if (_gameType == DataHolder.ConnectType.UDP)
+        if (_gameType == ConnectTypes.UDP)
         {
             Network.UDPMessagesBig.Clear();
             Network.CreateUDP();
@@ -60,11 +62,22 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
         _earlyOpponentStatus = "lose";
     }
 
+    public static void SendScore(PlayerTypes player, GameResults result, bool setPause)
+    {
+        if (WifiServer_Host.Opponent != null)
+            WifiServer_Host.SendTcpMessage($"UpdateScore {player} {result} {setPause}");
+    }
+
+    private void SendResumeRequest()
+    {
+        WifiServer_Host.SendTcpMessage("Resume");
+    }
+
     protected void CloseAll()
     {
         _gameOn = false;
 
-        if (_gameType == DataHolder.ConnectType.UDP)
+        if (_gameType == ConnectTypes.UDP)
         {
             CancelInvoke();
             Network.CloseUdpConnection();
@@ -80,5 +93,7 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
     {
         WifiServer_Host.OpponentGaveUp -= OpponentGiveUp;
         PauseMenu.WantLeaveTheGame -= IGiveUp;
+        //PauseButton.SendPauseGame -= SendPauseRequest;
+        //ExitMenu.SendResumeGame -= SendResumeRequest;
     }
 }

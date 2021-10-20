@@ -408,12 +408,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54cc6ce7ebb11034db903c934d2b34c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Timer: {fileID: 7680673122322790065}
-  FirstScore: {fileID: 7982030293371140980}
-  SecondScore: {fileID: 7982030291884602463}
-  EndRoundPanel: {fileID: 7982030293599557627}
-  PauseMenu: {fileID: 4329599753722396877}
-  PauseButton: {fileID: 7982030293650812121}
+  _timer: {fileID: 7680673122322790065}
+  _gameScore: {fileID: 1321234379395513470}
+  _endRound: {fileID: 7982030293599557627}
+  _pausePanel: {fileID: 4867049683615831294}
+  _pause: {fileID: 3004848817605820840}
 --- !u!1 &1488814075051969966
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,7 +713,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4836788019780432857}
   - component: {fileID: 4812722631875568711}
-  - component: {fileID: 4329599753722396877}
+  - component: {fileID: 4867049683615831294}
   m_Layer: 5
   m_Name: PausePanel
   m_TagString: Untagged
@@ -759,7 +758,7 @@ MonoBehaviour:
   _notificationBox: {fileID: 3115975103852602837}
   _background: {fileID: 4987377288920071462}
   _blurOn: 1
---- !u!114 &4329599753722396877
+--- !u!114 &4867049683615831294
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -768,7 +767,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3274341606856769894}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84f0f5d85ab645c4a8545127d68070fa, type: 3}
+  m_Script: {fileID: 11500000, guid: ac031b00b17193d49b3b5de4b4f0d0b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _left: {fileID: 3382276004904012094}
@@ -2266,6 +2265,7 @@ GameObject:
   - component: {fileID: 7982030293085992541}
   - component: {fileID: 7982030293085992531}
   - component: {fileID: 7982030293085992530}
+  - component: {fileID: 1321234379395513470}
   m_Layer: 5
   m_Name: Score
   m_TagString: Untagged
@@ -2334,6 +2334,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1321234379395513470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7982030293085992540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3120ae4412982d4cbc9cc389516110c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _firstScore: {fileID: 7982030293371140980}
+  _secondScore: {fileID: 7982030291884602463}
 --- !u!1 &7982030293371140982
 GameObject:
   m_ObjectHideFlags: 0
@@ -2573,7 +2587,7 @@ GameObject:
   - component: {fileID: 7982030293650812124}
   - component: {fileID: 7982030293650812127}
   - component: {fileID: 7982030293650812126}
-  - component: {fileID: 7982030293650812121}
+  - component: {fileID: 3004848817605820840}
   m_Layer: 5
   m_Name: PauseButton
   m_TagString: Untagged
@@ -2684,7 +2698,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &7982030293650812121
+--- !u!114 &3004848817605820840
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2693,7 +2707,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7982030293650812123}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55b1c37ba11f7af49b0daaf94de9ea56, type: 3}
+  m_Script: {fileID: 11500000, guid: f42bb92a587603347963703491a85441, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &7982030293820805894

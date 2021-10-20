@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GameEnumerations;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -71,11 +72,11 @@ public class MainMenu : MonoBehaviour
     {
         DataHolder.SelectedServerGame = lvlNum;
 
-        if (DataHolder.GameType == DataHolder.GameTypes.Single)
+        if (DataHolder.GameType == GameTypes.Single)
         {
             SceneManager.LoadScene("lvl" + lvlNum);
         }
-        else if (DataHolder.GameType == DataHolder.GameTypes.WifiHost)
+        else if (DataHolder.GameType == GameTypes.WifiHost)
         {
             if (WifiServer_Host.OpponentIsReady == false)
             {
@@ -88,7 +89,7 @@ public class MainMenu : MonoBehaviour
                 //TODO: Отправить инфу второму игроку
             }
         }
-        else if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
+        else if (DataHolder.GameType == GameTypes.Multiplayer)
         {
             //TODO: Добавить анимацию ожидания.
             new Notification("Поиск игры", Notification.ButtonTypes.CancelGameSearch);
@@ -99,18 +100,18 @@ public class MainMenu : MonoBehaviour
 
     public void ChoseStartView() //TODO: Мб добавить _panelAnim ко всему.
     {
-        if (DataHolder.GameType == DataHolder.GameTypes.Null)
+        if (DataHolder.GameType == GameTypes.Null)
             ActivateMainMenu();
-        else if (DataHolder.GameType == DataHolder.GameTypes.Single)
+        else if (DataHolder.GameType == GameTypes.Single)
             ActivateSingleplayerMenu();
-        else if (DataHolder.GameType == DataHolder.GameTypes.WifiHost)
+        else if (DataHolder.GameType == GameTypes.WifiHost)
         {
             ActivateCreateWifiMenu();
             _wifiComponents.ChangeOpponentNameAndButton(false);
         }
-        else if (DataHolder.GameType == DataHolder.GameTypes.WifiClient)
+        else if (DataHolder.GameType == GameTypes.WifiClient)
             ActivateWaitingWifiLvl();
-        else if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer)
+        else if (DataHolder.GameType == GameTypes.Multiplayer)
             ActivateMultiplayerMenu();
 
         //DataHolder.GameType = DataHolder.GameTypes.Null; // Видимо это будет мешать
@@ -121,7 +122,7 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     public void SelectSingleGame()
     {
-        DataHolder.GameType = DataHolder.GameTypes.Single;
+        DataHolder.GameType = GameTypes.Single;
         _panelAnim.StartTransition(ActivateSingleplayerMenu);
     }
 
@@ -158,13 +159,13 @@ public class MainMenu : MonoBehaviour
 
     public void TcpConnectionIsReady()
     {
-        if (DataHolder.GameType == DataHolder.GameTypes.Multiplayer) 
+        if (DataHolder.GameType == GameTypes.Multiplayer) 
             _panelAnim.StartTransition(ActivateMultiplayerMenu);
     }
 
     public void MultiBack() //TODO: !!Добавить кнопку и завершение всех соединений на момент, когда ты уже имеешь подключённого чела и хочешь выйти!!
     {
-        if (DataHolder.GameType == DataHolder.GameTypes.WifiClient)
+        if (DataHolder.GameType == GameTypes.WifiClient)
         {
             Network.CloseWifiServerSearcher();
 
@@ -174,7 +175,7 @@ public class MainMenu : MonoBehaviour
                 Network.CloseTcpConnection();
             }
         }
-        else if (DataHolder.GameType == DataHolder.GameTypes.WifiHost)
+        else if (DataHolder.GameType == GameTypes.WifiHost)
         {
             if (WifiServer_Host.Opponent != null)
             {
@@ -276,6 +277,10 @@ public class MainMenu : MonoBehaviour
     {
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
     }
+
+    //TODO: Добавить bool connected вместо проверки на null WifiServer_Host.Opponent
+
+    //TODO: Возможно добавить паузу во время игры для онлайна
 
     //TODO: Добавить подтверждение готовности при игре онлайн
 

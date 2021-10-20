@@ -1,4 +1,7 @@
-﻿public static class DataHolder
+﻿using GameEnumerations;
+using System;
+
+public static class DataHolder
 {   
     public static GameTypes GameType { get; set; } = GameTypes.Null;
     public static int SelectedServerGame { get; set; } = -1;           
@@ -19,20 +22,10 @@
     public static string ServerIp { get; } = "188.134.87.78";
     public static string WifiGameIp { get; set; } = null;
     public static int RemoteServerPort { get; } = 55555;
-    public static int WifiPort { get; } = 55550;    
+    public static int WifiPort { get; } = 55550;
 
-    public enum GameTypes
+    public static T ParseEnum<T>(string value)
     {
-        Null,
-        Single,
-        WifiHost,
-        WifiClient,
-        Multiplayer
-    }
-
-    public enum ConnectType
-    {
-        TCP,
-        UDP
+        return (T)Enum.Parse(typeof(T), value, true);
     }
 }
