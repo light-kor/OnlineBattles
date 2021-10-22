@@ -9,10 +9,11 @@ namespace Game2
         [SerializeField] private TrailCollider _trailCollider;
         [SerializeField] private ParticleSystem _explosion;
         [SerializeField] private PlayerTrailRenderer _trailRenderer;
-        
+
+        public ControlTypes ControlType => _controlType;
         public PlayerTypes PlayerType => _playerType;
         public bool GetPoint { get; private set; } = false;
-        public PlayerMover _playerMover { get; private set; }
+        public PlayerMover PlayerMover { get; private set; }
 
         private ControlTypes _controlType = ControlTypes.Local;
         private GameResources_2 GR;        
@@ -21,7 +22,7 @@ namespace Game2
 
         private void Start()
         {
-            GR = GameResources_2.GameResources;
+            GR = GameResources_2.GameResources;           
             SetStartSettings();
         }
 
@@ -54,11 +55,12 @@ namespace Game2
         public void SetControlType(ControlTypes type)
         {
             _controlType = type;
+            PlayerMover = GetComponent<PlayerMover>();
 
             if (type == ControlTypes.Broadcast)               
                 GetComponent<PolygonCollider2D>().enabled = false;
 
-            _playerMover.SetControlType(type);
+            PlayerMover.SetControlType();
         }
       
         public void ResetLevel()

@@ -30,10 +30,9 @@ namespace Game3
             SendAllChanges();
         }
 
-        protected override void Update()
+        private void Update()
         {
-            base.Update();
-            if (_gameOn)
+            if (GR.GameOn)
             {
                 if (_getBigMessage)
                 {
@@ -44,9 +43,9 @@ namespace Game3
                 //UpdateThread();
                 //SendJoy();
 
-                if (Network.TCPMessagesForGames.Count > 0)
+                if (GR.GameMessagesCount > 0)
                 {
-                    string[] mes = Network.TCPMessagesForGames[0].Split(' ');
+                    string[] mes = GR.UseAndDeleteGameMessage();
                     if (mes[0] == "point")
                     {
                         Vector2 position = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
@@ -60,7 +59,6 @@ namespace Game3
                         GR._me.transform.position = myPosition;
                         GR._enemy.transform.position = enemyPosition;
                     }
-                    Network.TCPMessagesForGames.RemoveAt(0);
                 }
 
                 UpdateThread();

@@ -1,5 +1,6 @@
 ﻿using GameEnumerations;
 using System;
+using System.Collections.Generic;
 
 public static class DataHolder
 {   
@@ -16,7 +17,9 @@ public static class DataHolder
     //
 
     public delegate void Notification();
-    public delegate void TextЕransmissionEnvent(string text);
+    public delegate void StringEvent(string text);
+    public delegate void StringArrayMessage(string[] message);
+    public delegate void Pause(PauseTypes pauseType);
 
     //"127.0.0.1" - локальный; 188.134.87.78 - общий дом
     public static string ServerIp { get; } = "188.134.87.78";
@@ -27,5 +30,12 @@ public static class DataHolder
     public static T ParseEnum<T>(string value)
     {
         return (T)Enum.Parse(typeof(T), value, true);
+    }
+
+    public static string[] UseAndDeleteFirstListMessage(List<string[]> list)
+    {
+        string[] message = list[0];
+        list.RemoveAt(0);
+        return message;
     }
 }

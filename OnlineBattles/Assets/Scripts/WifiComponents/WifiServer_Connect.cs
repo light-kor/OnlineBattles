@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 public static class WifiServer_Connect
 {
-    public static event DataHolder.Text≈ransmissionEnvent AddWifiServerToScreen;
+    public static event DataHolder.StringEvent AddWifiServerToScreen;
     private static List<string> _wifiServers = new List<string>();
 
     public static void StartSearching()

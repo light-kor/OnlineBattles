@@ -11,7 +11,8 @@ namespace GameEnumerations
     {
         Null,
         ManualPause,
-        EndRound
+        EndRound,
+        BackgroundPause
     }
 
     public enum GameResults

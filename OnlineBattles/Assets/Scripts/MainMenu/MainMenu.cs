@@ -1,5 +1,6 @@
 ﻿using GameEnumerations;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -15,6 +16,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private MultiBackButton _multiBackButton;
     [SerializeField] private ScrollRect _lvlScrollbar;
     private WifiMenuComponents _wifiComponents;
+    private List<string[]> _tcpControlMessages = new List<string[]>();
     private string _lvlName = string.Empty;
 
     private void Start()
@@ -22,20 +24,21 @@ public class MainMenu : MonoBehaviour
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = FrameRate;
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
+        Network.NewGameControlMessage += NewControlMessage;
 
         _wifiComponents = GetComponent<WifiMenuComponents>();
         _panelAnim = GetComponent<a_ChangePanel>();
         _settings.GetComponent<PlayerSettings>().LoadSettings(); // Нужно это сделать тут, а то тот объект со скриптом в начале неактивен
         ChoseStartView();
     }
-
+   
     private void Update()
     {
         Network.ConnectionLifeSupport(); //TODO: Может вынести как-то поудобнее
 
-        if (Network.TCPMessagesForGames.Count > 0)
+        if (_tcpControlMessages.Count > 0)
         {
-            string[] mes = Network.TCPMessagesForGames[0].Split(' ');
+            string[] mes = DataHolder.UseAndDeleteFirstListMessage(_tcpControlMessages);
             if (mes[0] == "S")
             {
                 DataHolder.IDInThisGame = Convert.ToInt32(mes[1]);
@@ -64,7 +67,6 @@ public class MainMenu : MonoBehaviour
                 _panelAnim.StartTransition(ActivateMainMenu);
                 new Notification("Сервер отключён", Notification.ButtonTypes.SimpleClose);
             }
-            Network.TCPMessagesForGames.RemoveAt(0);
         }
     }
 
@@ -84,7 +86,7 @@ public class MainMenu : MonoBehaviour
             }
             else
             {
-                WifiServer_Host.SendTcpMessage("wifi_go " + "lvl" + lvlNum);
+                WifiServer_Host.Opponent.SendTcpMessage("wifi_go " + "lvl" + lvlNum);
                 SceneManager.LoadScene("lvl" + lvlNum);
                 //TODO: Отправить инфу второму игроку
             }
@@ -179,7 +181,7 @@ public class MainMenu : MonoBehaviour
         {
             if (WifiServer_Host.Opponent != null)
             {
-                WifiServer_Host.SendTcpMessage("disconnect");
+                WifiServer_Host.Opponent.SendTcpMessage("disconnect");
                 WifiServer_Host.CloseConnection(); // Это если игрок уже подключён
             }
             else
@@ -198,6 +200,11 @@ public class MainMenu : MonoBehaviour
             return false;
         }
         else return true;
+    }
+
+    private void NewControlMessage(string[] message)
+    {
+        _tcpControlMessages.Add(message);
     }
 
     #region ActivatePanels
@@ -276,7 +283,16 @@ public class MainMenu : MonoBehaviour
     private void OnDestroy()
     {
         Network.TcpConnectionIsDone -= TcpConnectionIsReady;
+        Network.NewGameControlMessage -= NewControlMessage;
     }
+
+    //TODO: Возможно надо не включать EndPanel, если это был последний раунд
+
+    //TODO: Добавить проверку в селиаизатор. Чтоб если там не получалость десериализовать, то ваозвращал null, и чтоб был проверка на ноль в скриптах
+
+    //TODO: Сделать маленькие временные уведомления. Например, вместо "Ожижайте второго игрока"
+
+    //TODO: Если один сдался, то надо бы поставить паузу, чтоб ничего не произошло на фоне.
 
     //TODO: Добавить bool connected вместо проверки на null WifiServer_Host.Opponent
 

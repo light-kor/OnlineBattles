@@ -17,24 +17,6 @@ namespace Game2
             GR.SetControlTypes(ControlTypes.Broadcast, ControlTypes.Broadcast);
         }
 
-        protected override void Update()
-        {
-            base.Update();
-            if (_gameOn)
-            {
-                if (Network.TCPMessagesForGames.Count > 0)
-                {
-                    string[] mes = Network.TCPMessagesForGames[0].Split(' ');       
-                    
-                    if (mes[0] == "position")
-                    {
-                       
-                    }
-                    Network.TCPMessagesForGames.RemoveAt(0);
-                }
-            }
-        }
-
         private void FixedUpdate()
         {
             UpdateThread();
@@ -48,8 +30,17 @@ namespace Game2
                 FrameInfo frame = Serializer<FrameInfo>.GetMessage(Network.UDPMessagesBig[0]);
                 Network.UDPMessagesBig.RemoveAt(0);
 
-                GR.MoveToPosition(frame);
+                MoveToPosition(frame);
             }
+        }
+
+        private void MoveToPosition(FrameInfo frame)
+        {
+            Vector3 position1 = new Vector3(frame.X_blue, frame.Y_blue);
+            Vector3 position2 = new Vector3(frame.X_red, frame.Y_red);
+
+            GR.Blue.PlayerMover.SetBroadcastPositions(position1, frame.GetQuaternion(frame.Quaternion_blue));
+            GR.Red.PlayerMover.SetBroadcastPositions(position2, frame.GetQuaternion(frame.Quaternion_red));
         }
 
         private void UpdateThreadOld()
@@ -106,7 +97,7 @@ namespace Game2
 
         private void SendJoystick()
         {
-            if (_gameOn)
+            if (GR.GameOn)
             {
                 Vector2 move = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
                 if (move != _lastMove)

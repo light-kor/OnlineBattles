@@ -37,23 +37,50 @@ public class Score : MonoBehaviour
         DisplayScore();
     }
   
-    public bool CheckEndGame(int winScore)
+    public bool CheckEndGame(int winScore, GameTypes gameType)
     {
         if (_blueScore >= winScore || _redScore >= winScore)
         {
-            string notifText = null;
+            if (gameType == GameTypes.Null || gameType == GameTypes.Single)
+            {
+                string notifText = null;
 
-            if (_blueScore > _redScore)
-                notifText = "Синий победил";
-            else if (_redScore > _blueScore)
-                notifText = "Красный победил";
-            else if (_redScore == _blueScore)
-                notifText = "Ничья";
+                if (_blueScore > _redScore)
+                    notifText = "Синий победил";
+                else if (_redScore > _blueScore)
+                    notifText = "Красный победил";
+                else if (_redScore == _blueScore)
+                    notifText = "Ничья";
 
-            new Notification(notifText, Notification.NotifTypes.EndGame);
-            return true;
+                new Notification(notifText, Notification.NotifTypes.EndGame);
+                return true;
+            }
+            else if (gameType == GameTypes.WifiHost)
+            {
+                string notifText = null, opponentStatus = null;
+
+                if (_blueScore > _redScore)
+                {
+                    notifText = "Вы победили";
+                    opponentStatus = "Lose";
+                }                   
+                else if (_redScore > _blueScore)
+                {
+                    notifText = "Вы проиграли";
+                    opponentStatus = "Win";
+                }                   
+                else if (_redScore == _blueScore)
+                {
+                    notifText = "Ничья";
+                    opponentStatus = "Draw";
+                }
+                    
+                WifiServer_Host.Opponent.SendTcpMessage("EndGame " + opponentStatus);
+                new Notification(notifText, Notification.ButtonTypes.MenuButton);
+                return true;
+            }           
         }
-        else return false;
+        return false;
     }
 
     private void DisplayScore()

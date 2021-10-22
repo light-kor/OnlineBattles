@@ -1,36 +1,26 @@
 using GameEnumerations;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public abstract class GameTemplate_WifiHost : MonoBehaviour
 {
-    protected bool _gameOn = true;
-    protected string[] _messages;
-    private string _earlyOpponentStatus = null;
-    private ConnectTypes _gameType;
+    public static event DataHolder.Pause BackgroundPause;
+
+    private ConnectTypes _connectType;
 
     protected void BaseStart(ConnectTypes type)
     {
-        WifiServer_Host.OpponentGaveUp += OpponentGiveUp;
-        PauseMenu.WantLeaveTheGame += IGiveUp;
+        GeneralController.OpponentLeftTheGame += OpponentLeftTheGame;
+        PauseMenu.LeaveTheGame += LeaveTheGame;
 
-        _gameType = type;
+        _connectType = type;
 
-        if (_gameType == ConnectTypes.UDP)
+        if (_connectType == ConnectTypes.UDP)
         {
             Network.UDPMessagesBig.Clear();
             Network.CreateUDP();
             Network.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес   
             InvokeRepeating("SendFramesUDP", 0f, WifiServer_Host.UpdateRate);
-        }
-    }
-
-    protected virtual void Update()
-    {        
-        if (_earlyOpponentStatus != null)
-        {
-            CloseAll();
-            EndOfGame(_earlyOpponentStatus);
-            _earlyOpponentStatus = null;
         }
     }
 
@@ -40,7 +30,7 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
     /// <param name="opponentStatus">Статус противника.</param>
     protected static void EndOfGame(string opponentStatus)
     {
-        WifiServer_Host.SendTcpMessage(opponentStatus);
+        WifiServer_Host.Opponent.SendTcpMessage(opponentStatus);
         string notifText = null;
         if (opponentStatus == "drawn")
             notifText = "Ничья";
@@ -50,34 +40,32 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
             notifText = "Вы проиграли";
 
         new Notification(notifText, Notification.ButtonTypes.MenuButton);
+    } //TODO: Удалить это и перевести все игры на новую систему
+
+    private void LeaveTheGame()
+    {
+        CloseAll();
+        WifiServer_Host.Opponent.SendTcpMessage("LeftTheGame");
+        SceneManager.LoadScene("mainMenu");
     }
 
-    private void IGiveUp()
+    private void OpponentLeftTheGame()
     {
-        _earlyOpponentStatus = "win";
-    }
-
-    private void OpponentGiveUp()
-    {
-        _earlyOpponentStatus = "lose";
+        CloseAll();
+        new Notification("Противник сдался", Notification.ButtonTypes.MenuButton);
     }
 
     public static void SendScore(PlayerTypes player, GameResults result, bool setPause)
     {
         if (WifiServer_Host.Opponent != null)
-            WifiServer_Host.SendTcpMessage($"UpdateScore {player} {result} {setPause}");
-    }
-
-    private void SendResumeRequest()
-    {
-        WifiServer_Host.SendTcpMessage("Resume");
+            WifiServer_Host.Opponent.SendTcpMessage($"UpdateScore {player} {result} {setPause}");
     }
 
     protected void CloseAll()
     {
-        _gameOn = false;
+        BackgroundPause?.Invoke(PauseTypes.BackgroundPause);
 
-        if (_gameType == ConnectTypes.UDP)
+        if (_connectType == ConnectTypes.UDP)
         {
             CancelInvoke();
             Network.CloseUdpConnection();
@@ -91,9 +79,7 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
 
     private void OnDestroy()
     {
-        WifiServer_Host.OpponentGaveUp -= OpponentGiveUp;
-        PauseMenu.WantLeaveTheGame -= IGiveUp;
-        //PauseButton.SendPauseGame -= SendPauseRequest;
-        //ExitMenu.SendResumeGame -= SendResumeRequest;
+        GeneralController.OpponentLeftTheGame -= OpponentLeftTheGame;
+        PauseMenu.LeaveTheGame -= LeaveTheGame;
     }
 }

@@ -1,24 +1,23 @@
 ﻿using GameEnumerations;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public abstract class GameTemplate_Online : MonoBehaviour
 {
+    public static event DataHolder.Pause BackgroundPause;
+
     protected const int _delay = 3125 * 100; // 31.25 ms для интерполяции
-    protected bool _finishTheGame = false;
-    protected bool _gameOn = true;
     protected string[] _frame = null, _frame2 = null;
-    private ConnectTypes _gameType;
-    private string _endStatus = null;
+    private ConnectTypes _connectType;
 
     protected void BaseStart(ConnectTypes type)
     {
-        Network.EndOfGame += FinishTheGame;
-        PauseMenu.WantLeaveTheGame += GiveUp;
-        //PauseButton.SendPauseGame += SendPauseRequest;
-        //ExitMenu.SendResumeGame += SendResumeRequest;
-        _gameType = type;
+        GeneralController.OpponentLeftTheGame += OpponentLeftTheGame;
+        GeneralController.EndOfGame += FinishTheGame;
+        PauseMenu.LeaveTheGame += LeaveTheGame;
+        _connectType = type;
 
-        if (_gameType == ConnectTypes.UDP)
+        if (_connectType == ConnectTypes.UDP)
         {
             Network.CreateUDP();
             Network.UDPMessagesBig.Clear();
@@ -29,60 +28,51 @@ public abstract class GameTemplate_Online : MonoBehaviour
             Network.ClientTCP.SendMessage("start");    
     }
 
-    protected virtual void Update()
-    {
-        Network.ConnectionLifeSupport();
+    //protected virtual void Update()
+    //{
+    //    Network.ConnectionLifeSupport();  
+    //}
 
-        if (_finishTheGame)
-        {
-            CloseAll();
-            _finishTheGame = false;
-            EndOfGame();
-        }       
-    }
-
-    private void FinishTheGame(string Status)
+    private void FinishTheGame(string status)
     {
-        _endStatus = Status;
-        _finishTheGame = true;
+        CloseAll();
+        EndOfGame(status);
     }
 
     /// <summary>
     /// Завершение игры. Вывод уведомления.
     /// </summary>
-    protected void EndOfGame()
+    private void EndOfGame(string status)
     {
         string notifText = null;
-        if (_endStatus == "drawn")
+        if (status == "Draw")
             notifText = "Ничья";
-        else if (_endStatus == "win")
+        else if (status == "Win")
             notifText = "Вы победили";
-        else if (_endStatus == "lose")
+        else if (status == "Lose")
             notifText = "Вы проиграли";
 
         new Notification(notifText, Notification.ButtonTypes.MenuButton);
+    }    
+
+    private void LeaveTheGame()
+    {
+        CloseAll();
+        Network.ClientTCP.SendMessage("LeftTheGame");
+        SceneManager.LoadScene("mainMenu");
     }
 
-    private void GiveUp()
+    private void OpponentLeftTheGame()
     {
-        Network.ClientTCP.SendMessage("GiveUp");
+        CloseAll();
+        new Notification("Противник сдался", Notification.ButtonTypes.MenuButton);
     }
 
-    private void SendPauseRequest()
+    private void CloseAll()
     {
-        Network.ClientTCP.SendMessage("Pause");
-    }
+        BackgroundPause?.Invoke(PauseTypes.BackgroundPause);
 
-    private void SendResumeRequest()
-    {
-        Network.ClientTCP.SendMessage("Resume");
-    }
-
-    protected void CloseAll()
-    {
-        _gameOn = false;
-
-        if (_gameType == ConnectTypes.UDP)
+        if (_connectType == ConnectTypes.UDP)
         {
             Network.CloseUdpConnection();
         }
@@ -90,9 +80,7 @@ public abstract class GameTemplate_Online : MonoBehaviour
    
     private void OnDestroy()
     {
-        Network.EndOfGame -= FinishTheGame;
-        PauseMenu.WantLeaveTheGame -= GiveUp;
-        //PauseButton.SendPauseGame -= SendPauseRequest;
-        //ExitMenu.SendResumeGame -= SendResumeRequest;
+        GeneralController.EndOfGame -= FinishTheGame;
+        PauseMenu.LeaveTheGame -= LeaveTheGame;
     }
 }

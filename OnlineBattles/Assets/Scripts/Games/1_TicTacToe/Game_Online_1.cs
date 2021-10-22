@@ -14,11 +14,10 @@ namespace Game1
             BaseStart(ConnectTypes.TCP);
         }
 
-        protected override void Update()
+        private void Update()
         {
-            base.Update();
 
-            if (_gameOn)
+            if (GR.GameOn)
             {
                 if (_myTurn && Input.GetMouseButtonDown(0))
                 {
@@ -33,16 +32,15 @@ namespace Game1
                     }
                 }
 
-                if (Network.TCPMessagesForGames.Count > 0)
+                if (GR.GameMessagesCount > 0)
                 {
-                    string[] mes = Network.TCPMessagesForGames[0].Split(' ');
+                    string[] mes = GR.UseAndDeleteGameMessage();
                     if (mes[0] == "move")
                     {
                         Vector3Int place = new Vector3Int(int.Parse(mes[1]), int.Parse(mes[2]), 0);
                         GR.Map.SetTile(place, GR.EnemyTile);
                         _myTurn = true;
                     }
-                    Network.TCPMessagesForGames.RemoveAt(0);
                 }
             }
         }

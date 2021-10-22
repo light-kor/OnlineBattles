@@ -2276,6 +2276,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _turnOnStartTimer: 1
-  RemoteJoystick: []
-  _blue: {fileID: 426430830}
-  _red: {fileID: 1805030218}
+  Blue: {fileID: 426430830}
+  Red: {fileID: 1805030218}

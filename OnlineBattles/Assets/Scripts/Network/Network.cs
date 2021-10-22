@@ -7,28 +7,27 @@ using System.Threading.Tasks;
 public static class Network
 {    
     public static event DataHolder.Notification TcpConnectionIsDone;
-    public static event DataHolder.TextЕransmissionEnvent EndOfGame;
-    public static event DataHolder.TextЕransmissionEnvent WifiServerAnswer;
-    public static event DataHolder.TextЕransmissionEnvent UpdateScore;
+    public static event DataHolder.StringEvent WifiServerAnswer;
+    public static event DataHolder.StringArrayMessage NewGameControlMessage;
 
     public static bool TryRecconect = true;   
     public static bool ConnectionInProgress = false;
-    
-    public static List<string> TCPMessagesForGames = new List<string>();
+         
+    public static TCPConnect ClientTCP { get; private set; } = null;
+    public static UDPConnect ClientUDP { get; private set; } = null;
+    public static long TimeDifferenceWithServer { get; private set; } = 0;
+
     public static List<string> UDPMessages = new List<string>();
     public static List<byte[]> UDPMessagesBig = new List<byte[]>();
-    public static TCPConnect ClientTCP = null;
-    public static UDPConnect ClientUDP = null;
-    public static long TimeDifferenceWithServer;
-
-    private static List<string> _messagesTCP = new List<string>();
+    private static List<string[]> _messagesTCP = new List<string[]>();
     private static WifiServer_Searcher _serverSearcher = null;
-
-    private const float TimeForWaitAnswer = 10f;   
+   
     private static bool _loginSuccessful = false;
     private static bool _messageHandlerIsBusy = false;
     private static bool _earlyTerminationOfConnection = false;
     private static bool _requestDenied = false;
+
+    private const float TimeForWaitAnswer = 10f;
 
     private static void MessageHandler()
     {
@@ -37,15 +36,9 @@ public static class Network
             _messageHandlerIsBusy = true;
             while (_messagesTCP.Count > 0)
             {
-                string[] mes = _messagesTCP[0].Split(' ');
+                string[] mes = DataHolder.UseAndDeleteFirstListMessage(_messagesTCP);
                 switch (mes[0])
-                {
-                    case "win":
-                    case "lose":
-                    case "drawn":
-                        EndOfGame?.Invoke(mes[0]);
-                        break;
-
+                {                   
                     case "login":
                         DataHolder.MyIDInServerSystem = Convert.ToInt32(mes[1]);
                         DataHolder.Money = Convert.ToInt32(mes[2]);
@@ -58,15 +51,7 @@ public static class Network
 
                     case "time":
                         TimeDifferenceWithServer = DateTime.UtcNow.Ticks - Convert.ToInt64(mes[1]);
-                        break;
-
-                    case "Resume":
-
-                        break;
-
-                    case "UpdateScore":
-                        UpdateScore?.Invoke(_messagesTCP[0]);
-                        break;
+                        break;                                        
 
                     case "denied":
                         _earlyTerminationOfConnection = true;
@@ -82,11 +67,9 @@ public static class Network
                         break;                   
 
                     default:
-                        TCPMessagesForGames.Add(_messagesTCP[0]);
+                        NewGameControlMessage?.Invoke(mes);
                         break;
-
                 }
-                _messagesTCP.RemoveAt(0);
             }
             _messageHandlerIsBusy = false;
         }       
@@ -108,7 +91,7 @@ public static class Network
 
     public static void AddNewTCPMessage(string message)
     {
-        _messagesTCP.Add(message);
+        _messagesTCP.Add(message.Split(' '));
         MessageHandler();
     }
 
@@ -250,7 +233,7 @@ public static class Network
             return true;
         }
         else return false;           
-    }
+    }   
 
     #region CloseConnection
     public static void CloseTcpConnection()

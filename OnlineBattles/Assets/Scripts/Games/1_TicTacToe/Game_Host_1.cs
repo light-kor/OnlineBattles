@@ -14,11 +14,9 @@ namespace Game1
             BaseStart(ConnectTypes.TCP);
         }
 
-        protected override void Update()
+        private void Update()
         {
-            base.Update();
-
-            if (_gameOn)
+            if (GR.GameOn)
             {
                 if (_myTurn && Input.GetMouseButtonDown(0))
                 {
@@ -28,14 +26,14 @@ namespace Game1
                     {
                         GR.Map.SetTile(clickCellPosition, GR.MyTile);
                         string mes = $"move {clickCellPosition.x} {clickCellPosition.y}";
-                        WifiServer_Host.SendTcpMessage(mes);
+                        WifiServer_Host.Opponent.SendTcpMessage(mes);
                         _myTurn = false;
                     }
                 }
 
-                if (WifiServer_Host.Opponent.MessageTCPforGame.Count > 0)
+                if (GR.GameMessagesCount > 0)
                 {
-                    string[] mes = WifiServer_Host.Opponent.MessageTCPforGame[0].Split(' ');
+                    string[] mes = GR.UseAndDeleteGameMessage();
                     if (mes[0] == "move")
                     {
                         Vector3Int place = new Vector3Int(int.Parse(mes[1]), int.Parse(mes[2]), 0);
@@ -43,7 +41,6 @@ namespace Game1
                         CheckEndOfGame();
                         _myTurn = true;
                     }
-                    WifiServer_Host.Opponent.MessageTCPforGame.RemoveAt(0);
                 }
             }
         }

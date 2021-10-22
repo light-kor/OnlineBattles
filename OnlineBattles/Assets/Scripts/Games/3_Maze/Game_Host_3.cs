@@ -16,30 +16,25 @@ namespace Game3
 
             GR.StartInHost();
             CreateMap();
-            WifiServer_Host.SendTcpMessage($"position {GR._enemy.transform.position.x} {GR._enemy.transform.position.y} {GR._me.transform.position.x} {GR._me.transform.position.y}");
+            WifiServer_Host.Opponent.SendTcpMessage($"position {GR._enemy.transform.position.x} {GR._enemy.transform.position.y} {GR._me.transform.position.x} {GR._me.transform.position.y}");
         }
 
-        protected override void Update()
+        private void Update()
         {
-            base.Update();
-
-            if (_gameOn)
+            if (GR.GameOn)
             {
-                if (WifiServer_Host.Opponent.MessageTCPforGame.Count > 0)
+                if (GR.GameMessagesCount > 0)
                 {
-                    string[] mes = WifiServer_Host.Opponent.MessageTCPforGame[0].Split(' ');
+                    string[] mes = GR.UseAndDeleteGameMessage();
                     if (mes[0] == "move")
                     {
-                        Debug.Log("mes " + WifiServer_Host.Opponent.MessageTCPforGame[0]);
                         var velocity = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
                         GR._enemyVelocity = velocity;
-                        Debug.Log($"enemy: {velocity.x} {velocity.y}");
                     }
                     else if (mes[0] == "change")
                     {
                         CreateMap();
                     }
-                    WifiServer_Host.Opponent.MessageTCPforGame.RemoveAt(0);
                 }
 
                 Vector2 myVelocity = new Vector2(GR._firstJoystick.Horizontal, GR._firstJoystick.Vertical);
@@ -80,7 +75,7 @@ namespace Game3
 
                 Vector2 pointPos = GR.RandomPositionOnMap();
                 Instantiate(GR._pointPref, pointPos, Quaternion.identity, GR._points.transform);
-                WifiServer_Host.SendTcpMessage($"point {pointPos.x} {pointPos.y}");
+                WifiServer_Host.Opponent.SendTcpMessage($"point {pointPos.x} {pointPos.y}");
                 //TODO: Карта меняется сама каждые 3 секунды, но каждый может изменить карту сам раз в 5 секунд. Это навык каждого
                 GR._lock = false;
             }

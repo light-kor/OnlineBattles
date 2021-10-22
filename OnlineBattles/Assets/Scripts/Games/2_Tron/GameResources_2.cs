@@ -1,15 +1,12 @@
 using GameEnumerations;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace Game2
 {
     public class GameResources_2 : GeneralController
     {      
         public static GameResources_2 GameResources;
-        [HideInInspector] public List<Vector2> RemoteJoystick = new List<Vector2>();
-        [SerializeField] private Player _blue, _red;
+        public Player Blue, Red;
         private bool _checkingResults = false;
 
         private readonly int WinScore = 5;
@@ -22,60 +19,43 @@ namespace Game2
 
         public void RoundResults()
         {
-            if (_checkingResults == false)
+            if (DataHolder.GameType != GameTypes.WifiClient && DataHolder.GameType != GameTypes.Multiplayer)
             {
-                _checkingResults = true;
-                PauseGame(PauseTypes.EndRound);
-                StartCoroutine(FinishRound());
-            }
+                if (_checkingResults == false)
+                {
+                    _checkingResults = true;
+                    PauseGame(PauseTypes.EndRound);
+                    StartCoroutine(FinishRound());
+                }
+            }               
         }
 
         private IEnumerator FinishRound()
         {
             yield return null;
 
-            if (_blue.GetPoint && _red.GetPoint)
+            if (Blue.GetPoint && Red.GetPoint)
                 UpdateAndTrySendScore(PlayerTypes.Null, GameResults.Draw);
-            else if (_blue.GetPoint)
-                UpdateAndTrySendScore(_blue.PlayerType, GameResults.Lose);
-            else if (_red.GetPoint)
-                UpdateAndTrySendScore(_red.PlayerType, GameResults.Lose);
+            else if (Blue.GetPoint)
+                UpdateAndTrySendScore(Blue.PlayerType, GameResults.Lose);
+            else if (Red.GetPoint)
+                UpdateAndTrySendScore(Red.PlayerType, GameResults.Lose);
 
-            
-            if (_res.GameScore.CheckEndGame(WinScore) == false)
-                OpenEndRoundPanel();
+            _res.GameScore.CheckEndGame(WinScore, DataHolder.GameType);
         }
         
         protected override void ResetLevel()
         {
             base.ResetLevel();
-            _blue.ResetLevel();
-            _red.ResetLevel();
+            Blue.ResetLevel();
+            Red.ResetLevel();
             _checkingResults = false;
         }
        
         public void SetControlTypes(ControlTypes blueType, ControlTypes redType)
         {
-            _blue.SetControlType(blueType);
-            _red.SetControlType(redType);
-        }
-
-        public void SendFrame()
-        {
-            if (Network.ClientUDP != null)
-            {
-                FrameInfo data = new FrameInfo(_blue, _red);
-                Serializer<FrameInfo>.SendMessage(data, ConnectTypes.UDP);
-            }              
-        }
-
-        public void MoveToPosition(FrameInfo frame)
-        {
-            Vector3 position1 = new Vector3(frame.X_blue, frame.Y_blue);
-            Vector3 position2 = new Vector3(frame.X_red, frame.Y_red);
-
-            _blue._playerMover.SetBroadcastPositions(position1, frame.GetQuaternion(frame.Quaternion_blue));
-            _red._playerMover.SetBroadcastPositions(position2, frame.GetQuaternion(frame.Quaternion_red));
-        }
+            Blue.SetControlType(blueType);
+            Red.SetControlType(redType);
+        }              
     }
 }

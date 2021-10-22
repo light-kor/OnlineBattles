@@ -3,9 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class PauseButton : MonoBehaviour
-{
-    public delegate void Pause(PauseTypes pauseType);
-    public event Pause PauseGame;
+{   
+    public event DataHolder.Pause PauseGame;
 
     private void Awake()
     {
