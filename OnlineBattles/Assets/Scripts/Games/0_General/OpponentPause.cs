@@ -1,22 +1,14 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class EndRoundPanel : MonoBehaviour, IPointerClickHandler
+public class OpponentPause : MonoBehaviour
 {
-    public event DataHolder.Notification RestartLevel;
-
     [SerializeField] private TMP_Text _text;
+
     private int _sign = 1;
     private float _fontSize, _currentFontSize;
 
     private const float AnimSpeed = 7f;
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        RestartLevel?.Invoke();
-        gameObject.SetActive(false);
-    }
 
     private void Start()
     {

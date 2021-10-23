@@ -4,13 +4,13 @@ using UnityEngine.SceneManagement;
 
 public abstract class GameTemplate_WifiHost : MonoBehaviour
 {
-    public static event DataHolder.Pause BackgroundPause;
-
     private ConnectTypes _connectType;
 
     protected void BaseStart(ConnectTypes type)
     {
         GeneralController.OpponentLeftTheGame += OpponentLeftTheGame;
+        GeneralController.RemotePause += SendPauseRequest;
+        GeneralController.RemoteResume += SendResumeRequest;
         PauseMenu.LeaveTheGame += LeaveTheGame;
 
         _connectType = type;
@@ -49,22 +49,30 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
         SceneManager.LoadScene("mainMenu");
     }
 
+    private void SendPauseRequest()
+    {
+        WifiServer_Host.Opponent.SendTcpMessage("Pause");
+    }
+
+    private void SendResumeRequest()
+    {
+        WifiServer_Host.Opponent.SendTcpMessage("Resume");
+    }
+
     private void OpponentLeftTheGame()
     {
         CloseAll();
         new Notification("Противник сдался", Notification.ButtonTypes.MenuButton);
     }
 
-    public static void SendScore(PlayerTypes player, GameResults result, bool setPause)
+    public static void SendScore(PlayerTypes player, GameResults result)
     {
         if (WifiServer_Host.Opponent != null)
-            WifiServer_Host.Opponent.SendTcpMessage($"UpdateScore {player} {result} {setPause}");
+            WifiServer_Host.Opponent.SendTcpMessage($"UpdateScore {player} {result}");
     }
 
     protected void CloseAll()
     {
-        BackgroundPause?.Invoke(PauseTypes.BackgroundPause);
-
         if (_connectType == ConnectTypes.UDP)
         {
             CancelInvoke();
@@ -80,6 +88,8 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
     private void OnDestroy()
     {
         GeneralController.OpponentLeftTheGame -= OpponentLeftTheGame;
+        GeneralController.RemotePause -= SendPauseRequest;
+        GeneralController.RemoteResume -= SendResumeRequest;
         PauseMenu.LeaveTheGame -= LeaveTheGame;
     }
 }

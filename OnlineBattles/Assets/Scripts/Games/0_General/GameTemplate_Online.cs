@@ -4,8 +4,6 @@ using UnityEngine.SceneManagement;
 
 public abstract class GameTemplate_Online : MonoBehaviour
 {
-    public static event DataHolder.Pause BackgroundPause;
-
     protected const int _delay = 3125 * 100; // 31.25 ms для интерполяции
     protected string[] _frame = null, _frame2 = null;
     private ConnectTypes _connectType;
@@ -14,6 +12,8 @@ public abstract class GameTemplate_Online : MonoBehaviour
     {
         GeneralController.OpponentLeftTheGame += OpponentLeftTheGame;
         GeneralController.EndOfGame += FinishTheGame;
+        GeneralController.RemotePause += SendPauseRequest;
+        GeneralController.RemoteResume += SendResumeRequest;
         PauseMenu.LeaveTheGame += LeaveTheGame;
         _connectType = type;
 
@@ -62,6 +62,16 @@ public abstract class GameTemplate_Online : MonoBehaviour
         SceneManager.LoadScene("mainMenu");
     }
 
+    private void SendPauseRequest()
+    {
+        Network.ClientTCP.SendMessage("Pause");
+    }
+
+    private void SendResumeRequest()
+    {
+        Network.ClientTCP.SendMessage("Resume");
+    }
+
     private void OpponentLeftTheGame()
     {
         CloseAll();
@@ -70,8 +80,6 @@ public abstract class GameTemplate_Online : MonoBehaviour
 
     private void CloseAll()
     {
-        BackgroundPause?.Invoke(PauseTypes.BackgroundPause);
-
         if (_connectType == ConnectTypes.UDP)
         {
             Network.CloseUdpConnection();
@@ -80,7 +88,10 @@ public abstract class GameTemplate_Online : MonoBehaviour
    
     private void OnDestroy()
     {
+        GeneralController.OpponentLeftTheGame -= OpponentLeftTheGame;
         GeneralController.EndOfGame -= FinishTheGame;
+        GeneralController.RemotePause -= SendPauseRequest;
+        GeneralController.RemoteResume -= SendResumeRequest;
         PauseMenu.LeaveTheGame -= LeaveTheGame;
     }
 }

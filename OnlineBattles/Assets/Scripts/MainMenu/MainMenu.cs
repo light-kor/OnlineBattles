@@ -286,6 +286,8 @@ public class MainMenu : MonoBehaviour
         Network.NewGameControlMessage -= NewControlMessage;
     }
 
+    //TODO: Вынести UDPMEssages  в ServerSearcher, и использовать только большие UDP пакеты и сериализацию
+
     //TODO: Возможно надо не включать EndPanel, если это был последний раунд
 
     //TODO: Добавить проверку в селиаизатор. Чтоб если там не получалость десериализовать, то ваозвращал null, и чтоб был проверка на ноль в скриптах

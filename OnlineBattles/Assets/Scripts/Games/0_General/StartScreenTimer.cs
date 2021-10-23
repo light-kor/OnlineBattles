@@ -5,10 +5,12 @@ using UnityEngine;
 public class StartScreenTimer : MonoBehaviour
 {
     public event DataHolder.Notification StartGame;
+    public event DataHolder.Notification RestartLevel;
 
     [SerializeField] private TMP_Text _text;
-    private Coroutine _countDown = null, _fontScaler = null;   
+    private Coroutine _countDown = null, _fontScaler = null, _backgroundTimer = null;   
     private float _time = 0f;
+    private bool _firstStartDone = false;
 
     private const float FontSize = 350f;
     private const float CountTime = 3f;
@@ -16,27 +18,34 @@ public class StartScreenTimer : MonoBehaviour
     public void StartTimer()
     {
         _time = CountTime + 1;
-        _text.gameObject.SetActive(true);
 
-        if (_countDown != null)
-            StopCoroutine(_countDown);
-
-        _countDown = StartCoroutine(CountDown());
+        if (_firstStartDone == false)
+        {
+            _text.gameObject.SetActive(true);
+            CleanAndStartCoroutine(ref _countDown, CountDown());
+        }
+        else
+            CleanAndStartCoroutine(ref _backgroundTimer, LevelRestarting());    
     }
-
-    public void StopTimer()
+  
+    private IEnumerator LevelRestarting()
     {
-        StopCoroutine(_countDown);
-        StopCoroutine(_fontScaler);
-        _text.gameObject.SetActive(false);
-    }
+        float time = 3f;
+        bool restarted = false;
 
-    private void StartScaling()
-    {
-        if (_fontScaler != null)
-            StopCoroutine(_fontScaler);
+        while (time > 0f)
+        {
+            time -= Time.deltaTime * 1.2f;
 
-        _fontScaler = StartCoroutine(ScaleFontSize());
+            if (time < 1 && restarted == false)
+            {
+                RestartLevel?.Invoke();
+                restarted = true;
+            }
+
+            yield return null;
+        }
+        StartGame?.Invoke();
     }
 
     private IEnumerator CountDown()
@@ -54,7 +63,7 @@ public class StartScreenTimer : MonoBehaviour
                 if (count != 0)
                 {
                     _text.text = count.ToString();
-                    StartScaling();
+                    CleanAndStartCoroutine(ref _fontScaler, ScaleFontSize());
                 }
                 else
                 {
@@ -67,6 +76,7 @@ public class StartScreenTimer : MonoBehaviour
         }               
         _text.gameObject.SetActive(false);
 
+        _firstStartDone = true;
         StartGame?.Invoke();
     }
 
@@ -79,5 +89,24 @@ public class StartScreenTimer : MonoBehaviour
             _text.fontSize = fontSize;
             yield return null;
         }
+    }
+
+    private void CleanAndStartCoroutine(ref Coroutine coroutine, IEnumerator enumerator)
+    {
+        if (coroutine != null)
+            StopCoroutine(coroutine);
+
+        coroutine = StartCoroutine(enumerator);
+    }
+
+    public void StopTimer()
+    {
+        if (_countDown != null)
+            StopCoroutine(_countDown);
+        if (_fontScaler != null)
+            StopCoroutine(_fontScaler);
+        if (_backgroundTimer != null)
+            StopCoroutine(_backgroundTimer);
+        _text.gameObject.SetActive(false);
     }
 }

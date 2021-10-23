@@ -11,6 +11,10 @@ namespace Game2
 
         private readonly int WinScore = 5;
 
+        //TODO: ѕосле паузы исчезает trail.¬ смысле он становитс€ меньше, но потом возвращаетс€
+        //TODO: ƒобавить световые вспышки между перезапусками
+        //TODO: ƒобавить анимации взрывов на клиенте
+
         protected override void Awake()
         {
             base.Awake();
@@ -23,8 +27,7 @@ namespace Game2
             {
                 if (_checkingResults == false)
                 {
-                    _checkingResults = true;
-                    PauseGame(PauseTypes.EndRound);
+                    _checkingResults = true;                   
                     StartCoroutine(FinishRound());
                 }
             }               
@@ -32,16 +35,16 @@ namespace Game2
 
         private IEnumerator FinishRound()
         {
-            yield return null;
+            yield return null; 
 
             if (Blue.GetPoint && Red.GetPoint)
-                UpdateAndTrySendScore(PlayerTypes.Null, GameResults.Draw);
+                UpdateScoreAndCheckGameState(PlayerTypes.Null, GameResults.Draw, WinScore, true);
             else if (Blue.GetPoint)
-                UpdateAndTrySendScore(Blue.PlayerType, GameResults.Lose);
+                UpdateScoreAndCheckGameState(Blue.PlayerType, GameResults.Lose, WinScore, true);
             else if (Red.GetPoint)
-                UpdateAndTrySendScore(Red.PlayerType, GameResults.Lose);
-
-            _res.GameScore.CheckEndGame(WinScore, DataHolder.GameType);
+                UpdateScoreAndCheckGameState(Red.PlayerType, GameResults.Lose, WinScore, true);  
+            else
+                UpdateScoreAndCheckGameState(PlayerTypes.Null, GameResults.Null, WinScore, true);
         }
         
         protected override void ResetLevel()

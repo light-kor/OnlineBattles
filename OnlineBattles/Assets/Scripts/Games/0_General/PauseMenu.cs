@@ -36,11 +36,7 @@ public class PauseMenu : MonoBehaviour
 
     private void ResumeTheGame()
     {
-        if (DataHolder.GameType == GameTypes.Single || DataHolder.GameType == GameTypes.Null)
-        {
-            ResumeGame?.Invoke();
-        }
-
+        ResumeGame?.Invoke();
         _anim.ClosePanel();
     }
 }

@@ -10,8 +10,8 @@ namespace GameEnumerations
     public enum PauseTypes
     {
         Null,
-        ManualPause,
-        EndRound,
+        ManualPause,       
+        RemotePause, 
         BackgroundPause
     }
 

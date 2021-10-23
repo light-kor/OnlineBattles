@@ -7,6 +7,8 @@ public abstract class GeneralController : MonoBehaviour
 {
     public static event DataHolder.StringEvent EndOfGame;
     public static event DataHolder.Notification OpponentLeftTheGame;
+    public static event DataHolder.Notification RemotePause;
+    public static event DataHolder.Notification RemoteResume;
 
     public event DataHolder.Notification StartTheGame;
     public event DataHolder.Notification PauseTheGame;
@@ -20,28 +22,21 @@ public abstract class GeneralController : MonoBehaviour
 
     private List<string[]> _gameControlMessages = new List<string[]>();
     private List<string[]> _gameMessages = new List<string[]>();
-    private bool _gameStarted = false;
-    private bool _gameOver = false;
+    private bool _timerIsDone = false;
     protected GeneralUIResources _res { get; private set; }
 
     protected virtual void Awake()
     {
         _res = GetComponent<GeneralUIResources>();
         _res.Timer.StartGame += StartGame;
-        _res.EndRound.RestartLevel += ResetLevel;
+        _res.Timer.RestartLevel += ResetLevel;
         _res.Pause.PauseGame += PauseGame;
-        _res.PausePanel.ResumeGame += ResumeGame;
+        _res.PausePanel.ResumeGame += ManualResumeGame;
 
         if (DataHolder.GameType == GameTypes.WifiHost)
-        {
-            WifiServer_Host.NewGameControlMessage += NewGameControlMessage;
-            GameTemplate_WifiHost.BackgroundPause += PauseGame;
-        }          
+            WifiServer_Host.NewGameControlMessage += NewGameControlMessage;       
         else if (DataHolder.GameType == GameTypes.WifiClient || DataHolder.GameType == GameTypes.Multiplayer)
-        {
             Network.NewGameControlMessage += NewGameControlMessage;
-            GameTemplate_Online.BackgroundPause += PauseGame;
-        }           
 
         StartTimer();
     }   
@@ -54,24 +49,30 @@ public abstract class GeneralController : MonoBehaviour
 
             switch (mes[0])
             {
-                case "EndGame":
-                    EndOfGame?.Invoke(mes[1]);
-                    break;
-
-                case "LeftTheGame":
-                    OpponentLeftTheGame?.Invoke();
-                    break;
-
-                case "NextRound":
-                    StartNextRound();
-                    break;
-
                 case "UpdateScore":
                     UpdateOnlineScore(mes);
                     break;
 
-                case "Resume":
+                case "EndGame":
+                    PauseGame(PauseTypes.BackgroundPause);
+                    EndOfGame?.Invoke(mes[1]);
+                    break;
+                    
+                case "EndRound":
+                    EndRound();
+                    break;
 
+                case "LeftTheGame":
+                    OpponentLeftTheGame?.Invoke();
+                    break;              
+               
+                case "Pause":
+                    PauseGame(PauseTypes.RemotePause);
+                    break;
+
+                case "Resume":
+                    OpponentPausePanelSwitch(false);
+                    ResumeGame();
                     break;
 
                 default:
@@ -83,71 +84,85 @@ public abstract class GeneralController : MonoBehaviour
 
     protected virtual void ResetLevel()
     {
-        _gameOver = false;
-        _gameStarted = false;
-
-        StartTimer();
+        
     }   
 
     protected void PauseGame(PauseTypes pauseType)
     {
-        if (pauseType == PauseTypes.ManualPause)
-        {
-            if (DataHolder.GameType == GameTypes.Single || DataHolder.GameType == GameTypes.Null)
-            {
-                if (_gameStarted == false)
-                    _res.Timer.StopTimer();
-
-                _res.PausePanel.gameObject.SetActive(true);
-            }
-            else if (DataHolder.GameType == GameTypes.WifiClient || DataHolder.GameType == GameTypes.WifiHost)
-            {
-                _res.PausePanel.gameObject.SetActive(true);
-                return;
-            }
-        }
-        else if (pauseType == PauseTypes.EndRound)
-        {
-            _gameOver = true;
-            OpenEndRoundPanel();
-        }
-        else if (pauseType == PauseTypes.BackgroundPause)
-        {
-            if (_gameStarted == false)
-                _res.Timer.StopTimer();
-        }
-
-        PauseTheGame?.Invoke();
         GameOn = false;
+        TryStopTimer();
+        PauseTheGame?.Invoke();
+
+        if (pauseType == PauseTypes.ManualPause)
+        {           
+            _res.PausePanel.gameObject.SetActive(true);
+            RemotePause?.Invoke();
+        }
+        else if (pauseType == PauseTypes.RemotePause)
+            OpponentPausePanelSwitch(true);
     }
 
-    protected void UpdateAndTrySendScore(PlayerTypes player, GameResults result)
+
+    protected void EndRound()
+    {
+        _timerIsDone = false;
+        GameOn = false;       
+        PauseTheGame?.Invoke();
+
+        StartTimer();
+    }
+
+    protected void UpdateScoreAndCheckGameState(PlayerTypes player, GameResults result, int winScore, bool setRoundPause)
+    {
+        UpdateAndTrySendScore(player, result);
+        CheckAndRoundOrEndGame(winScore, setRoundPause);
+    }
+
+    private void UpdateAndTrySendScore(PlayerTypes player, GameResults result)
     {
         _res.GameScore.UpdateScore(player, result);
 
         if (DataHolder.GameType == GameTypes.WifiHost)
-            GameTemplate_WifiHost.SendScore(player, result, true);
+            GameTemplate_WifiHost.SendScore(player, result);
+    }
+
+    private void CheckAndRoundOrEndGame(int winScore, bool setRoundPause)
+    {
+        bool result = _res.GameScore.CheckEndGame(winScore, DataHolder.GameType);
+        if (setRoundPause)
+        {
+            if (result == false)
+            {
+                EndRound();
+
+                if (DataHolder.GameType == GameTypes.WifiHost)
+                    WifiServer_Host.Opponent.SendTcpMessage("EndRound");
+            }
+            else
+                PauseGame(PauseTypes.BackgroundPause);
+        }       
+    }
+
+    private void ManualResumeGame()
+    {
+        RemoteResume?.Invoke();
+        ResumeGame();
     }
 
     private void ResumeGame()
     {
-        if (_gameStarted == false)
+        if (_timerIsDone == false)
             StartTimer();
-        else if (_gameOver == false)
+        else
         {
             GameOn = true;
             ResumeTheGame?.Invoke();
-        }              
-    }
-
-    private void StartNextRound()
-    {
-
+        }
     }
 
     private void StartGame()
     {
-        _gameStarted = true;
+        _timerIsDone = true;
         GameOn = true;
         StartTheGame?.Invoke();
     }
@@ -157,23 +172,19 @@ public abstract class GeneralController : MonoBehaviour
         PlayerTypes player = DataHolder.ParseEnum<PlayerTypes>(message[1]);
         GameResults result = DataHolder.ParseEnum<GameResults>(message[2]);
         _res.GameScore.UpdateScore(player, result);
-
-        bool setPause = bool.Parse(message[3]);
-        if (setPause)
-            PauseGame(PauseTypes.EndRound);
     }
 
     private void StartTimer()
-    {
+    {        
         if (_turnOnStartTimer)
             _res.Timer.StartTimer();
         else
             StartGame();
     }
 
-    private void OpenEndRoundPanel()
+    private void TryStopTimer()
     {
-        _res.EndRound.gameObject.SetActive(true);
+        _res.Timer.StopTimer();
     }
 
     private void NewGameControlMessage(string[] message)
@@ -186,23 +197,22 @@ public abstract class GeneralController : MonoBehaviour
         return DataHolder.UseAndDeleteFirstListMessage(_gameMessages);
     }
 
+    private void OpponentPausePanelSwitch(bool setActive)
+    {
+        _res.OpponentPaused.gameObject.SetActive(setActive);
+    }
+
     private void OnDestroy()
     {
         _res = GetComponent<GeneralUIResources>();
         _res.Timer.StartGame -= StartGame;
-        _res.EndRound.RestartLevel -= ResetLevel;
+        _res.Timer.RestartLevel -= ResetLevel;
         _res.Pause.PauseGame -= PauseGame;
-        _res.PausePanel.ResumeGame -= ResumeGame;
+        _res.PausePanel.ResumeGame -= ManualResumeGame;
 
         if (DataHolder.GameType == GameTypes.WifiHost)
-        {
             WifiServer_Host.NewGameControlMessage -= NewGameControlMessage;
-            GameTemplate_WifiHost.BackgroundPause -= PauseGame;
-        }
         else if (DataHolder.GameType == GameTypes.WifiClient || DataHolder.GameType == GameTypes.Multiplayer)
-        {
             Network.NewGameControlMessage -= NewGameControlMessage;
-            GameTemplate_Online.BackgroundPause -= PauseGame;
-        }
     }
 }
