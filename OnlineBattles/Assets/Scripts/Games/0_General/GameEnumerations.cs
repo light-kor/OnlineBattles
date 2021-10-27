@@ -4,7 +4,8 @@ namespace GameEnumerations
     {
         Null,
         BluePlayer,
-        RedPlayer
+        RedPlayer,
+        Both
     }
 
     public enum PauseTypes

@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Score : MonoBehaviour
 {
+    public delegate void SendPlayer(PlayerTypes player);
+    public static event SendPlayer RoundWinner;
+
     [SerializeField] private TMP_Text _firstScore, _secondScore;
 
     private int _blueScore = 0;
@@ -11,29 +14,46 @@ public class Score : MonoBehaviour
 
     public void UpdateScore(PlayerTypes player, GameResults result)
     {
-        if (player != PlayerTypes.Null)
+        if (player == PlayerTypes.Both && result == GameResults.Draw)
+        {
+            _blueScore++;
+            _redScore++;
+            RoundWinner?.Invoke(PlayerTypes.Both);
+        }
+        else if (player == PlayerTypes.Null)
+        {
+            RoundWinner?.Invoke(PlayerTypes.Null);
+        }          
+        else 
         {
             if (player == PlayerTypes.BluePlayer)
             {
                 if (result == GameResults.Lose)
-                    _redScore++;              
+                {
+                    _redScore++;
+                    RoundWinner?.Invoke(PlayerTypes.RedPlayer);                    
+                }                                 
                 else if (result == GameResults.Win)
+                {
                     _blueScore++;
+                    RoundWinner?.Invoke(PlayerTypes.BluePlayer);
+                }                   
             }
             else if (player == PlayerTypes.RedPlayer)
             {
                 if (result == GameResults.Lose)
+                {
                     _blueScore++;
+                    RoundWinner?.Invoke(PlayerTypes.BluePlayer);
+                }
                 else if (result == GameResults.Win)
+                {
                     _redScore++;
+                    RoundWinner?.Invoke(PlayerTypes.RedPlayer);
+                }
             }
-        }
-        else if (player == PlayerTypes.Null && result == GameResults.Draw)
-        {
-            _blueScore++;
-            _redScore++;
-        }
-
+        }       
+        
         DisplayScore();
     }
   

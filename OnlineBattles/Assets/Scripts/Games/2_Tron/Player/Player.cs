@@ -39,7 +39,7 @@ namespace Game2
         {
             if (collision.gameObject.TryGetComponent(out Player player))
             {
-                _explosion.Play();
+                LoseAnimation();
                 GR.RoundResults();
                 // Без GetPoint тк врезались друг в друга, и очков давать не нужно.
             }
@@ -47,9 +47,14 @@ namespace Game2
 
         public void LoseRound()
         {
-            _explosion.Play();
+            LoseAnimation();
             GetPoint = true;
             GR.RoundResults();
+        }
+
+        public void LoseAnimation()
+        {
+            _explosion.Play();
         }
 
         public void SetControlType(ControlTypes type)

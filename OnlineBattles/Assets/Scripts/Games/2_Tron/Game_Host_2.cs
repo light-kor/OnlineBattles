@@ -10,15 +10,30 @@ namespace Game2
         private void Start()
         {
             GR = GameResources_2.GameResources;
+            Score.RoundWinner += SendPlayerExplosion;
+            GR.NewMessageReceived += ProcessingTCPMessages;
             BaseStart(ConnectTypes.UDP);
             GR.SetControlTypes(ControlTypes.Local, ControlTypes.Remote);
-        }
+        }        
 
-        private void Update()
+        protected override void SendFramesUDP()
         {
             if (GR.GameOn)
             {
-                if (GR.GameMessagesCount > 0)
+                if (Network.ClientUDP != null)
+                {
+                    FrameInfo data = new FrameInfo(GR.Blue, GR.Red);
+                    Serializer<FrameInfo>.SendMessage(data, ConnectTypes.UDP);
+                }
+            }
+        }
+
+        private void ProcessingTCPMessages()
+        {
+            if (GR.GameOn && _tcpHandlerIsBusy == false)
+            {
+                _tcpHandlerIsBusy = true;
+                while (GR.GameMessagesCount > 0)
                 {
                     string[] mes = GR.UseAndDeleteGameMessage();
                     if (mes[0] == "move")
@@ -27,24 +42,13 @@ namespace Game2
                         GR.Red.PlayerMover.ChangeDirection(normalizedJoystick);
                     }
                 }
+                _tcpHandlerIsBusy = false;
             }
         }
 
-        protected override void SendFramesUDP()
+        private void SendPlayerExplosion(PlayerTypes player)
         {
-            if (GR.GameOn)
-            {
-                SendAllChanges();
-            }
-        }
-
-        private void SendAllChanges()
-        {
-            if (Network.ClientUDP != null)
-            {
-                FrameInfo data = new FrameInfo(GR.Blue, GR.Red);
-                Serializer<FrameInfo>.SendMessage(data, ConnectTypes.UDP);
-            }
+            WifiServer_Host.Opponent.SendTcpMessage($"Explosion {player}");
         }
     }
 }

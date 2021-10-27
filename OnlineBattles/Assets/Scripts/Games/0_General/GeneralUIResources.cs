@@ -7,10 +7,12 @@ public class GeneralUIResources : MonoBehaviour
     [SerializeField] private OpponentPause _opponentPause;
     [SerializeField] private PauseMenu _pausePanel;
     [SerializeField] private PauseButton _pause;
+    [SerializeField] private EndRoundFlash _flashPanel;
 
     public StartScreenTimer Timer => _timer;
     public Score GameScore => _gameScore;
     public OpponentPause OpponentPaused => _opponentPause;
     public PauseMenu PausePanel => _pausePanel;
     public PauseButton Pause => _pause;
+    public EndRoundFlash FlashPanel => _flashPanel;
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 public static class WifiServer_Host
 {
-    public const float UpdateRate = 0.03125f; // Отправка UDP инфы каждые UpdateRate мс 
+    public const float UpdateRate = 0.0335f; // Отправка UDP инфы каждые UpdateRate мс 
 
     public static event DataHolder.Notification AcceptOpponent;    
     public static event DataHolder.StringArrayMessage NewGameControlMessage;

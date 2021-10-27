@@ -13,7 +13,8 @@ public abstract class GeneralController : MonoBehaviour
     public event DataHolder.Notification StartTheGame;
     public event DataHolder.Notification PauseTheGame;
     public event DataHolder.Notification ResumeTheGame;
-    
+    public event DataHolder.Notification NewMessageReceived;
+
     [SerializeField] private bool _turnOnStartTimer = true;
   
     public bool GameOn { get; private set; } = false;
@@ -77,6 +78,7 @@ public abstract class GeneralController : MonoBehaviour
 
                 default:
                     _gameMessages.Add(mes);
+                    NewMessageReceived?.Invoke();
                     break;
             }
         }
@@ -84,7 +86,7 @@ public abstract class GeneralController : MonoBehaviour
 
     protected virtual void ResetLevel()
     {
-        
+        _res.FlashPanel.FlashAnimation();
     }   
 
     protected void PauseGame(PauseTypes pauseType)
@@ -111,7 +113,7 @@ public abstract class GeneralController : MonoBehaviour
 
         StartTimer();
     }
-
+   
     protected void UpdateScoreAndCheckGameState(PlayerTypes player, GameResults result, int winScore, bool setRoundPause)
     {
         UpdateAndTrySendScore(player, result);
@@ -124,6 +126,13 @@ public abstract class GeneralController : MonoBehaviour
 
         if (DataHolder.GameType == GameTypes.WifiHost)
             GameTemplate_WifiHost.SendScore(player, result);
+    }
+
+    private void UpdateOnlineScore(string[] message)
+    {
+        PlayerTypes player = DataHolder.ParseEnum<PlayerTypes>(message[1]);
+        GameResults result = DataHolder.ParseEnum<GameResults>(message[2]);
+        _res.GameScore.UpdateScore(player, result);
     }
 
     private void CheckAndRoundOrEndGame(int winScore, bool setRoundPause)
@@ -165,14 +174,7 @@ public abstract class GeneralController : MonoBehaviour
         _timerIsDone = true;
         GameOn = true;
         StartTheGame?.Invoke();
-    }
-
-    private void UpdateOnlineScore(string[] message)
-    {
-        PlayerTypes player = DataHolder.ParseEnum<PlayerTypes>(message[1]);
-        GameResults result = DataHolder.ParseEnum<GameResults>(message[2]);
-        _res.GameScore.UpdateScore(player, result);
-    }
+    }  
 
     private void StartTimer()
     {        

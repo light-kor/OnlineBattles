@@ -11,9 +11,10 @@ namespace Game2
 
         private readonly int WinScore = 5;
 
-        //TODO: После паузы исчезает trail.В смысле он становится меньше, но потом возвращается
-        //TODO: Добавить световые вспышки между перезапусками
-        //TODO: Добавить анимации взрывов на клиенте
+        //TODO: После паузы исчезает trail.В смысле он становится меньше, но потом возвращается        
+        //TODO: Изменить управление. Его глючит.
+        //TODO: Интерполяция на клиенте
+        //TODO: Тряска камеры при взрыве
 
         protected override void Awake()
         {
@@ -38,7 +39,7 @@ namespace Game2
             yield return null; 
 
             if (Blue.GetPoint && Red.GetPoint)
-                UpdateScoreAndCheckGameState(PlayerTypes.Null, GameResults.Draw, WinScore, true);
+                UpdateScoreAndCheckGameState(PlayerTypes.Both, GameResults.Draw, WinScore, true);
             else if (Blue.GetPoint)
                 UpdateScoreAndCheckGameState(Blue.PlayerType, GameResults.Lose, WinScore, true);
             else if (Red.GetPoint)

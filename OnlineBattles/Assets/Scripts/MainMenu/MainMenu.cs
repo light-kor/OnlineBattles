@@ -286,6 +286,12 @@ public class MainMenu : MonoBehaviour
         Network.NewGameControlMessage -= NewControlMessage;
     }
 
+    //TODO:  LerpUnclamped узнать про него
+
+    //TODO: Улучшить световые вспышки между перезапусками
+
+    //TODO: Unity Splash Screen
+
     //TODO: Вынести UDPMEssages  в ServerSearcher, и использовать только большие UDP пакеты и сериализацию
 
     //TODO: Возможно надо не включать EndPanel, если это был последний раунд

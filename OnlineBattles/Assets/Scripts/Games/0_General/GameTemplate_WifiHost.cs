@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 public abstract class GameTemplate_WifiHost : MonoBehaviour
 {
     private ConnectTypes _connectType;
+    protected bool _tcpHandlerIsBusy = false;
 
     protected void BaseStart(ConnectTypes type)
     {
@@ -67,8 +68,7 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
 
     public static void SendScore(PlayerTypes player, GameResults result)
     {
-        if (WifiServer_Host.Opponent != null)
-            WifiServer_Host.Opponent.SendTcpMessage($"UpdateScore {player} {result}");
+        WifiServer_Host.Opponent.SendTcpMessage($"UpdateScore {player} {result}");
     }
 
     protected void CloseAll()

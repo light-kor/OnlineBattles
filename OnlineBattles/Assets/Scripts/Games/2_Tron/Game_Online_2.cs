@@ -1,5 +1,6 @@
 ﻿using GameEnumerations;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game2
@@ -9,10 +10,12 @@ namespace Game2
         private GameResources_2 GR;
         [SerializeField] private Joystick _joystick;
         private Vector2 _lastMove = Vector2.zero;
+        private List<FrameInfo> _frames = new List<FrameInfo>();
 
         private void Start()
         {
             GR = GameResources_2.GameResources;
+            GR.NewMessageReceived += ProcessingTCPMessages;
             BaseStart(ConnectTypes.UDP);
             GR.SetControlTypes(ControlTypes.Broadcast, ControlTypes.Broadcast);
         }
@@ -20,7 +23,12 @@ namespace Game2
         private void FixedUpdate()
         {
             UpdateThread();
-            SendJoystick();
+            SendJoystick();            
+        }
+
+        private void Update()
+        {
+            //LerpTransforms();
         }
 
         private void UpdateThread()
@@ -30,70 +38,61 @@ namespace Game2
                 FrameInfo frame = Serializer<FrameInfo>.GetMessage(Network.UDPMessagesBig[0]);
                 Network.UDPMessagesBig.RemoveAt(0);
 
-                MoveToPosition(frame);
+                _frames.Add(frame);
+                MoveToPosition();
             }
         }
 
-        private void MoveToPosition(FrameInfo frame)
+        private void MoveToPosition()
         {
-            Vector3 position1 = new Vector3(frame.X_blue, frame.Y_blue);
-            Vector3 position2 = new Vector3(frame.X_red, frame.Y_red);
+            Vector3 pos_blue = _frames[0].Blue.GetPosition();
+            Vector3 pos_red = _frames[0].Red.GetPosition();
 
-            GR.Blue.PlayerMover.SetBroadcastPositions(position1, frame.GetQuaternion(frame.Quaternion_blue));
-            GR.Red.PlayerMover.SetBroadcastPositions(position2, frame.GetQuaternion(frame.Quaternion_red));
+            Quaternion rot_blue = _frames[0].Blue.GetQuaternion();
+            Quaternion rot_red = _frames[0].Red.GetQuaternion();
+
+            GR.Blue.PlayerMover.SetBroadcastPositions(pos_blue, rot_blue);
+            GR.Red.PlayerMover.SetBroadcastPositions(pos_red, rot_red);
+
+            _frames.RemoveAt(0);
         }
 
-        private void UpdateThreadOld()
+        private void LerpTransforms()
         {
-            if (Network.UDPMessages.Count > 1)
+            if (_frames.Count > 1)
             {
-                long time = Convert.ToInt64(_frame[1]);
-                long time2 = Convert.ToInt64(_frame2[1]);
-                long vrem = DateTime.UtcNow.Ticks - Network.TimeDifferenceWithServer / 2 - _delay; //TODO: Так вроде нормально, но чёт нелогично
-                                                                                                   //long vrem = DateTime.UtcNow.Ticks - _delay;
+                long time = _frames[0].Ticks;
+                long time2 = _frames[1].Ticks;
+                long vrem = DateTime.UtcNow.Ticks - Network.TimeDifferenceWithServer / 2 - _delay; //TODO: Так вроде нормально, но чёт нелогично           
 
                 if (vrem >= time2)
                 {
-                    Network.UDPMessages.RemoveAt(0);
-                    //UpdateThread(); // Чтоб в этом кадре тоже что-то показали
+                    _frames.RemoveAt(0);
+                    //TODO: Мб надо что-то всё равно показать. Наверное надо вернуть в начало функции
                 }
                 else if (time <= vrem && vrem < time2)
                 {
                     //normalized = (x - min(x)) / (max(x) - min(x));
                     float delta = (vrem - time) / (time2 - time);
 
-                //    GR._me.transform.position = Vector2.Lerp(new Vector2(float.Parse(_frame[2]), float.Parse(_frame[3])), new Vector2(float.Parse(_frame2[2]), float.Parse(_frame2[3])), delta);
-                //    GR._enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(_frame[4]), float.Parse(_frame[5])), new Vector2(float.Parse(_frame2[4]), float.Parse(_frame2[5])), delta);
-                }
-                //else if (time > vrem) return; //По идее это бессмысленная строчка            
-            }
-        }
+                    Vector2 pos_blue = Vector2.Lerp(_frames[0].Blue.GetPosition(), _frames[1].Blue.GetPosition(), delta);
+                    Vector2 pos_red = Vector2.Lerp(_frames[0].Red.GetPosition(), _frames[1].Red.GetPosition(), delta);
 
-        private void UpdateThreaid()
-        {
-            if (Network.UDPMessages.Count > 0)
-            {
-                _frame = Network.UDPMessages[0].Split(' ');
-                if (_frame[0] != "g")
+                    Quaternion rot_blue = Quaternion.Lerp(_frames[0].Blue.GetQuaternion(), _frames[1].Blue.GetQuaternion(), delta);
+                    Quaternion rot_red = Quaternion.Lerp(_frames[0].Red.GetQuaternion(), _frames[1].Red.GetQuaternion(), delta);
+
+                    //TODO: Quaternion.LerpUnclamped
+
+                    GR.Blue.PlayerMover.SetBroadcastPositions(pos_blue, rot_blue);
+                    GR.Red.PlayerMover.SetBroadcastPositions(pos_red, rot_red);
+                }
+                else if (time > vrem) //По идее это бессмысленная строчка  
                 {
-                    Network.UDPMessages.RemoveAt(0);
+                    Debug.Log("Time error");
                     return;
                 }
-
-                //Vector2 myPosition = new Vector2(gg(_frame[2]), gg(_frame[3]));
-                //Vector2 enemyPosition = new Vector2(gg(_frame[4]), gg(_frame[5]));
-
-                //GR._me.transform.position = Vector2.MoveTowards(GR._me.transform.position, myPosition, 1.0f);
-                //GR._enemy.transform.position = Vector2.MoveTowards(GR._enemy.transform.position, enemyPosition, 1.0f);
-
-                //Debug.Log(DataHolder.MessageUDPget[0]);
-
-                //GR._me.transform.position = myPosition;
-                //GR._enemy.transform.position = enemyPosition;
-
-                Network.UDPMessages.RemoveAt(0);
             }
-        }
+        }  
 
         private void SendJoystick()
         {
@@ -106,6 +105,37 @@ namespace Game2
                     _lastMove = move;
                 }
             }           
+        }
+
+        private void ProcessingTCPMessages()
+        {
+            if (GR.GameOn && _tcpHandlerIsBusy == false)
+            {
+                _tcpHandlerIsBusy = true;
+                while (GR.GameMessagesCount > 0)
+                {
+                    string[] mes = GR.UseAndDeleteGameMessage();
+                    if (mes[0] == "Explosion")
+                    {
+                        PlayerTypes player = DataHolder.ParseEnum<PlayerTypes>(mes[1]);
+                        ExplosionHandling(player);
+                    }
+                }
+                _tcpHandlerIsBusy = false;
+            }
+        }
+
+        private void ExplosionHandling(PlayerTypes player)
+        {
+            if (player == PlayerTypes.BluePlayer)
+                GR.Red.LoseAnimation();
+            else if (player == PlayerTypes.RedPlayer)
+                GR.Blue.LoseAnimation();
+            else
+            {
+                GR.Blue.LoseAnimation();
+                GR.Red.LoseAnimation();
+            }
         }
     }
 }

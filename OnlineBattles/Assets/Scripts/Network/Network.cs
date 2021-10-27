@@ -17,7 +17,7 @@ public static class Network
     public static UDPConnect ClientUDP { get; private set; } = null;
     public static long TimeDifferenceWithServer { get; private set; } = 0;
 
-    public static List<string> UDPMessages = new List<string>();
+    public static List<string> UDPMessages = new List<string>(); //TODO: Надо бы выпилить или перенсти в WifiServer_Searcher
     public static List<byte[]> UDPMessagesBig = new List<byte[]>();
     private static List<string[]> _messagesTCP = new List<string[]>();
     private static WifiServer_Searcher _serverSearcher = null;
