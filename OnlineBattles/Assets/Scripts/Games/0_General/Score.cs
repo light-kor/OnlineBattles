@@ -63,44 +63,54 @@ public class Score : MonoBehaviour
         {
             if (gameType == GameTypes.Null || gameType == GameTypes.Single)
             {
-                string notifText = null;
-
-                if (_blueScore > _redScore)
-                    notifText = "Синий победил";
-                else if (_redScore > _blueScore)
-                    notifText = "Красный победил";
-                else if (_redScore == _blueScore)
-                    notifText = "Ничья";
-
-                new Notification(notifText, Notification.NotifTypes.EndGame);
+                LocalEndGame();
                 return true;
             }
             else if (gameType == GameTypes.WifiHost)
             {
-                string notifText = null, opponentStatus = null;
-
-                if (_blueScore > _redScore)
-                {
-                    notifText = "Вы победили";
-                    opponentStatus = "Lose";
-                }                   
-                else if (_redScore > _blueScore)
-                {
-                    notifText = "Вы проиграли";
-                    opponentStatus = "Win";
-                }                   
-                else if (_redScore == _blueScore)
-                {
-                    notifText = "Ничья";
-                    opponentStatus = "Draw";
-                }
-                    
-                WifiServer_Host.Opponent.SendTcpMessage("EndGame " + opponentStatus);
-                new Notification(notifText, Notification.ButtonTypes.MenuButton);
+                OnlineEndGame();
                 return true;
             }           
         }
         return false;
+    }
+
+    private void LocalEndGame()
+    {
+        string notifText = null;
+
+        if (_blueScore > _redScore)
+            notifText = "Синий победил";
+        else if (_redScore > _blueScore)
+            notifText = "Красный победил";
+        else if (_redScore == _blueScore)
+            notifText = "Ничья";
+
+        new Notification(notifText, Notification.NotifTypes.EndGame);
+    }
+
+    private void OnlineEndGame()
+    {
+        string notifText = null, opponentStatus = null;
+
+        if (_blueScore > _redScore)
+        {
+            notifText = "Вы победили";
+            opponentStatus = "Lose";
+        }
+        else if (_redScore > _blueScore)
+        {
+            notifText = "Вы проиграли";
+            opponentStatus = "Win";
+        }
+        else if (_redScore == _blueScore)
+        {
+            notifText = "Ничья";
+            opponentStatus = "Draw";
+        }
+
+        WifiServer_Host.Opponent.SendTcpMessage("EndGame " + opponentStatus);
+        new Notification(notifText, Notification.ButtonTypes.MenuButton);
     }
 
     private void DisplayScore()

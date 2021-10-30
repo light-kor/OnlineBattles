@@ -11,8 +11,21 @@ public class GeneralUIResources : MonoBehaviour
 
     public StartScreenTimer Timer => _timer;
     public Score GameScore => _gameScore;
-    public OpponentPause OpponentPaused => _opponentPause;
     public PauseMenu PausePanel => _pausePanel;
     public PauseButton Pause => _pause;
-    public EndRoundFlash FlashPanel => _flashPanel;
+
+    public void EndRoundFlashAnimation()
+    {
+        _flashPanel.FlashAnimation();
+    }
+
+    public void ActivateOpponentPausePanel()
+    {
+        _opponentPause.gameObject.SetActive(true);
+    }
+
+    public void DeactivateOpponentPausePanel()
+    {
+        _opponentPause.gameObject.SetActive(false);
+    }
 }

@@ -65,31 +65,31 @@ namespace Game3
             }
         }
 
-        private void UpdateThreadOld()
-        {
-            if (Network.UDPMessages.Count > 1)
-            {
-                long time = Convert.ToInt64(_frame[1]);
-                long time2 = Convert.ToInt64(_frame2[1]);
-                long vrem = DateTime.UtcNow.Ticks - Network.TimeDifferenceWithServer / 2 - _delay; //TODO: Так вроде нормально, но чёт нелогично
-                                                                                                   //long vrem = DateTime.UtcNow.Ticks - _delay;
+        //private void UpdateThreadOld()
+        //{
+        //    if (Network.UDPMessages.Count > 1)
+        //    {
+        //        long time = Convert.ToInt64(_frame[1]);
+        //        long time2 = Convert.ToInt64(_frame2[1]);
+        //        long vrem = DateTime.UtcNow.Ticks - Network.TimeDifferenceWithServer / 2 - _delay; //TODO: Так вроде нормально, но чёт нелогично
+        //                                                                                           //long vrem = DateTime.UtcNow.Ticks - _delay;
 
-                if (vrem >= time2)
-                {
-                    Network.UDPMessages.RemoveAt(0);
-                    UpdateThread(); // Чтоб в этом кадре тоже что-то показали
-                }
-                else if (time <= vrem && vrem < time2)
-                {
-                    //normalized = (x - min(x)) / (max(x) - min(x));
-                    float delta = (vrem - time) / (time2 - time);
+        //        if (vrem >= time2)
+        //        {
+        //            Network.UDPMessages.RemoveAt(0);
+        //            UpdateThread(); // Чтоб в этом кадре тоже что-то показали
+        //        }
+        //        else if (time <= vrem && vrem < time2)
+        //        {
+        //            //normalized = (x - min(x)) / (max(x) - min(x));
+        //            float delta = (vrem - time) / (time2 - time);
 
-                    GR._me.transform.position = Vector2.Lerp(new Vector2(float.Parse(_frame[2]), float.Parse(_frame[3])), new Vector2(float.Parse(_frame2[2]), float.Parse(_frame2[3])), delta);
-                    GR._enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(_frame[4]), float.Parse(_frame[5])), new Vector2(float.Parse(_frame2[4]), float.Parse(_frame2[5])), delta);
-                }
-                //else if (time > vrem) return; //По идее это бессмысленная строчка            
-            }
-        }
+        //            GR._me.transform.position = Vector2.Lerp(new Vector2(float.Parse(_frame[2]), float.Parse(_frame[3])), new Vector2(float.Parse(_frame2[2]), float.Parse(_frame2[3])), delta);
+        //            GR._enemy.transform.position = Vector2.Lerp(new Vector2(float.Parse(_frame[4]), float.Parse(_frame[5])), new Vector2(float.Parse(_frame2[4]), float.Parse(_frame2[5])), delta);
+        //        }
+        //        //else if (time > vrem) return; //По идее это бессмысленная строчка            
+        //    }
+        //}
 
         private void UpdateThread()
         {

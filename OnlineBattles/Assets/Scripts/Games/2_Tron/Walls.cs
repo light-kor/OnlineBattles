@@ -17,14 +17,6 @@ namespace Game2
             SetWallsCollider();
         }
 
-        private void OnTriggerEnter2D(Collider2D collision)
-        {
-            if (collision.TryGetComponent(out Player player))
-            {
-                player.LoseRound();
-            }
-        }
-
         private void SetWallsCollider()
         {
             float halfWidth = Screen.width / _canvas.scaleFactor / 2 + _offset;

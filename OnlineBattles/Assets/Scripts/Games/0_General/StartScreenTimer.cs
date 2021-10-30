@@ -8,12 +8,15 @@ public class StartScreenTimer : MonoBehaviour
     public event DataHolder.Notification RestartLevel;
 
     [SerializeField] private TMP_Text _text;
+    [SerializeField] private GeneralUIResources _generalUI;
+
     private Coroutine _countDown = null, _fontScaler = null, _backgroundTimer = null;   
     private float _time = 0f;
     private bool _firstStartDone = false;
 
     private const float FontSize = 350f;
     private const float CountTime = 3f;
+    private const float TimeBetweenRounds = 2.5f;
 
     public void StartTimer()
     {
@@ -27,17 +30,23 @@ public class StartScreenTimer : MonoBehaviour
         else
             CleanAndStartCoroutine(ref _backgroundTimer, LevelRestarting());    
     }
-  
+
     private IEnumerator LevelRestarting()
     {
-        float time = 3f;
-        bool restarted = false;
+        float time = 0f;
+        bool restarted = false, flashed = false; ;
 
-        while (time > 0f)
+        while (time < TimeBetweenRounds)
         {
-            time -= Time.deltaTime * 1.2f;
+            time += Time.deltaTime;
 
-            if (time < 1 && restarted == false)
+            if (time > 1.5f && flashed == false)
+            {
+                _generalUI.EndRoundFlashAnimation();
+                flashed = true;
+            }
+
+            if (time > 2f && restarted == false)
             {
                 RestartLevel?.Invoke();
                 restarted = true;

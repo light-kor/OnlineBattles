@@ -6,9 +6,10 @@ namespace Game2
     [Serializable]
     public class FrameInfo
     {
-        public PlayerInfo Blue { get; private set; }
-        public PlayerInfo Red { get; private set; }
-        public long Ticks { get; private set; }
+        public readonly PlayerInfo Blue;
+        public readonly PlayerInfo Red;
+        public readonly long Ticks;
+        public readonly float TimeSinceLevelLoad;
 
         public FrameInfo(Player blue, Player red)
         {
@@ -20,16 +21,17 @@ namespace Game2
             Red = new PlayerInfo(transform2.position.x, transform2.position.y, rotation_red);
 
             Ticks = DateTime.UtcNow.Ticks;
+            TimeSinceLevelLoad = Time.timeSinceLevelLoad;
         }       
     }
 
     [Serializable]
     public class ModifiedQuaternion
     {
-        public float X { get; private set; }
-        public float Y { get; private set; }
-        public float Z { get; private set; }
-        public float W { get; private set; }
+        public readonly float X;
+        public readonly float Y;
+        public readonly float Z;
+        public readonly float W;
 
         public ModifiedQuaternion(Quaternion quaternion)
         {
@@ -43,9 +45,9 @@ namespace Game2
     [Serializable]
     public class PlayerInfo
     {
-        public float X_pos { get; private set; }
-        public float Y_pos { get; private set; }
-        public ModifiedQuaternion Rotation { get; private set; }
+        public readonly float X_pos;
+        public readonly float Y_pos;
+        public readonly ModifiedQuaternion Rotation;
 
         public PlayerInfo(float x, float y, ModifiedQuaternion rotation)
         {

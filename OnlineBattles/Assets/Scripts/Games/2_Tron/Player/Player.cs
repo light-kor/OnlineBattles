@@ -12,13 +12,20 @@ namespace Game2
 
         public ControlTypes ControlType => _controlType;
         public PlayerTypes PlayerType => _playerType;
-        public bool GetPoint { get; private set; } = false;
+        public bool GetPoint { get; private set; } = true;
         public PlayerMover PlayerMover { get; private set; }
+        public PlayerInput PlayerInput { get; private set; }
 
         private ControlTypes _controlType = ControlTypes.Local;
         private GameResources_2 GR;        
         private Vector3 _startPosition;
-        private Quaternion _startRotation;                         
+        private Quaternion _startRotation;
+
+        private void Awake()
+        {
+            PlayerMover = GetComponent<PlayerMover>();
+            PlayerInput = GetComponent<PlayerInput>();
+        }
 
         private void Start()
         {
@@ -36,19 +43,9 @@ namespace Game2
         }
       
         private void OnCollisionEnter2D(Collision2D collision)
-        {
-            if (collision.gameObject.TryGetComponent(out Player player))
-            {
-                LoseAnimation();
-                GR.RoundResults();
-                // Без GetPoint тк врезались друг в друга, и очков давать не нужно.
-            }
-        }
-
-        public void LoseRound()
-        {
+        {         
+            GetPoint = false;
             LoseAnimation();
-            GetPoint = true;
             GR.RoundResults();
         }
 
@@ -59,13 +56,12 @@ namespace Game2
 
         public void SetControlType(ControlTypes type)
         {
-            _controlType = type;
-            PlayerMover = GetComponent<PlayerMover>();
+            _controlType = type;            
 
             if (type == ControlTypes.Broadcast)               
                 GetComponent<PolygonCollider2D>().enabled = false;
 
-            PlayerMover.SetControlType();
+            PlayerInput.SetControlType();
         }
       
         public void ResetLevel()
@@ -73,10 +69,11 @@ namespace Game2
             _trailRenderer.ClearTrail();
             _trailCollider.ClearCollider();
             _explosion.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            PlayerInput.ClearJoystick();
 
             transform.localPosition = _startPosition;
             transform.localRotation = _startRotation;
-            GetPoint = false;
+            GetPoint = true;
         }
 
         private void SetStartSettings()

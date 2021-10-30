@@ -12,14 +12,15 @@ namespace Game2
         private readonly int WinScore = 5;
 
         //TODO: После паузы исчезает trail.В смысле он становится меньше, но потом возвращается        
-        //TODO: Изменить управление. Его глючит.
+        //TODO: Глюки джойстика.
         //TODO: Интерполяция на клиенте
-        //TODO: Тряска камеры при взрыве
+        //TODO: Тряска камеры при взрыве. Тогда нужно делать всё не на канвасе!
 
         protected override void Awake()
         {
             base.Awake();
             GameResources = this;
+            ResetTheGame += ResetLevel;
         }
 
         public void RoundResults()
@@ -38,28 +39,30 @@ namespace Game2
         {
             yield return null; 
 
-            if (Blue.GetPoint && Red.GetPoint)
-                UpdateScoreAndCheckGameState(PlayerTypes.Both, GameResults.Draw, WinScore, true);
-            else if (Blue.GetPoint)
-                UpdateScoreAndCheckGameState(Blue.PlayerType, GameResults.Lose, WinScore, true);
+            if (Blue.GetPoint)
+                UpdateScoreAndCheckGameState(Blue.PlayerType, GameResults.Win, WinScore, true);
             else if (Red.GetPoint)
-                UpdateScoreAndCheckGameState(Red.PlayerType, GameResults.Lose, WinScore, true);  
+                UpdateScoreAndCheckGameState(Red.PlayerType, GameResults.Win, WinScore, true);  
             else
                 UpdateScoreAndCheckGameState(PlayerTypes.Null, GameResults.Null, WinScore, true);
         }
-        
-        protected override void ResetLevel()
+
+        private void ResetLevel()
         {
-            base.ResetLevel();
             Blue.ResetLevel();
             Red.ResetLevel();
             _checkingResults = false;
         }
-       
+
         public void SetControlTypes(ControlTypes blueType, ControlTypes redType)
         {
             Blue.SetControlType(blueType);
             Red.SetControlType(redType);
-        }              
+        }
+
+        private void OnDestroy()
+        {
+            ResetTheGame -= ResetLevel;
+        }
     }
 }

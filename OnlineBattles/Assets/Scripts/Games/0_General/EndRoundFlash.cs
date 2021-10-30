@@ -40,7 +40,7 @@ public class EndRoundFlash : MonoBehaviour
 
         while (Cubic_X < 30f)
         {
-            x += Time.deltaTime * 5f;
+            x += Time.deltaTime * 7f;
             Cubic_X = EaseInCubic(x);
             scale = new Vector3(Cubic_X, Cubic_X, Cubic_X);
             _image.gameObject.transform.localScale = scale;
@@ -69,5 +69,10 @@ public class EndRoundFlash : MonoBehaviour
     private float EaseInCubic(float x)
     {
         return x * x * x;
+    }
+
+    private void OnDestroy()
+    {
+        Score.RoundWinner -= SetLastWinner;
     }
 }

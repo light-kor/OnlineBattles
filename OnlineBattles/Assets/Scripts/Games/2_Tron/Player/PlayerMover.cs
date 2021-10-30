@@ -4,32 +4,28 @@ using UnityEngine;
 namespace Game2
 {
     public class PlayerMover : MonoBehaviour
-    {
-        [SerializeField] private Joystick _joystick;
+    {      
         private GameResources_2 GR;
         private Rigidbody2D _rb;       
         private Player _player;
-        private float _currentAngle = 0f;
+        private PlayerInput _playerInput;
+        private float _currentAngle = 0f;       
 
         private const float MoveSpeed = 1.8f;
         private const float RotateSpeed = 300f;
 
-        private void Awake()
-        {           
-            _player = GetComponent<Player>();
-        }
-
         private void Start()
         {
             _rb = GetComponent<Rigidbody2D>();
+            _player = GetComponent<Player>();
+            _playerInput = GetComponent<PlayerInput>();
             GR = GameResources_2.GameResources;
         }
 
         private void Update()
         {
             if (GR.GameOn)
-                if (_player.ControlType == ControlTypes.Local)
-                    ChangeDirectionLocal();
+                RotatePlayer();
         }
 
         private void FixedUpdate()
@@ -37,24 +33,12 @@ namespace Game2
             if (GR.GameOn && _player.ControlType != ControlTypes.Broadcast)
                 _rb.MovePosition(transform.position + gameObject.transform.up * Time.fixedDeltaTime * MoveSpeed);
         }
-
-        private void ChangeDirectionLocal()
+       
+        public void RotatePlayer() //TODO: Переделать на принцип отлавливания изменений, чтоб реже можно было присылать сообщения
         {
-            Vector2 normalizedJoystick = Vector2.zero;
-
-            if (_player.PlayerType == PlayerTypes.BluePlayer)
-                normalizedJoystick = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
-            else if (_player.PlayerType == PlayerTypes.RedPlayer)
-                normalizedJoystick = new Vector2(-_joystick.Horizontal, -_joystick.Vertical).normalized;
-
-            ChangeDirection(normalizedJoystick);
-        }
-
-        public void ChangeDirection(Vector2 normalizedJoystick) //TODO: Переделать на принцип отлавливания изменений, чтоб реже можно было присылать сообщения
-        {
-            if (normalizedJoystick != Vector2.zero)
+            if (_playerInput.LastJoystick != Vector2.zero)
             {
-                float targetAngle = Vector2.SignedAngle(Vector2.up, normalizedJoystick);
+                float targetAngle = Vector2.SignedAngle(Vector2.up, _playerInput.LastJoystick);
 
                 if (_currentAngle != targetAngle)
                 {
@@ -78,24 +62,7 @@ namespace Game2
                 }
             }
         }
-
-        public void SetControlType()
-        {
-            if (_player.ControlType == ControlTypes.Broadcast)
-            {
-                if (_player.PlayerType == PlayerTypes.BluePlayer)
-                    _joystick.gameObject.SetActive(false);
-
-                if (_player.PlayerType == PlayerTypes.RedPlayer)
-                {
-                    Vector2 joyPosition = new Vector2(-_joystick.transform.position.x, -_joystick.transform.position.y);
-                    _joystick.transform.position = joyPosition;
-                }
-            }
-            else if (_player.ControlType == ControlTypes.Remote)
-                _joystick.gameObject.SetActive(false);          
-        }
-
+      
         public void SetBroadcastPositions(Vector3 position, Quaternion rotation)
         {
             _rb.MovePosition(position);

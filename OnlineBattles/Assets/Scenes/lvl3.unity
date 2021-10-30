@@ -1051,8 +1051,8 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1080, y: 1920}
-  m_ScreenMatchMode: 1
-  m_MatchWidthOrHeight: 0
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -1854,6 +1854,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3702330c6770c454a9419e55f22585ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _turnOnStartTimer: 1
   _mazeCreateButton2: {fileID: 348239394}
   _firstScore: {fileID: 1163646031}
   _secondScore: {fileID: 1163646030}

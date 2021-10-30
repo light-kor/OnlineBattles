@@ -11,14 +11,6 @@ namespace Game2
         private List<Vector2> _points = new List<Vector2>();
         private List<Vector2> _bufferPoints = new List<Vector2>();
 
-        private void OnTriggerEnter2D(Collider2D collision)
-        {
-            if (collision.TryGetComponent(out Player player))
-            {
-                player.LoseRound();              
-            }
-        }
-
         private void Start()
         {
             _collider = GetComponent<EdgeCollider2D>();
@@ -50,7 +42,6 @@ namespace Game2
             _collider.Reset();
             _collider.enabled = false;
             _collider.enabled = true;
-            _collider.isTrigger = true;
 
             _points.Clear();
             _bufferPoints.Clear();

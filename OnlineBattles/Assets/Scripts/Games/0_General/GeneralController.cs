@@ -13,6 +13,7 @@ public abstract class GeneralController : MonoBehaviour
     public event DataHolder.Notification StartTheGame;
     public event DataHolder.Notification PauseTheGame;
     public event DataHolder.Notification ResumeTheGame;
+    public event DataHolder.Notification ResetTheGame;
     public event DataHolder.Notification NewMessageReceived;
 
     [SerializeField] private bool _turnOnStartTimer = true;
@@ -30,10 +31,10 @@ public abstract class GeneralController : MonoBehaviour
     {
         _res = GetComponent<GeneralUIResources>();
         _res.Timer.StartGame += StartGame;
-        _res.Timer.RestartLevel += ResetLevel;
+        _res.Timer.RestartLevel += ResetLevel;       
         _res.Pause.PauseGame += PauseGame;
         _res.PausePanel.ResumeGame += ManualResumeGame;
-
+        
         if (DataHolder.GameType == GameTypes.WifiHost)
             WifiServer_Host.NewGameControlMessage += NewGameControlMessage;       
         else if (DataHolder.GameType == GameTypes.WifiClient || DataHolder.GameType == GameTypes.Multiplayer)
@@ -72,7 +73,7 @@ public abstract class GeneralController : MonoBehaviour
                     break;
 
                 case "Resume":
-                    OpponentPausePanelSwitch(false);
+                    _res.DeactivateOpponentPausePanel();
                     ResumeGame();
                     break;
 
@@ -82,30 +83,29 @@ public abstract class GeneralController : MonoBehaviour
                     break;
             }
         }
-    }   
+    }
 
-    protected virtual void ResetLevel()
-    {
-        _res.FlashPanel.FlashAnimation();
-    }   
+    private void ResetLevel()
+    {        
+        ResetTheGame?.Invoke();
+    }
 
-    protected void PauseGame(PauseTypes pauseType)
+    private void PauseGame(PauseTypes pauseType)
     {
         GameOn = false;
-        TryStopTimer();
+        _res.Timer.StopTimer();
         PauseTheGame?.Invoke();
 
         if (pauseType == PauseTypes.ManualPause)
-        {           
+        {
             _res.PausePanel.gameObject.SetActive(true);
             RemotePause?.Invoke();
         }
         else if (pauseType == PauseTypes.RemotePause)
-            OpponentPausePanelSwitch(true);
+            _res.ActivateOpponentPausePanel();
     }
 
-
-    protected void EndRound()
+    private void EndRound()
     {
         _timerIsDone = false;
         GameOn = false;       
@@ -184,11 +184,6 @@ public abstract class GeneralController : MonoBehaviour
             StartGame();
     }
 
-    private void TryStopTimer()
-    {
-        _res.Timer.StopTimer();
-    }
-
     private void NewGameControlMessage(string[] message)
     {
         _gameControlMessages.Add(message);
@@ -197,12 +192,7 @@ public abstract class GeneralController : MonoBehaviour
     public string[] UseAndDeleteGameMessage()
     {
         return DataHolder.UseAndDeleteFirstListMessage(_gameMessages);
-    }
-
-    private void OpponentPausePanelSwitch(bool setActive)
-    {
-        _res.OpponentPaused.gameObject.SetActive(setActive);
-    }
+    }   
 
     private void OnDestroy()
     {
