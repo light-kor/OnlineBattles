@@ -1,20 +1,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game2
+namespace Game4
 {
-    public class Walls : MonoBehaviour
+    public class ObjectsDestroyer : MonoBehaviour
     {
         [SerializeField] private Canvas _canvas;
 
         private EdgeCollider2D _collider;
         private List<Vector2> _points = new List<Vector2>();
-        private const float _offset = 20f;
+
+        private const float _offset = 100f;
 
         private void Start()
         {
             _collider = GetComponent<EdgeCollider2D>();
             SetWallsCollider();
+        }
+
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            Destroy(collision.gameObject);
         }
 
         private void SetWallsCollider()

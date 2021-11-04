@@ -232,6 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _text: {fileID: 7982030292845388957}
+  _generalUI: {fileID: 2616777364476467054}
 --- !u!1 &1470030861060863251
 GameObject:
   m_ObjectHideFlags: 0
@@ -2906,7 +2907,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
-  m_SortingOrder: 15
+  m_SortingOrder: 20
   m_TargetDisplay: 0
 --- !u!114 &7982030293820805892
 MonoBehaviour:

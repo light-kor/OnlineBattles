@@ -2119,11 +2119,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 7680673122322790065, guid: 04a1711649d37134faf9b539dc13ef5c,
-        type: 3}
-      propertyPath: _generalUI
-      value: 
-      objectReference: {fileID: 8821578334833022537}
     - target: {fileID: 7982030293083851764, guid: 04a1711649d37134faf9b539dc13ef5c,
         type: 3}
       propertyPath: _player1
@@ -2309,15 +2304,3 @@ MonoBehaviour:
   _turnOnStartTimer: 1
   Blue: {fileID: 426430830}
   Red: {fileID: 1805030218}
---- !u!114 &8821578334833022537 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2616777364476467054, guid: 04a1711649d37134faf9b539dc13ef5c,
-    type: 3}
-  m_PrefabInstance: {fileID: 7982030293905199514}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8821578334833022528}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54cc6ce7ebb11034db903c934d2b34c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
