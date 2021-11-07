@@ -10,10 +10,10 @@ namespace Game4
         private bool _moving = true; //TODO: œŒ“ŒÃ ”ƒ¿À»“‹
 
         private Vector3 _targetPosition = Vector3.zero;
-        private float _speed = 1.6f;
+        private float _speed = 2f;
 
         private const float X_Pos = 1.9f, Y_Pos = 4f;
-        private const float StoppingRatio = 2f;
+        private const float StoppingRatio = 3f;
 
         private void Start()
         {

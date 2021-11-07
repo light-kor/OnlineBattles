@@ -2,17 +2,10 @@ using UnityEngine;
 
 namespace Game4
 {   
-    public class Multiplier : MonoBehaviour
+    public class Multiplier : InteractiveObject
     {
-        private CircleCollider2D _collider;
         private Bullet _copy;
-
         private const float Angel = 35f;
-
-        private void Start()
-        {
-            _collider = GetComponent<CircleCollider2D>();
-        }
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
@@ -25,7 +18,7 @@ namespace Game4
 
                 bullet.ChangeDirectionAngel(Angel, dir);
 
-                _collider.enabled = false;
+                ReleaseObject();
             }
         }
     }

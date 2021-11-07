@@ -3,13 +3,16 @@ using UnityEngine;
 namespace Game4
 {
     public class Bullet : MonoBehaviour
-    {
-        [SerializeField] private float _speed = 3f;
-
+    {    
         public Vector3 Direction => _direction;
 
+        private float _speed = NormalSpeed;
         private Vector3 _direction = Vector3.zero;
         private bool _getDirection = false;
+        private bool _hitFirstObject = false;
+
+
+        private const float NormalSpeed = 6f;
 
         private void Start()
         {
@@ -47,14 +50,24 @@ namespace Game4
             _direction = newDirection;
         }
 
-        public void AddSpeed(bool plusSign)
+        public void SpeedDown()
         {
-            float step = 1.5f;
+            _speed = NormalSpeed / 2;
+        }
 
-            if (plusSign == true)
-                _speed += step;
-            else
-                _speed -= step;
+        public void SpeedUp()
+        {
+            _speed = NormalSpeed * 1.5f;
+        }
+
+        public bool TryReleaseBlock()
+        {
+            if (_hitFirstObject == false)
+            {
+                _hitFirstObject = true;
+                return true;
+            }
+            else return false;
         }
     }
 }

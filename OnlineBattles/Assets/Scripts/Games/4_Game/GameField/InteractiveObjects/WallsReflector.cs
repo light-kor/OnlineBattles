@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Game4
 {
-    public class Reflector : MonoBehaviour
+    public class WallsReflector : InteractiveObject
     {
         private void OnCollisionEnter2D(Collision2D collision)
         {
