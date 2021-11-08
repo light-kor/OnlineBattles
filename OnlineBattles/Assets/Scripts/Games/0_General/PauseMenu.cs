@@ -1,12 +1,13 @@
 using GameEnumerations;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PauseMenu : MonoBehaviour
 {
-    public static event DataHolder.Notification LeaveTheGame;
-    public event DataHolder.Notification ResumeGame;
+    public static event UnityAction LeaveTheGame;
+    public event UnityAction ResumeGame;
 
     [SerializeField] private Button _left, _right;
     private a_ShowMovingPanel _anim;

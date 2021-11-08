@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -8,7 +9,7 @@ namespace Game3
 {
     public class ManualCreateMapButton : MonoBehaviour, IPointerClickHandler
     {
-        public static event DataHolder.Notification Click;
+        public static event UnityAction Click;
         private float _timer;
         private TMP_Text _time;
         private bool _waiting = false;

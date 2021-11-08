@@ -4,13 +4,14 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine.Events;
 
 public static class WifiServer_Host
 {
     public const float UpdateRate = 0.0335f; // Отправка UDP инфы каждые UpdateRate мс 
 
-    public static event DataHolder.Notification AcceptOpponent;    
-    public static event DataHolder.StringArrayMessage NewGameControlMessage;
+    public static event UnityAction AcceptOpponent;    
+    public static event UnityAction<string[]> NewGameControlMessage;
 
     public static string OpponentStatus = null;
     public static bool OpponentIsReady { get; private set; } = false; //TODO: При дисконнеекте делать false. Переделать бы на подтверждение выбора карты.

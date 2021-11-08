@@ -7,8 +7,7 @@ namespace Game2
     {      
         public static GameResources_2 GameResources;
         public Player Blue, Red;
-        private bool _checkingResults = false;
-
+        
         private readonly int WinScore = 5;
 
         //TODO: ѕосле паузы исчезает trail.¬ смысле он становитс€ меньше, но потом возвращаетс€        
@@ -25,19 +24,13 @@ namespace Game2
 
         public void RoundResults()
         {
-            if (DataHolder.GameType != GameTypes.WifiClient && DataHolder.GameType != GameTypes.Multiplayer)
-            {
-                if (_checkingResults == false)
-                {
-                    _checkingResults = true;                   
-                    StartCoroutine(FinishRound());
-                }
-            }               
+            if (StartCheckingResults() == true)
+                StartCoroutine(FinishRound());
         }
 
         private IEnumerator FinishRound()
         {
-            yield return null; 
+            yield return null; // ѕропускаем один кадр, вдруг они врезались одновременно
 
             if (Blue.GetPoint)
                 UpdateScoreAndCheckGameState(Blue.PlayerType, GameResults.Win, WinScore, true);
@@ -50,8 +43,7 @@ namespace Game2
         private void ResetLevel()
         {
             Blue.ResetLevel();
-            Red.ResetLevel();
-            _checkingResults = false;
+            Red.ResetLevel();            
         }
 
         public void SetControlTypes(ControlTypes blueType, ControlTypes redType)

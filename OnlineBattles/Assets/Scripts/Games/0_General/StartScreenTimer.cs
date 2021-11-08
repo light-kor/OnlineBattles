@@ -1,14 +1,16 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class StartScreenTimer : MonoBehaviour
 {
-    public event DataHolder.Notification StartGame;
-    public event DataHolder.Notification RestartLevel;
+    public event UnityAction StartGame;
+    public event UnityAction RestartLevel;
 
     [SerializeField] private TMP_Text _text;
     [SerializeField] private GeneralUIResources _generalUI;
+    [SerializeField] private bool _turnOnStartTimer = true;
 
     private Coroutine _countDown = null, _fontScaler = null, _backgroundTimer = null;   
     private float _time = 0f;
@@ -18,7 +20,15 @@ public class StartScreenTimer : MonoBehaviour
     private const float CountTime = 3f;
     private const float TimeBetweenRounds = 2.5f;
 
-    public void StartTimer()
+    public void TryStartTimer()
+    {
+        if (_turnOnStartTimer)
+            StartTimer();
+        else
+            StartGame?.Invoke();
+    }
+
+    private void StartTimer()
     {
         _time = CountTime + 1;
 

@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UnityEngine.Events;
 
 public class TCPConnect
 {
-    public event DataHolder.Notification BigMessageReceived;
+    public event UnityAction BigMessageReceived;
 
     public bool ConnectionIsReady = false;
     public DateTime LastSend = DateTime.UtcNow;
@@ -21,9 +22,6 @@ public class TCPConnect
     private NetworkStream _NS;
     private bool _working = true;
 
-    /// <summary>
-    /// Выбор типа сервера и попытка подключения.
-    /// </summary>
     public TCPConnect()
     {
         //TODO: Нужно ли это где-то?
@@ -94,7 +92,6 @@ public class TCPConnect
 
     /// <summary>
     /// Приём TCP-потока с сервера с разделением потока на разные сообщения по байтам. 
-    /// Полученные сообщения помещаются в DataHolder.MessageTCP.
     /// </summary>
     private void ReceivingMessagesLoop()
     {
@@ -164,9 +161,7 @@ public class TCPConnect
         ////TODO: Наверное надо и else добавить?
     }
 
-    /// <summary>
-    /// Закрытие TCP соединения.
-    /// </summary>
+
     public void CloseClient() //TODO: Добавить этот вызов на кнопку выхода из приложения
     {
         _working = false; //TODO: Переосмыслить все реконнекты и закрытия

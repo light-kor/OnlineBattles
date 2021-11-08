@@ -16,10 +16,10 @@ public static class DataHolder
     public static float Volume { get; set; } = 1f;
     //
 
-    public delegate void Notification();
-    public delegate void StringEvent(string text);
-    public delegate void StringArrayMessage(string[] message);
-    public delegate void Pause(PauseTypes pauseType);
+    //public delegate void Notification();
+    //public delegate void StringEvent(string text);
+    //public delegate void StringArrayMessage(string[] message);
+    //public delegate void Pause(PauseTypes pauseType);
 
     //"127.0.0.1" - локальный; 188.134.87.78 - общий дом
     public static string ServerIp { get; } = "188.134.87.78";

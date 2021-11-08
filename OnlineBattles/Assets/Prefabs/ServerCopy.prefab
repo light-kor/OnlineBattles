@@ -28,6 +28,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 3.3343997, y: 3.3343997, z: 3.3343997}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 512586220102056108}
   m_RootOrder: 0
@@ -149,7 +150,7 @@ GameObject:
   - component: {fileID: 8801053234304778702}
   - component: {fileID: 2133979132507859802}
   m_Layer: 5
-  m_Name: ServerSelect
+  m_Name: ServerCopy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -165,6 +166,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6273332822606994358}
   m_Father: {fileID: 0}

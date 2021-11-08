@@ -54,8 +54,8 @@ namespace Game2
             Vector3 pos_blue = _frames[0].Blue.GetPosition();
             Vector3 pos_red = _frames[0].Red.GetPosition();
 
-            Quaternion rot_blue = _frames[0].Blue.GetQuaternion();
-            Quaternion rot_red = _frames[0].Red.GetQuaternion();
+            Quaternion rot_blue = _frames[0].Blue.GetRotation();
+            Quaternion rot_red = _frames[0].Red.GetRotation();
 
             GR.Blue.PlayerMover.SetBroadcastPositions(pos_blue, rot_blue);
             GR.Red.PlayerMover.SetBroadcastPositions(pos_red, rot_red);
@@ -86,8 +86,8 @@ namespace Game2
                 Vector2 pos_blue = Vector2.LerpUnclamped(_frames[0].Blue.GetPosition(), _frames[1].Blue.GetPosition(), delta);
                 Vector2 pos_red = Vector2.LerpUnclamped(_frames[0].Red.GetPosition(), _frames[1].Red.GetPosition(), delta);
 
-                Quaternion rot_blue = Quaternion.LerpUnclamped(_frames[0].Blue.GetQuaternion(), _frames[1].Blue.GetQuaternion(), delta);
-                Quaternion rot_red = Quaternion.LerpUnclamped(_frames[0].Red.GetQuaternion(), _frames[1].Red.GetQuaternion(), delta);
+                Quaternion rot_blue = Quaternion.LerpUnclamped(_frames[0].Blue.GetRotation(), _frames[1].Blue.GetRotation(), delta);
+                Quaternion rot_red = Quaternion.LerpUnclamped(_frames[0].Red.GetRotation(), _frames[1].Red.GetRotation(), delta);
 
                 GR.Blue.PlayerMover.SetBroadcastPositions(pos_blue, rot_blue);
                 GR.Red.PlayerMover.SetBroadcastPositions(pos_red, rot_red);

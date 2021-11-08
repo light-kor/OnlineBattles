@@ -1,3 +1,4 @@
+using GameEnumerations;
 using UnityEngine;
 
 namespace Game4
@@ -8,40 +9,44 @@ namespace Game4
 
         private float _speed = NormalSpeed;
         private Vector3 _direction = Vector3.zero;
-        private bool _getDirection = false;
         private bool _hitFirstObject = false;
+        private GameResources_4 GR;
 
-
-        private const float NormalSpeed = 6f;
+        private const float NormalSpeed = 5.5f;
 
         private void Start()
         {
-            if (_getDirection == false)
-            {
-                if (transform.position.y < 0)
-                    _direction = Vector3.up;
-                else
-                    _direction = Vector3.down;
-            }
-        }        
-
+            GR = GameResources_4.GameResources;
+        }
+           
         private void Update()
         {
-            transform.Translate(_direction * _speed * Time.deltaTime);
+            if (GR.GameOn)
+                transform.Translate(_direction * _speed * Time.deltaTime);
+        }
+
+        public void SetStartBullet(PlayerTypes playerType)
+        {
+            if (playerType == PlayerTypes.BluePlayer)
+                _direction = Vector3.up;
+            else if (playerType == PlayerTypes.RedPlayer)
+                _direction = Vector3.down;
+
+            _hitFirstObject = false;
+            _speed = NormalSpeed;
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
             if (collision.gameObject.TryGetComponent(out Bullet bullet)) 
             {
-                Destroy(gameObject);
+                gameObject.SetActive(false);
             }
         }
 
         public void ChangeDirectionAngel(float angel, Vector3 dir)
         {
             _direction = Quaternion.AngleAxis(angel, Vector3.forward) * dir;
-            _getDirection = true;  // Чтоб клоны пропустили  назначение скорости в Старте
         }
 
         public void ReflectDirection(Vector2 normal) 
@@ -55,15 +60,17 @@ namespace Game4
             _speed = NormalSpeed / 2;
         }
 
-        public void SpeedUp()
+        private void TrySpeedUp()
         {
-            _speed = NormalSpeed * 1.5f;
+            if (_speed == NormalSpeed)
+                _speed = NormalSpeed * 1.3f;
         }
 
-        public bool TryReleaseBlock()
+        public bool TryReleaseFirstBlock()
         {
             if (_hitFirstObject == false)
             {
+                TrySpeedUp();
                 _hitFirstObject = true;
                 return true;
             }

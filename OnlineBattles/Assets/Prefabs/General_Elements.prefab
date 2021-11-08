@@ -233,6 +233,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _text: {fileID: 7982030292845388957}
   _generalUI: {fileID: 2616777364476467054}
+  _turnOnStartTimer: 1
 --- !u!1 &1470030861060863251
 GameObject:
   m_ObjectHideFlags: 0
@@ -398,6 +399,7 @@ GameObject:
   - component: {fileID: 5270705568624343664}
   - component: {fileID: 3845063853936222222}
   - component: {fileID: 2616777364476467054}
+  - component: {fileID: 6240152820683458268}
   m_Layer: 0
   m_Name: GameControllers
   m_TagString: Untagged
@@ -470,6 +472,19 @@ MonoBehaviour:
   _pausePanel: {fileID: 4867049683615831294}
   _pause: {fileID: 3004848817605820840}
   _flashPanel: {fileID: 4019723541670855978}
+  _endGameChecker: {fileID: 6240152820683458268}
+--- !u!114 &6240152820683458268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488814074524420058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6c5f07b7bb9560459bcb77ca6a283f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1488814075051969966
 GameObject:
   m_ObjectHideFlags: 0

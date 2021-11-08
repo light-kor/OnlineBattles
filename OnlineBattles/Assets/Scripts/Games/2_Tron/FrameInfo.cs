@@ -56,7 +56,7 @@ namespace Game2
             Rotation = rotation;
         }
 
-        public Quaternion GetQuaternion()
+        public Quaternion GetRotation()
         {
             return new Quaternion(Rotation.X, Rotation.Y, Rotation.Z, Rotation.W);
         }

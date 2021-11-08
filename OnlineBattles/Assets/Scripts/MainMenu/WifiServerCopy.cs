@@ -2,12 +2,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SelectWifiServer : MonoBehaviour, IPointerClickHandler
+public class WifiServerCopy : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] private TMP_Text _serverNameText;
 
-    private string _ip;
-    private string _serverName;
+    private string _ip = null;
+    private string _serverName = null;
 
     public void SetNameAndIP(string text)
     {

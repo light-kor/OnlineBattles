@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 public static class WifiServer_Connect
 {
-    public static event DataHolder.StringEvent AddWifiServerToScreen;
+    public static event UnityAction<string> AddWifiServerToScreen;
     private static List<string> _wifiServers = new List<string>();
 
     public static void StartSearching()

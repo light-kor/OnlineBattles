@@ -3,12 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using UnityEngine.Events;
 
 public static class Network
 {    
-    public static event DataHolder.Notification TcpConnectionIsDone;
-    public static event DataHolder.StringEvent WifiServerAnswer;
-    public static event DataHolder.StringArrayMessage NewGameControlMessage;
+    public static event UnityAction TcpConnectionIsDone;
+    public static event UnityAction<string> WifiServerAnswer;
+    public static event UnityAction<string[]> NewGameControlMessage;
 
     public static bool TryRecconect = true;   
     public static bool ConnectionInProgress = false;

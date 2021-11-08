@@ -4,20 +4,22 @@ using UnityEngine.UI;
 
 public class PlayerSettings : MonoBehaviour
 {
+    [SerializeField] private a_ShowMovingPanel _anim;
     [SerializeField] private Button _close;
     [SerializeField] private Slider _volume;
-    [SerializeField] private TMP_InputField _nickName;
-    private a_ShowMovingPanel _anim;
+    [SerializeField] private TMP_InputField _nickName;  
 
     private void Awake()
     {
-        _anim = GetComponent<a_ShowMovingPanel>();
         _close.onClick.AddListener(() => ClosePanel());
+        _anim.gameObject.SetActive(false);
+        LoadSettings();     
     }
 
-    private void OnEnable()
+    public void ShowPanel()
     {
-        ShowSavesOnUI();
+        DisplayValues();
+        _anim.gameObject.SetActive(true);
         _anim.ShowPanel(null);
     }
 
@@ -27,7 +29,7 @@ public class PlayerSettings : MonoBehaviour
         _anim.ClosePanel();
     }
 
-    private void ShowSavesOnUI()
+    private void DisplayValues()
     {
         _volume.value = DataHolder.Volume;
         _nickName.text = DataHolder.NickName;
@@ -36,14 +38,18 @@ public class PlayerSettings : MonoBehaviour
     private void SaveSettings()
     {
         DataHolder.Volume = _volume.value;
-        DataHolder.NickName = _nickName.text;
-
         PlayerPrefs.SetFloat("Volume", DataHolder.Volume);
-        PlayerPrefs.SetString("NickName", DataHolder.NickName);
+
+        if (string.IsNullOrWhiteSpace(_nickName.text) == false)
+        {
+            DataHolder.NickName = _nickName.text;
+            PlayerPrefs.SetString("NickName", DataHolder.NickName);
+        }
+                     
         PlayerPrefs.Save();
     }
 
-    public void LoadSettings()
+    private void LoadSettings()
     {
         if (DataHolder.NickName == null)
         {

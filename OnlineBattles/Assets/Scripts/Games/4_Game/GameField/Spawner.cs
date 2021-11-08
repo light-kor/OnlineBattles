@@ -12,8 +12,8 @@ namespace Game4
         [SerializeField] private GameObject _objectsContainer;
         [SerializeField] private GameObject _pointsContainer;
 
-        private const int MaxShownObjectsCount = 9;
-        private const int MaxMultiplierCount = 2;
+        private const int MaxShownObjectsCount = 7;
+        private const int MaxMultiplierCount = 1;
         private const int MaxSpeedChangerCount = 1;
 
         private List<Point> _freePoints = new List<Point>();
@@ -24,39 +24,14 @@ namespace Game4
 
         private void Start()
         {
-            InitializationPoints();
+            _pointsContainer.GetComponentsInChildren(_freePoints);
             InitializationPool();
             
             for (int i = 0; i < MaxShownObjectsCount; i++)
             {
                 SetObject();
             }
-        }
-
-        //TODO: Сделать удаление и возобновление ловушек
-        //TODO: Анимации исчезновения объектов
-        //TODO: Привязать счёт
-        //TODO: Добавить онлайн
-        //TODO: После первого удара об рефлектор, можно сильно увеличить скорость пули
-
-
-        public void ReleasePoint(Point releasePoint)
-        {
-            _busyPoints.Remove(releasePoint);
-            _freePoints.Add(releasePoint);
-
-            SetObject();
-        }
-
-        private void InitializationPoints()
-        {
-            _pointsContainer.GetComponentsInChildren(_freePoints);
-
-            for (int i = 0; i < _freePoints.Count; i++)
-            {
-                _freePoints[i].Number = i;
-            }
-        }
+        }        
 
         private void InitializationPool()
         {
@@ -98,6 +73,14 @@ namespace Game4
                 _freePoints.RemoveAt(num);
             }
             else return;
+        }
+
+        private void ReleasePoint(Point releasePoint) // Метод передаётся как аргумент
+        {
+            _busyPoints.Remove(releasePoint);
+            _freePoints.Add(releasePoint);
+
+            SetObject();
         }
     }
 }

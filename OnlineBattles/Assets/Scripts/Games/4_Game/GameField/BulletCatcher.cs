@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game4
 {
-    public class ObjectsDestroyer : MonoBehaviour
+    public class BulletCatcher : MonoBehaviour
     {
         [SerializeField] private Canvas _canvas;
 
@@ -20,7 +20,7 @@ namespace Game4
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
-            Destroy(collision.gameObject);
+            collision.gameObject.SetActive(false);
         }
 
         private void SetWallsCollider()

@@ -2,21 +2,20 @@ using GameEnumerations;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
+using UnityEngine.Events;
 
 public abstract class GeneralController : MonoBehaviour
 {
-    public static event DataHolder.StringEvent EndOfGame;
-    public static event DataHolder.Notification OpponentLeftTheGame;
-    public static event DataHolder.Notification RemotePause;
-    public static event DataHolder.Notification RemoteResume;
+    public static event UnityAction<string> EndOfGame;
+    public static event UnityAction OpponentLeftTheGame;
+    public static event UnityAction RemotePause;
+    public static event UnityAction RemoteResume;
 
-    public event DataHolder.Notification StartTheGame;
-    public event DataHolder.Notification PauseTheGame;
-    public event DataHolder.Notification ResumeTheGame;
-    public event DataHolder.Notification ResetTheGame;
-    public event DataHolder.Notification NewMessageReceived;
-
-    [SerializeField] private bool _turnOnStartTimer = true;
+    public event UnityAction StartTheGame;
+    public event UnityAction PauseTheGame;
+    public event UnityAction ResumeTheGame;
+    public event UnityAction ResetTheGame;
+    public event UnityAction NewMessageReceived;  
   
     public bool GameOn { get; private set; } = false;
     public int GameMessagesCount => _gameMessages.Count;
@@ -25,6 +24,7 @@ public abstract class GeneralController : MonoBehaviour
     private List<string[]> _gameControlMessages = new List<string[]>();
     private List<string[]> _gameMessages = new List<string[]>();
     private bool _timerIsDone = false;
+    private bool _checkingResults = false;
     protected GeneralUIResources _res { get; private set; }
 
     protected virtual void Awake()
@@ -40,10 +40,15 @@ public abstract class GeneralController : MonoBehaviour
         else if (DataHolder.GameType == GameTypes.WifiClient || DataHolder.GameType == GameTypes.Multiplayer)
             Network.NewGameControlMessage += NewGameControlMessage;
 
-        StartTimer();
+        _res.Timer.TryStartTimer();
     }   
 
     protected virtual void Update()
+    {
+        MessageHandler();
+    }
+
+    private void MessageHandler()
     {
         if (_gameControlMessages.Count > 0)
         {
@@ -52,22 +57,22 @@ public abstract class GeneralController : MonoBehaviour
             switch (mes[0])
             {
                 case "UpdateScore":
-                    UpdateOnlineScore(mes);
+                    _res.GameScore.UpdateOnlineScore(mes);
                     break;
 
                 case "EndGame":
                     PauseGame(PauseTypes.BackgroundPause);
                     EndOfGame?.Invoke(mes[1]);
                     break;
-                    
+
                 case "EndRound":
                     EndRound();
                     break;
 
                 case "LeftTheGame":
                     OpponentLeftTheGame?.Invoke();
-                    break;              
-               
+                    break;
+
                 case "Pause":
                     PauseGame(PauseTypes.RemotePause);
                     break;
@@ -86,7 +91,8 @@ public abstract class GeneralController : MonoBehaviour
     }
 
     private void ResetLevel()
-    {        
+    {
+        _checkingResults = false;
         ResetTheGame?.Invoke();
     }
 
@@ -111,33 +117,34 @@ public abstract class GeneralController : MonoBehaviour
         GameOn = false;       
         PauseTheGame?.Invoke();
 
-        StartTimer();
+        _res.Timer.TryStartTimer();
     }
-   
+
+    public bool StartCheckingResults()
+    {
+        if (DataHolder.GameType != GameTypes.WifiClient && DataHolder.GameType != GameTypes.Multiplayer)
+        {
+            if (_checkingResults == false)
+            {
+                _checkingResults = true;
+                return true;
+            }
+            else return false;
+        }
+        else return false;
+    }
+
     protected void UpdateScoreAndCheckGameState(PlayerTypes player, GameResults result, int winScore, bool setRoundPause)
     {
-        UpdateAndTrySendScore(player, result);
+        _res.GameScore.UpdateAndTrySendScore(player, result);
         CheckAndRoundOrEndGame(winScore, setRoundPause);
     }
-
-    private void UpdateAndTrySendScore(PlayerTypes player, GameResults result)
-    {
-        _res.GameScore.UpdateScore(player, result);
-
-        if (DataHolder.GameType == GameTypes.WifiHost)
-            GameTemplate_WifiHost.SendScore(player, result);
-    }
-
-    private void UpdateOnlineScore(string[] message)
-    {
-        PlayerTypes player = DataHolder.ParseEnum<PlayerTypes>(message[1]);
-        GameResults result = DataHolder.ParseEnum<GameResults>(message[2]);
-        _res.GameScore.UpdateScore(player, result);
-    }
-
+   
     private void CheckAndRoundOrEndGame(int winScore, bool setRoundPause)
     {
-        bool result = _res.GameScore.CheckEndGame(winScore, DataHolder.GameType);
+        _res.GameScore.GetScore(out int blueScore, out int redScore);
+        bool result = _res.EndGame.CheckEndGame(winScore, blueScore, redScore);
+
         if (setRoundPause)
         {
             if (result == false)
@@ -161,7 +168,7 @@ public abstract class GeneralController : MonoBehaviour
     private void ResumeGame()
     {
         if (_timerIsDone == false)
-            StartTimer();
+            _res.Timer.TryStartTimer();
         else
         {
             GameOn = true;
@@ -175,14 +182,6 @@ public abstract class GeneralController : MonoBehaviour
         GameOn = true;
         StartTheGame?.Invoke();
     }  
-
-    private void StartTimer()
-    {        
-        if (_turnOnStartTimer)
-            _res.Timer.StartTimer();
-        else
-            StartGame();
-    }
 
     private void NewGameControlMessage(string[] message)
     {

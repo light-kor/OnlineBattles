@@ -4,27 +4,30 @@ using TMPro;
 using UnityEngine;
 
 public class WifiMenuComponents : MonoBehaviour
-{
-    
-    [SerializeField] private GameObject _wifiServerPrefab, _serverSearchPanel;
+{    
+    [SerializeField] private WifiServerCopy _wifiServerPrefab;
+    [SerializeField] private GameObject _serverSearchPanel;
     [SerializeField] private a_TextReplacement _opponentNamePane;
     [SerializeField] private MultiBackButton _multiBackButton;
+
     private List<string> _wifiServers = new List<string>();
-    private MainMenu _menuScr;
+    private MenuView _menuView;
     private TMP_Text _opponentName;
     private string _serverAnswer = null;
     private bool _canReadServerAnswer = false, _writeOpponentName = false;
 
     void Start()
     {
-        _menuScr = GetComponent<MainMenu>();        
-        WifiServer_Connect.AddWifiServerToScreen += GetNewWifiServer;
-        WifiServer_Host.AcceptOpponent += WriteOpponentName;
+        _menuView = GetComponent<MenuView>();
+        WifiServer_Connect.AddWifiServerToScreen += AddNewWifiServer;
+        WifiServer_Host.AcceptOpponent += ShowOpponentName;
         Network.WifiServerAnswer += WifiServerAnswerProcessing;
     }
 
     void Update()
     {
+        // Все 3 if нужны для перехода от потока Network к потоку Unity.
+
         if (_wifiServers.Count > 0)
         {
             CreateWifiServerCopy(_wifiServers[0]);
@@ -48,27 +51,26 @@ public class WifiMenuComponents : MonoBehaviour
     {
         DataHolder.GameType = GameTypes.WifiHost;
         WifiServer_Host.StartHosting();
-        _menuScr._panelAnim.StartTransition(_menuScr.ActivateCreateWifiMenu);
+        _menuView.ChangePanelWithAnimation(_menuView.ActivateCreateWifiMenu);
     }
 
     public void Wifi_Connect()
     {
         DataHolder.GameType = GameTypes.WifiClient;
-        DestroyAllWifiServersIcons();
+        DestroyAllWifiServersCopies();
         WifiServer_Connect.StartSearching();
-        _menuScr._panelAnim.StartTransition(_menuScr.ActivateConnectWifiMenu);
+        _menuView.ChangePanelWithAnimation(_menuView.ActivateConnectWifiMenu);
     }
 
-    private void DestroyAllWifiServersIcons()
+    private void DestroyAllWifiServersCopies()
     {
-        foreach (Transform g in _serverSearchPanel.GetComponentsInChildren<Transform>())
+        foreach (WifiServerCopy g in _serverSearchPanel.GetComponentsInChildren<WifiServerCopy>())
         {
-            if (g.name.Contains("ServerSelect"))
-                Destroy(g.gameObject);
+            Destroy(g.gameObject);
         }
     }
 
-    private void GetNewWifiServer(string text)
+    private void AddNewWifiServer(string text)
     {
         _wifiServers.Add(text);
     }
@@ -83,9 +85,9 @@ public class WifiMenuComponents : MonoBehaviour
         if (y > -150)
             y += 300;
 
-        GameObject pref = Instantiate(_wifiServerPrefab, _serverSearchPanel.transform);
+        WifiServerCopy pref = Instantiate(_wifiServerPrefab, _serverSearchPanel.transform);
         pref.transform.localPosition = new Vector3(x, y, 0);
-        pref.GetComponent<SelectWifiServer>().SetNameAndIP(text);
+        pref.SetNameAndIP(text);
     }
 
     private void WifiServerAnswerProcessing(string text)
@@ -97,19 +99,19 @@ public class WifiMenuComponents : MonoBehaviour
     private void WifiServerAnswerProcessing()
     {
         if (_serverAnswer == "denied")
-            _menuScr._panelAnim.StartTransition(_menuScr.ActivateMainMenu);
+            _menuView.ChangePanelWithAnimation(_menuView.ActivateMainMenu);
         else if (_serverAnswer == "accept")
-            _menuScr._panelAnim.StartTransition(_menuScr.ActivateWaitingWifiLvl);
+            _menuView.ChangePanelWithAnimation(_menuView.ActivateWaitingWifiLvl);
 
         _serverAnswer = null;
     }
 
-    public void WriteOpponentName()
+    public void ShowOpponentName()
     {
         _writeOpponentName = true;
     }
 
-    public void ShowOpponentNameObj()
+    public void ShowOpponentNameText()
     {
         _opponentName = _opponentNamePane.GetComponentInChildren<TMP_Text>();
         _opponentName.text = "Ожидание игроков...";
@@ -120,17 +122,17 @@ public class WifiMenuComponents : MonoBehaviour
     {
         if (withAnimation)
         {
-            _opponentNamePane.ReplaceText(ChangeText);
-            _multiBackButton.UpdateMultiBackButton(MultiBackButton.ButtonTypes.Disconnect);
+            _opponentNamePane.ReplaceText(ChangeOpponentNameText);
+            _multiBackButton.UpdateMultiBackButton(BackButtonTypes.Disconnect);
         }
         else
         {
-            ChangeText();
-            _multiBackButton.ShowMultiBackButton(MultiBackButton.ButtonTypes.Disconnect);
+            ChangeOpponentNameText();
+            _multiBackButton.ShowMultiBackButton(BackButtonTypes.Disconnect);
         }        
     }
 
-    private void ChangeText()
+    private void ChangeOpponentNameText()
     {
         _opponentName.text = "Подключён: " + WifiServer_Host.Opponent.PlayerName;
     }
@@ -148,8 +150,8 @@ public class WifiMenuComponents : MonoBehaviour
 
     private void OnDestroy()
     {
-        WifiServer_Connect.AddWifiServerToScreen -= GetNewWifiServer;
-        WifiServer_Host.AcceptOpponent -= WriteOpponentName;
+        WifiServer_Connect.AddWifiServerToScreen -= AddNewWifiServer;
+        WifiServer_Host.AcceptOpponent -= ShowOpponentName;
         Network.WifiServerAnswer -= WifiServerAnswerProcessing;
     }
 }

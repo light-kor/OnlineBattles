@@ -3,10 +3,11 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class WifiServer_Searcher
 {
-    public static event DataHolder.Notification GetWifiServer;
+    public static event UnityAction GetWifiServer;
     private int _port = DataHolder.WifiPort;
     private IPEndPoint _remoteIp = null;
     private UdpClient _client = null;

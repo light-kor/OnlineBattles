@@ -1,39 +1,67 @@
+using GameEnumerations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class MultiBackButton : MonoBehaviour
 {
-    [SerializeField] private MainMenu _mainMenu;
+    [SerializeField] private MenuView _menuView;
     [SerializeField] private a_TextReplacement _textPane;
     [SerializeField] private TMP_Text _text;
-    private string _newText = "";
+    private string _newText = string.Empty;
 
     private void Start()
     {
-        GetComponent<Button>().onClick.AddListener(() => _mainMenu.MultiBack());
+        GetComponent<Button>().onClick.AddListener(() => MultiBack());
     }
 
-    public void ShowMultiBackButton(ButtonTypes type)
+    public void ShowMultiBackButton(BackButtonTypes type)
     {
-        _text.text = SelectText(type);
+        _text.text = SelectButtonText(type);
         gameObject.SetActive(true);
     }
 
-    public void UpdateMultiBackButton(ButtonTypes type)
+    public void UpdateMultiBackButton(BackButtonTypes type)
     {
-        _newText = SelectText(type);
+        _newText = SelectButtonText(type);
         _textPane.ReplaceText(ChangeText);
     }
 
-    private string SelectText(ButtonTypes type)
+    private void MultiBack()
+    {
+        if (DataHolder.GameType == GameTypes.WifiClient)
+        {
+            Network.CloseWifiServerSearcher();
+
+            if (Network.ClientTCP != null)
+            {
+                Network.ClientTCP.SendMessage("disconnect");
+                Network.CloseTcpConnection();
+            }
+        }
+        else if (DataHolder.GameType == GameTypes.WifiHost)
+        {
+            if (WifiServer_Host.Opponent != null)
+            {
+                WifiServer_Host.Opponent.SendTcpMessage("disconnect");
+                WifiServer_Host.CloseConnection(); // Это если игрок уже подключён
+            }
+            else
+                WifiServer_Host.CancelConnect(); // Это если игрок ещё не нашёлся
+
+            //TODO: Добавть отмену для мультиплеера
+        }
+        _menuView.ChangePanelWithAnimation(_menuView.ActivateMainMenu);
+    }
+
+    private string SelectButtonText(BackButtonTypes type)
     {
         string text = "";
-        if (type == ButtonTypes.Disconnect)
+        if (type == BackButtonTypes.Disconnect)
             text = "[ Отключиться] ";
-        else if (type == ButtonTypes.Cancel)
+        else if (type == BackButtonTypes.Cancel)
             text = "[ Отмена ]";
-        else if (type == ButtonTypes.Back)
+        else if (type == BackButtonTypes.Back)
             text = "[ Назад ]";
 
         return text;
@@ -42,18 +70,11 @@ public class MultiBackButton : MonoBehaviour
     private void ChangeText()
     {
         _text.text = _newText;
-        _newText = "";
+        _newText = string.Empty;
     }
 
     public void DeactivateButton()
     {
         gameObject.SetActive(false);
-    }
-
-    public enum ButtonTypes
-    {
-        Disconnect,
-        Cancel,
-        Back
-    }
+    }   
 }

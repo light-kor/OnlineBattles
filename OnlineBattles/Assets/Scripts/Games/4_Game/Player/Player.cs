@@ -11,6 +11,7 @@ namespace Game4
         public PlayerTypes PlayerType => _playerType;
         public bool HasBullet { get; private set; } = true;
 
+        private ControlTypes _controlType;
         private Bullet _releasedBullet;
         private GameResources_4 GR;
         private PlayerMover _playerMover;
@@ -19,19 +20,26 @@ namespace Game4
         private void Start()
         {
             _playerMover = GetComponent<PlayerMover>();
+            GR = GameResources_4.GameResources;
         }
 
-        public void Init(GameResources_4 res)
-        {
-            GR = res;
-        }
-         
-        //TODO: Сделать остановку перед выстрелом
+        //public void SetControlType(ControlTypes type)
+        //{
+        //    _controlType = type;
+
+        //    if (type == ControlTypes.Broadcast)
+        //        GetComponent<PolygonCollider2D>().enabled = false;
+
+        //    PlayerInput.SetControlType();
+        //}
+
+
         public void ButtonClick()
         {
             if (HasBullet)
             {
-                Action fire = () => _releasedBullet = Instantiate(GR.BulletPrefab, transform.position, Quaternion.identity);
+                Action fire = () => _releasedBullet = GR.Bullets.SetBullet(transform.position, _playerType);
+
                 _playerMover.StopBeforeFiring(fire);
 
                 HasBullet = false;
@@ -60,7 +68,7 @@ namespace Game4
             {
                 if (bullet != _releasedBullet)
                 {
-                    Destroy(bullet.gameObject);
+                    bullet.gameObject.SetActive(false);
                     Hit();
                 }              
             }
@@ -73,7 +81,7 @@ namespace Game4
 
         public void Hit()
         {
-            Debug.Log("Hit");
+            GR.GetHit(_playerType);
         }
     }
 }

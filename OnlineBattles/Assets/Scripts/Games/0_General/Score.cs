@@ -1,12 +1,11 @@
 using GameEnumerations;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Score : MonoBehaviour
 {
-    public delegate void SendPlayer(PlayerTypes player);
-    public static event SendPlayer RoundWinner;
-
+    public static event UnityAction<PlayerTypes> RoundWinner;
     [SerializeField] private TMP_Text _firstScore, _secondScore;
 
     private int _blueScore = 0;
@@ -56,61 +55,26 @@ public class Score : MonoBehaviour
         
         DisplayScore();
     }
-  
-    public bool CheckEndGame(int winScore, GameTypes gameType)
+
+    public void UpdateOnlineScore(string[] message)
     {
-        if (_blueScore >= winScore || _redScore >= winScore)
-        {
-            if (gameType == GameTypes.Null || gameType == GameTypes.Single)
-            {
-                LocalEndGame();
-                return true;
-            }
-            else if (gameType == GameTypes.WifiHost)
-            {
-                OnlineEndGame();
-                return true;
-            }           
-        }
-        return false;
+        PlayerTypes player = DataHolder.ParseEnum<PlayerTypes>(message[1]);
+        GameResults result = DataHolder.ParseEnum<GameResults>(message[2]);
+        UpdateScore(player, result);
     }
 
-    private void LocalEndGame()
+    public void UpdateAndTrySendScore(PlayerTypes player, GameResults result)
     {
-        string notifText = null;
+        UpdateScore(player, result);
 
-        if (_blueScore > _redScore)
-            notifText = "Синий победил";
-        else if (_redScore > _blueScore)
-            notifText = "Красный победил";
-        else if (_redScore == _blueScore)
-            notifText = "Ничья";
-
-        new Notification(notifText, Notification.NotifTypes.EndGame);
+        if (DataHolder.GameType == GameTypes.WifiHost)
+            GameTemplate_WifiHost.SendScore(player, result);
     }
 
-    private void OnlineEndGame()
+    public void GetScore(out int blueScore, out int redScore)
     {
-        string notifText = null, opponentStatus = null;
-
-        if (_blueScore > _redScore)
-        {
-            notifText = "Вы победили";
-            opponentStatus = "Lose";
-        }
-        else if (_redScore > _blueScore)
-        {
-            notifText = "Вы проиграли";
-            opponentStatus = "Win";
-        }
-        else if (_redScore == _blueScore)
-        {
-            notifText = "Ничья";
-            opponentStatus = "Draw";
-        }
-
-        WifiServer_Host.Opponent.SendTcpMessage("EndGame " + opponentStatus);
-        new Notification(notifText, Notification.ButtonTypes.MenuButton);
+        blueScore = _blueScore;
+        redScore = _redScore;
     }
 
     private void DisplayScore()

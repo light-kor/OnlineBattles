@@ -45,4 +45,11 @@ namespace GameEnumerations
         TCP,
         UDP
     }
+
+    public enum BackButtonTypes
+    {
+        Disconnect,
+        Cancel,
+        Back
+    }
 }
