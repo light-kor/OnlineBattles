@@ -13,7 +13,6 @@ namespace Game2
             Score.RoundWinner += SendPlayerExplosion;
             GR.NewMessageReceived += ProcessingTCPMessages;
             BaseStart(ConnectTypes.UDP);
-            GR.SetControlTypes(ControlTypes.Local, ControlTypes.Remote);
         }
 
         protected override void SendFramesUDP()
@@ -28,21 +27,12 @@ namespace Game2
             }
         }
 
-        private void ProcessingTCPMessages()
+        private void ProcessingTCPMessages(string[] mes)
         {
-            if (GR.GameOn && _tcpHandlerIsBusy == false)
+            if (mes[0] == "move")
             {
-                _tcpHandlerIsBusy = true;
-                while (GR.GameMessagesCount > 0)
-                {
-                    string[] mes = GR.UseAndDeleteGameMessage();
-                    if (mes[0] == "move")
-                    {
-                        Vector2 normalizedJoystick = new Vector2(-float.Parse(mes[1], GR.NumFormat), -float.Parse(mes[2], GR.NumFormat));
-                        GR.Red.PlayerInput.ChangeDirectionRemote(normalizedJoystick);
-                    }
-                }
-                _tcpHandlerIsBusy = false;
+                Vector2 normalizedJoystick = new Vector2(-float.Parse(mes[1], GR.NumFormat), -float.Parse(mes[2], GR.NumFormat));
+                GR.Red.PlayerInput.ChangeDirectionRemote(normalizedJoystick);
             }
         }
 

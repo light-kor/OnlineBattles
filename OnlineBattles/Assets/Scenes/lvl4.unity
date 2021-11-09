@@ -168,6 +168,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf55de3f13ff5a4498d78aa0346146bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &145393003 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1488814075051969966, guid: 04a1711649d37134faf9b539dc13ef5c,
+    type: 3}
+  m_PrefabInstance: {fileID: 7982030293905199514}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &145393005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145393003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01589b781ec5fed4fbe8bb66af97f232, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &196193032
 GameObject:
   m_ObjectHideFlags: 0
@@ -400,7 +418,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &590050762
 GameObject:
@@ -436,7 +454,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &590050764
 MonoBehaviour:
@@ -764,7 +782,7 @@ Transform:
   - {fileID: 307428943}
   - {fileID: 196193033}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &998208238
 MonoBehaviour:
@@ -1026,7 +1044,7 @@ RectTransform:
   - {fileID: 611939306}
   - {fileID: 1065991690}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1305,7 +1323,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!58 &1280770661
 CircleCollider2D:
@@ -1430,6 +1448,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf55de3f13ff5a4498d78aa0346146bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &1439853857 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1488814075308473551, guid: 04a1711649d37134faf9b539dc13ef5c,
+    type: 3}
+  m_PrefabInstance: {fileID: 7982030293905199514}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1439853859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1439853857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab14ed924539dfa4196eea7d642bd8bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1457790868
@@ -1643,7 +1679,7 @@ RectTransform:
   m_Children:
   - {fileID: 1253174584}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1728,7 +1764,7 @@ Transform:
   - {fileID: 2003264762}
   - {fileID: 1870784419}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1472224438
 MonoBehaviour:
@@ -2072,7 +2108,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2115150146
 MonoBehaviour:
@@ -2133,7 +2169,7 @@ PrefabInstance:
     - target: {fileID: 7982030293820805946, guid: 04a1711649d37134faf9b539dc13ef5c,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 7982030293820805946, guid: 04a1711649d37134faf9b539dc13ef5c,
         type: 3}
@@ -2247,4 +2283,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _blue: {fileID: 590050766}
   _red: {fileID: 1280770658}
+  _blueButton: {fileID: 1457790872}
+  _redButton: {fileID: 611939308}
   _bulletContainer: {fileID: 2115150146}

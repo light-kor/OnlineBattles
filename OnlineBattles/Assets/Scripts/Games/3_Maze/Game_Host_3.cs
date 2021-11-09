@@ -12,6 +12,7 @@ namespace Game3
         {
             ManualCreateMapButton.Click += CreateMap;
             GR = transform.parent.GetComponent<GameResources_3>();
+            GR.NewMessageReceived += ProcessingTCPMessages;
             BaseStart(ConnectTypes.UDP);
 
             GR.StartInHost();
@@ -23,20 +24,6 @@ namespace Game3
         {
             if (GR.GameOn)
             {
-                if (GR.GameMessagesCount > 0)
-                {
-                    string[] mes = GR.UseAndDeleteGameMessage();
-                    if (mes[0] == "move")
-                    {
-                        var velocity = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
-                        GR._enemyVelocity = velocity;
-                    }
-                    else if (mes[0] == "change")
-                    {
-                        CreateMap();
-                    }
-                }
-
                 Vector2 myVelocity = new Vector2(GR._firstJoystick.Horizontal, GR._firstJoystick.Vertical);
                 GR._myVelocity = myVelocity;
                 Debug.Log($"my: {myVelocity.x} {myVelocity.y}");
@@ -98,6 +85,19 @@ namespace Game3
             }
         }
 
+        private void ProcessingTCPMessages(string[] mes)
+        {
+            if (mes[0] == "move")
+            {
+                var velocity = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
+                GR._enemyVelocity = velocity;
+            }
+            else if (mes[0] == "change")
+            {
+                CreateMap();
+            }
+        }
+
         private void SendAllChanges()
         {
             Vector2Int enemyPos = new Vector2Int((int)(GR._enemy.transform.position.x * 100), (int)(GR._enemy.transform.position.y * 100));
@@ -110,6 +110,7 @@ namespace Game3
         private void OnDestroy()
         {
             ManualCreateMapButton.Click -= CreateMap;
+            GR.NewMessageReceived -= ProcessingTCPMessages;
         }
     }
 }

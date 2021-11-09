@@ -25,11 +25,13 @@ namespace Game3
         public readonly int Height = 25;
         public readonly int WinScore = 5;
 
+        //TODO: Нормализовать джойстики, чтоб было равномерное движение.
+
         private void Start()
         {
             PointEnterHandler.Catch += UpdateScore;
             UpdateScore(null); // Установить счёт 0 - 0, если в редакторе случайно изменю что-то
-            if (DataHolder.GameType == GameTypes.Single)
+            if (DataHolder.GameType == GameTypes.Local)
             {
                 _mazeCreateButton2.SetActive(true);
                 _secondJoystick.gameObject.SetActive(true);

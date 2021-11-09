@@ -231,8 +231,8 @@ public static class WifiServer_Host
         CloseConnection();
         string[] str = { "GiveUp" };
         NewGameControlMessage?.Invoke(str);
-        DataHolder.GameType = GameTypes.Null; //TODO: Надо ли?
-        new Notification("Игрок отключился", Notification.ButtonTypes.MenuButton); //TODO: Настроить и время и действия, а то хз, правильно так или добавить ещё ожидание и дать время на реконнект
+        DataHolder.GameType = GameTypes.Null;
+        new Notification("Игрок отключился", Notification.ButtonTypes.MenuButton);
     }
 
     public static void CancelConnect()

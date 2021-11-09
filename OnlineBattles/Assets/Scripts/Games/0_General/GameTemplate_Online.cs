@@ -6,7 +6,6 @@ public abstract class GameTemplate_Online : MonoBehaviour
 {
     protected const float _delay = 0.035f; // 35 ms для интерполяции, если кадры идут каждые 33 ms
     protected string[] _frame = null, _frame2 = null; //TODO: Это надо будет удалить нафиг
-    protected bool _tcpHandlerIsBusy = false;
     private ConnectTypes _connectType;
 
     protected void BaseStart(ConnectTypes type)

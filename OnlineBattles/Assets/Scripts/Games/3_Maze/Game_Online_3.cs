@@ -17,6 +17,7 @@ namespace Game3
 
             GR = transform.parent.GetComponent<GameResources_3>();
             GR._points = new GameObject("Points");
+            GR.NewMessageReceived += ProcessingTCPMessages;
 
             //Чтоб коллизии не мешались
             Cell cell = GR._cellPrefab.GetComponent<Cell>();
@@ -43,25 +44,24 @@ namespace Game3
                 //UpdateThread();
                 //SendJoy();
 
-                if (GR.GameMessagesCount > 0)
-                {
-                    string[] mes = GR.UseAndDeleteGameMessage();
-                    if (mes[0] == "point")
-                    {
-                        Vector2 position = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
-                        Instantiate(GR._pointPref, position, Quaternion.identity, GR._points.transform);
-                    }
-                    else if (mes[0] == "position")
-                    {
-                        Vector2 myPosition = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
-                        Vector2 enemyPosition = new Vector2(float.Parse(mes[3]), float.Parse(mes[4]));
-
-                        GR._me.transform.position = myPosition;
-                        GR._enemy.transform.position = enemyPosition;
-                    }
-                }
-
                 UpdateThread();
+            }
+        }
+
+        private void ProcessingTCPMessages(string[] mes)
+        {
+            if (mes[0] == "point")
+            {
+                Vector2 position = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
+                Instantiate(GR._pointPref, position, Quaternion.identity, GR._points.transform);
+            }
+            else if (mes[0] == "position")
+            {
+                Vector2 myPosition = new Vector2(float.Parse(mes[1]), float.Parse(mes[2]));
+                Vector2 enemyPosition = new Vector2(float.Parse(mes[3]), float.Parse(mes[4]));
+
+                GR._me.transform.position = myPosition;
+                GR._enemy.transform.position = enemyPosition;
             }
         }
 
@@ -165,6 +165,7 @@ namespace Game3
         {
             Network.ClientTCP.BigMessageReceived -= GetBigMessage;
             ManualCreateMapButton.Click -= SendChangeMazeRequest;
+            GR.NewMessageReceived -= ProcessingTCPMessages;
         }
     }
 }

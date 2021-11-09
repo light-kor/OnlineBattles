@@ -6,9 +6,10 @@ public class EndGameChecker : MonoBehaviour
     public bool CheckEndGame(int winScore, int blueScore, int redScore)
     {
         GameTypes gameType = DataHolder.GameType;
+
         if (blueScore >= winScore || redScore >= winScore)
         {
-            if (gameType == GameTypes.Null || gameType == GameTypes.Single)
+            if (gameType == GameTypes.Local)
             {
                 LocalEndGame(blueScore, redScore);
                 return true;

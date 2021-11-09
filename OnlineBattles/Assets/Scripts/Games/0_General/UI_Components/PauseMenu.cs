@@ -26,7 +26,7 @@ public class PauseMenu : MonoBehaviour
 
     private void QuitTheGame()
     {
-        if (DataHolder.GameType == GameTypes.Single || DataHolder.GameType == GameTypes.Null)
+        if (DataHolder.GameType == GameTypes.Local)
         {
             SceneManager.LoadScene("mainMenu");
             _anim.ClosePanel();

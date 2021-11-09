@@ -24,17 +24,10 @@ namespace GameEnumerations
         Draw,
     }
 
-    public enum ControlTypes
-    {
-        Local,
-        Remote,
-        Broadcast
-    }
-
     public enum GameTypes
     {
         Null,
-        Single,
+        Local,
         WifiHost,
         WifiClient,
         Multiplayer

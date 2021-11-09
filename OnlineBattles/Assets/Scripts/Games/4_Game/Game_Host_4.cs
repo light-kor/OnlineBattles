@@ -1,21 +1,42 @@
-using System.Collections;
-using System.Collections.Generic;
+using GameEnumerations;
 using UnityEngine;
 
 namespace Game4
 {
-    public class Game_Host_4 : MonoBehaviour
+    public class Game_Host_4 : GameTemplate_WifiHost
     {
-        // Start is called before the first frame update
-        void Start()
-        {
+        private GameResources_4 GR;
 
+        private void Start()
+        {
+            GR = GameResources_4.GameResources;
+            GR.NewMessageReceived += ProcessingTCPMessages;
+            BaseStart(ConnectTypes.UDP);
         }
 
-        // Update is called once per frame
-        void Update()
+        protected override void SendFramesUDP()
         {
+            if (GR.GameOn)
+            {
+                if (Network.ClientUDP != null)
+                {
+                    FrameInfo data = new FrameInfo(GR.Blue, GR.Red);
+                    Serializer<FrameInfo>.SendMessage(data, ConnectTypes.UDP);
+                }
+            }
+        }
 
+        private void ProcessingTCPMessages(string[] mes)
+        {
+            if (mes[0] == "move")
+            {
+
+            }
+        }
+
+        private void OnDestroy()
+        {
+            GR.NewMessageReceived -= ProcessingTCPMessages;
         }
     }
 }

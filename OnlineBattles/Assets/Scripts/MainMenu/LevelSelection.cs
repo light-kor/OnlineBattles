@@ -10,7 +10,7 @@ public class LevelSelection : MonoBehaviour
     {
         DataHolder.SelectedServerGame = lvlNum;
 
-        if (DataHolder.GameType == GameTypes.Single)
+        if (DataHolder.GameType == GameTypes.Local)
         {
             SceneManager.LoadScene("lvl" + lvlNum);
         }

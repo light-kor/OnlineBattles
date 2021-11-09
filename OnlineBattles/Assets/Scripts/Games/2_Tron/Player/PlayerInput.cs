@@ -11,21 +11,18 @@ namespace Game2
         private Vector2 _lastJoystick = Vector2.zero;
         private Player _player;
 
-        private void Awake()
-        {
-            _player = GetComponent<Player>();
-        }
-
         private void Start()
         {
-            GR = GameResources_2.GameResources;                 
+            _player = GetComponent<Player>();
+            GR = GameResources_2.GameResources;
+            SetControlType();
         }
 
         private void Update()
         {
             if (GR.GameOn)
             {
-                if (_player.ControlType == ControlTypes.Local)
+                if (DataHolder.GameType == GameTypes.Local || (DataHolder.GameType == GameTypes.WifiHost && _player.PlayerType == PlayerTypes.BluePlayer))
                 {
                     ChangeDirectionLocal();
                 }
@@ -55,21 +52,27 @@ namespace Game2
             }
         }
 
-        public void SetControlType()
+        private void SetControlType()
         {           
-            if (_player.ControlType == ControlTypes.Broadcast)
+            if (DataHolder.GameType == GameTypes.WifiClient)
             {
                 if (_player.PlayerType == PlayerTypes.BluePlayer)
+                {
                     _joystick.gameObject.SetActive(false);
-
-                if (_player.PlayerType == PlayerTypes.RedPlayer)
+                }                  
+                else if (_player.PlayerType == PlayerTypes.RedPlayer)
                 {
                     Vector2 joyPosition = new Vector2(-_joystick.transform.position.x, -_joystick.transform.position.y);
                     _joystick.transform.position = joyPosition;
                 }
             }
-            else if (_player.ControlType == ControlTypes.Remote)
-                _joystick.gameObject.SetActive(false);
+            else if (DataHolder.GameType == GameTypes.WifiHost)
+            {
+                if (_player.PlayerType == PlayerTypes.RedPlayer)
+                {
+                    _joystick.gameObject.SetActive(false);
+                }
+            }              
         }
 
         public void ClearJoystick()

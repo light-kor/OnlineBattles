@@ -16,7 +16,7 @@ public class GameTypeHandler : MonoBehaviour
 
         _selectGameType = DataHolder.GameType;
 
-        if (_selectGameType == GameTypes.Single || _selectGameType == GameTypes.Null) // Null для тестов. Когда заходишь в игру, минуя меню.
+        if (_selectGameType == GameTypes.Local)
             _singleGame.SetActive(true); //TODO: Нужен ли вообще сингл?
         else if (_selectGameType == GameTypes.WifiHost)
             _wifiHost.SetActive(true);

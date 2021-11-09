@@ -65,7 +65,13 @@ public static class Network
                         _loginSuccessful = true;
                         NotificationManager.NM.CloseNotification(); // Выключаем панель ожидания                       
                         WifiServerAnswer?.Invoke("accept");
-                        break;                   
+                        break;
+
+                    case "disconnect":
+                        CloseTcpConnection();
+                        DataHolder.GameType = GameTypes.Null;
+                        new Notification("Сервер отключён", Notification.ButtonTypes.MenuButton);
+                        break;
 
                     default:
                         NewGameControlMessage?.Invoke(mes);

@@ -13,14 +13,14 @@ public class MainMenu : MonoBehaviour
 
     private List<string[]> _tcpControlMessages = new List<string[]>();
     private MenuView _menuView;
-       
+
     private void Start()
     {
-        QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = FrameRate;
+        if (DataHolder.AppStarted == false)
+            ApplicationStart();
+        
         Network.TcpConnectionIsDone += TcpConnectionIsReady;
-        Network.NewGameControlMessage += NewControlMessage;
-
+        Network.NewGameControlMessage += NewControlMessage;   
         _menuView = GetComponent<MenuView>();
     }
    
@@ -50,18 +50,18 @@ public class MainMenu : MonoBehaviour
             {
                 _levelSelection.LoadLevelFromString(mes[1]);
             }
-            else if (mes[0] == "disconnect")
-            {
-                Network.CloseTcpConnection();
-                _menuView.ChangePanelWithAnimation(_menuView.ActivateMainMenu);
-                new Notification("Сервер отключён", Notification.ButtonTypes.SimpleClose);
-            }
+            //else if (mes[0] == "disconnect") //TODO: Почему это вообще здесь? Надо бы перенести в Network
+            //{ 
+            //    Network.CloseTcpConnection();
+            //    _menuView.ChangePanelWithAnimation(_menuView.ActivateMainMenu);
+            //    new Notification("Сервер отключён", Notification.ButtonTypes.SimpleClose);
+            //}
         }
     }   
 
     public void SelectSingleGame()
     {
-        DataHolder.GameType = GameTypes.Single;
+        DataHolder.GameType = GameTypes.Local;
         _menuView.ChangePanelWithAnimation(_menuView.ActivateSingleplayerMenu);
     }
 
@@ -100,6 +100,14 @@ public class MainMenu : MonoBehaviour
     private void NewControlMessage(string[] message)
     {
         _tcpControlMessages.Add(message);
+    }
+
+    private void ApplicationStart()
+    {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = FrameRate;
+        DataHolder.GameType = GameTypes.Null; // Костыль для отладки отдельных уровней. Если зайти в игру минуя меню, то будет установлен Local
+        DataHolder.AppStarted = true;
     }
 
     private void OnDestroy()

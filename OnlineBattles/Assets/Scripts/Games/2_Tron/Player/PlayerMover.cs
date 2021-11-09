@@ -7,7 +7,6 @@ namespace Game2
     {      
         private GameResources_2 GR;
         private Rigidbody2D _rb;       
-        private Player _player;
         private PlayerInput _playerInput;
         private float _currentAngle = 0f;       
 
@@ -17,7 +16,6 @@ namespace Game2
         private void Start()
         {
             _rb = GetComponent<Rigidbody2D>();
-            _player = GetComponent<Player>();
             _playerInput = GetComponent<PlayerInput>();
             GR = GameResources_2.GameResources;
         }
@@ -30,11 +28,11 @@ namespace Game2
 
         private void FixedUpdate()
         {
-            if (GR.GameOn && _player.ControlType != ControlTypes.Broadcast)
+            if (GR.GameOn && DataHolder.GameType != GameTypes.WifiClient)
                 _rb.MovePosition(transform.position + gameObject.transform.up * Time.fixedDeltaTime * MoveSpeed);
         }
-       
-        public void RotatePlayer() //TODO: Переделать на принцип отлавливания изменений, чтоб реже можно было присылать сообщения
+
+        private void RotatePlayer() 
         {
             if (_playerInput.LastJoystick != Vector2.zero)
             {
@@ -66,7 +64,8 @@ namespace Game2
         public void SetBroadcastPositions(Vector3 position, Quaternion rotation)
         {
             _rb.MovePosition(position);
-            transform.localRotation = rotation;
+            _rb.MoveRotation(rotation);
+            //transform.rotation = rotation;
         }        
     }
 }

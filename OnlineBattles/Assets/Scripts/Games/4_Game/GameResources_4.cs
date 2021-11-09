@@ -1,25 +1,31 @@
 using GameEnumerations;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Game4
 {
     public class GameResources_4 : GeneralController
     {
         [SerializeField] private Player _blue, _red;
+        [SerializeField] private Button _blueButton, _redButton;
         [SerializeField] private BulletContainer _bulletContainer;
-
         public static GameResources_4 GameResources;
+
+        public Player Blue => _blue;
+        public Player Red => _red;
         public BulletContainer Bullets => _bulletContainer;
 
         private const float TimeForReload = 2f;
-        private readonly int WinScore = 5;
+        private const int WinScore = 5;
 
         protected override void Awake()
         {
             base.Awake();
             GameResources = this;
+            SetGameButtons();
         }
 
+        //TODO: Как-то отобразить перезарядку, и только после сигнала перезарядить. Чтоб это не было неожиданностью.
         //TODO: Анимации исчезновения объектов
         //TODO: Добавить онлайн
         //TODO: Переделать систему спавна. Спавнить бонусы, а не блоки не чаще, чем раз в 3 или типо того.
@@ -27,6 +33,7 @@ namespace Game4
         //TODO: В скрипте Block надо добавить разброс градусов. Небольшое рандомное смещение 
         //TODO: Нормальный спрайт, анимации и частицы для пули
         //TODO: Спрайты и анимайии для игроков. Можно частицы при ходьбе и ввыстреле
+        //TODO: Все ли движения совершаются с помощью rigidbody?
 
         public void GetHit(PlayerTypes type)
         {
@@ -43,6 +50,19 @@ namespace Game4
         {
             _blue.ReloadGun();
             _red.ReloadGun();
+        }
+
+        public void SetGameButtons()
+        {
+            if (DataHolder.GameType == GameTypes.WifiHost)
+            {
+                _redButton.gameObject.SetActive(false);
+            }
+            else if (DataHolder.GameType == GameTypes.WifiHost)
+            {
+                _redButton.transform.position = _blueButton.transform.position;
+                _blueButton.gameObject.SetActive(false);
+            }
         }
     }
 }

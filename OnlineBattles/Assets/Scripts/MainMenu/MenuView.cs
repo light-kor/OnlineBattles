@@ -25,7 +25,7 @@ public class MenuView : MonoBehaviour
     {
         if (DataHolder.GameType == GameTypes.Null)
             ActivateMainMenu();
-        else if (DataHolder.GameType == GameTypes.Single)
+        else if (DataHolder.GameType == GameTypes.Local)
             ActivateSingleplayerMenu();
         else if (DataHolder.GameType == GameTypes.WifiHost)
         {

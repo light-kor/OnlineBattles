@@ -12,14 +12,15 @@ namespace Game2
         private Vector2 _lastMove = Vector2.zero;
         private List<FrameInfo> _frames = new List<FrameInfo>();
         private float _frameTime = 0f;
+        private CameraShaker _cameraShaker;
 
         private void Start()
         {
             GR = GameResources_2.GameResources;
             GR.NewMessageReceived += ProcessingTCPMessages;
             GR.ResetTheGame += ResetLevel;
+            _cameraShaker = Camera.main.GetComponent<CameraShaker>();
             BaseStart(ConnectTypes.UDP);
-            GR.SetControlTypes(ControlTypes.Broadcast, ControlTypes.Broadcast);         
         }
        
         private void FixedUpdate()
@@ -51,16 +52,19 @@ namespace Game2
 
         private void MoveToPosition()
         {
-            Vector3 pos_blue = _frames[0].Blue.GetPosition();
-            Vector3 pos_red = _frames[0].Red.GetPosition();
+            if (_frames.Count > 0)
+            {
+                Vector3 pos_blue = _frames[0].Blue.Position.GetVector3();
+                Vector3 pos_red = _frames[0].Red.Position.GetVector3();
 
-            Quaternion rot_blue = _frames[0].Blue.GetRotation();
-            Quaternion rot_red = _frames[0].Red.GetRotation();
+                Quaternion rot_blue = _frames[0].Blue.Rotation.GetQuaternion();
+                Quaternion rot_red = _frames[0].Red.Rotation.GetQuaternion();
 
-            GR.Blue.PlayerMover.SetBroadcastPositions(pos_blue, rot_blue);
-            GR.Red.PlayerMover.SetBroadcastPositions(pos_red, rot_red);
+                GR.Blue.PlayerMover.SetBroadcastPositions(pos_blue, rot_blue);
+                GR.Red.PlayerMover.SetBroadcastPositions(pos_red, rot_red);
 
-            _frames.RemoveAt(0);
+                _frames.RemoveAt(0);
+            }
         }
 
         private void LerpTransforms()
@@ -83,11 +87,11 @@ namespace Game2
                 //float delta = (vrem - time) / (time2 - time);
                 float delta = (_frameTime - time) / (time2 - time);
 
-                Vector2 pos_blue = Vector2.LerpUnclamped(_frames[0].Blue.GetPosition(), _frames[1].Blue.GetPosition(), delta);
-                Vector2 pos_red = Vector2.LerpUnclamped(_frames[0].Red.GetPosition(), _frames[1].Red.GetPosition(), delta);
+                Vector2 pos_blue = Vector2.LerpUnclamped(_frames[0].Blue.Position.GetVector3(), _frames[1].Blue.Position.GetVector3(), delta);
+                Vector2 pos_red = Vector2.LerpUnclamped(_frames[0].Red.Position.GetVector3(), _frames[1].Red.Position.GetVector3(), delta);
 
-                Quaternion rot_blue = Quaternion.LerpUnclamped(_frames[0].Blue.GetRotation(), _frames[1].Blue.GetRotation(), delta);
-                Quaternion rot_red = Quaternion.LerpUnclamped(_frames[0].Red.GetRotation(), _frames[1].Red.GetRotation(), delta);
+                Quaternion rot_blue = Quaternion.LerpUnclamped(_frames[0].Blue.Rotation.GetQuaternion(), _frames[1].Blue.Rotation.GetQuaternion(), delta);
+                Quaternion rot_red = Quaternion.LerpUnclamped(_frames[0].Red.Rotation.GetQuaternion(), _frames[1].Red.Rotation.GetQuaternion(), delta);
 
                 GR.Blue.PlayerMover.SetBroadcastPositions(pos_blue, rot_blue);
                 GR.Red.PlayerMover.SetBroadcastPositions(pos_red, rot_red);
@@ -150,21 +154,12 @@ namespace Game2
             }           
         }
 
-        private void ProcessingTCPMessages()
+        private void ProcessingTCPMessages(string[] mes)
         {
-            if (GR.GameOn && _tcpHandlerIsBusy == false)
+            if (mes[0] == "Explosion")
             {
-                _tcpHandlerIsBusy = true;
-                while (GR.GameMessagesCount > 0)
-                {
-                    string[] mes = GR.UseAndDeleteGameMessage();
-                    if (mes[0] == "Explosion")
-                    {
-                        PlayerTypes player = DataHolder.ParseEnum<PlayerTypes>(mes[1]);
-                        ExplosionHandling(player);
-                    }
-                }
-                _tcpHandlerIsBusy = false;
+                PlayerTypes player = DataHolder.ParseEnum<PlayerTypes>(mes[1]);
+                ExplosionHandling(player);
             }
         }
 
@@ -179,6 +174,8 @@ namespace Game2
                 GR.Blue.LoseAnimation();
                 GR.Red.LoseAnimation();
             }
+
+            _cameraShaker.ShakeOnce();
         }
 
         private void OnDestroy()

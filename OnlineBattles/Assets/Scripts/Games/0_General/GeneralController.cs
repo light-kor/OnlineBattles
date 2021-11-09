@@ -15,10 +15,9 @@ public abstract class GeneralController : MonoBehaviour
     public event UnityAction PauseTheGame;
     public event UnityAction ResumeTheGame;
     public event UnityAction ResetTheGame;
-    public event UnityAction NewMessageReceived;  
+    public event UnityAction<string[]> NewMessageReceived;  
   
     public bool GameOn { get; private set; } = false;
-    public int GameMessagesCount => _gameMessages.Count;
     public NumberFormatInfo NumFormat = new CultureInfo("en-US").NumberFormat;
 
     private List<string[]> _gameControlMessages = new List<string[]>();
@@ -46,6 +45,7 @@ public abstract class GeneralController : MonoBehaviour
     protected virtual void Update()
     {
         MessageHandler();
+        ProcessingTCPGameMessages();
     }
 
     private void MessageHandler()
@@ -83,8 +83,7 @@ public abstract class GeneralController : MonoBehaviour
                     break;
 
                 default:
-                    _gameMessages.Add(mes);
-                    NewMessageReceived?.Invoke();
+                    _gameMessages.Add(mes);                    
                     break;
             }
         }
@@ -181,17 +180,24 @@ public abstract class GeneralController : MonoBehaviour
         _timerIsDone = true;
         GameOn = true;
         StartTheGame?.Invoke();
-    }  
+    }
+
+    private void ProcessingTCPGameMessages()
+    {
+        if (GameOn)
+        {
+            if (_gameMessages.Count > 0) //TODO: Или while будет лучше?
+            {
+                string[] mes = DataHolder.UseAndDeleteFirstListMessage(_gameMessages);
+                NewMessageReceived?.Invoke(mes);
+            }
+        }
+    }
 
     private void NewGameControlMessage(string[] message)
     {
         _gameControlMessages.Add(message);
-    }
-
-    public string[] UseAndDeleteGameMessage()
-    {
-        return DataHolder.UseAndDeleteFirstListMessage(_gameMessages);
-    }   
+    }  
 
     private void OnDestroy()
     {

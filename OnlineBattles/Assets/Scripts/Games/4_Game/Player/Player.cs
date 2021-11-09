@@ -11,28 +11,15 @@ namespace Game4
         public PlayerTypes PlayerType => _playerType;
         public bool HasBullet { get; private set; } = true;
 
-        private ControlTypes _controlType;
         private Bullet _releasedBullet;
         private GameResources_4 GR;
         private PlayerMover _playerMover;
         
-
         private void Start()
         {
             _playerMover = GetComponent<PlayerMover>();
             GR = GameResources_4.GameResources;
         }
-
-        //public void SetControlType(ControlTypes type)
-        //{
-        //    _controlType = type;
-
-        //    if (type == ControlTypes.Broadcast)
-        //        GetComponent<PolygonCollider2D>().enabled = false;
-
-        //    PlayerInput.SetControlType();
-        //}
-
 
         public void ButtonClick()
         {

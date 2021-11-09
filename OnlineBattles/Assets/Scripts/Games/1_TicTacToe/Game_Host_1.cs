@@ -11,6 +11,7 @@ namespace Game1
         private void Start()
         {
             GR = transform.parent.GetComponent<GameResources_1>();
+            GR.NewMessageReceived += ProcessingTCPMessages;
             BaseStart(ConnectTypes.TCP);
         }
 
@@ -30,18 +31,17 @@ namespace Game1
                         _myTurn = false;
                     }
                 }
+            }
+        }
 
-                if (GR.GameMessagesCount > 0)
-                {
-                    string[] mes = GR.UseAndDeleteGameMessage();
-                    if (mes[0] == "move")
-                    {
-                        Vector3Int place = new Vector3Int(int.Parse(mes[1]), int.Parse(mes[2]), 0);
-                        GR.Map.SetTile(place, GR.EnemyTile);
-                        CheckEndOfGame();
-                        _myTurn = true;
-                    }
-                }
+        private void ProcessingTCPMessages(string[] mes)
+        {
+            if (mes[0] == "move")
+            {
+                Vector3Int place = new Vector3Int(int.Parse(mes[1]), int.Parse(mes[2]), 0);
+                GR.Map.SetTile(place, GR.EnemyTile);
+                CheckEndOfGame();
+                _myTurn = true;
             }
         }
 
@@ -60,6 +60,11 @@ namespace Game1
                 else if (result == "second")
                     EndOfGame("win");
             }
+        }
+
+        private void OnDestroy()
+        {
+            GR.NewMessageReceived -= ProcessingTCPMessages;
         }
     }
 }

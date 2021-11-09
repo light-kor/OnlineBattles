@@ -49,7 +49,7 @@ public class MultiBackButton : MonoBehaviour
             else
                 WifiServer_Host.CancelConnect(); // Это если игрок ещё не нашёлся
 
-            //TODO: Добавть отмену для мультиплеера
+            //TODO: Добавить отмену для мультиплеера
         }
         _menuView.ChangePanelWithAnimation(_menuView.ActivateMainMenu);
     }

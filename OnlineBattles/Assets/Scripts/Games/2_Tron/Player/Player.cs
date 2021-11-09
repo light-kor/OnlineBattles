@@ -10,13 +10,11 @@ namespace Game2
         [SerializeField] private ParticleSystem _explosion;
         [SerializeField] private PlayerTrailRenderer _trailRenderer;
 
-        public ControlTypes ControlType => _controlType;
         public PlayerTypes PlayerType => _playerType;
         public bool GetPoint { get; private set; } = true;
         public PlayerMover PlayerMover { get; private set; }
         public PlayerInput PlayerInput { get; private set; }
 
-        private ControlTypes _controlType = ControlTypes.Local;
         private GameResources_2 GR;        
         private Vector3 _startPosition;
         private Quaternion _startRotation;
@@ -37,11 +35,11 @@ namespace Game2
         {
             if (GR.GameOn)
             {
-                if (_controlType != ControlTypes.Broadcast)
-                    _trailCollider.CreateTrailsCollider(transform.localPosition);           
+                if (DataHolder.GameType != GameTypes.WifiClient)
+                    _trailCollider.CreateTrailsCollider(transform.position);
             }
         }
-      
+
         private void OnCollisionEnter2D(Collision2D collision)
         {         
             GetPoint = false;
@@ -53,16 +51,6 @@ namespace Game2
         {
             _explosion.Play();
         }
-
-        public void SetControlType(ControlTypes type)
-        {
-            _controlType = type;            
-
-            if (type == ControlTypes.Broadcast)               
-                GetComponent<PolygonCollider2D>().enabled = false;
-
-            PlayerInput.SetControlType();
-        }
       
         public void ResetLevel()
         {
@@ -71,15 +59,18 @@ namespace Game2
             _explosion.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             PlayerInput.ClearJoystick();
 
-            transform.localPosition = _startPosition;
-            transform.localRotation = _startRotation;
+            transform.position = _startPosition;
+            transform.rotation = _startRotation;
             GetPoint = true;
         }
 
         private void SetStartSettings()
         {
-            _startPosition = transform.localPosition;
-            _startRotation = transform.localRotation;
+            _startPosition = transform.position;
+            _startRotation = transform.rotation;
+
+            if (DataHolder.GameType == GameTypes.WifiClient)
+                GetComponent<PolygonCollider2D>().enabled = false;
         }
     }
 }

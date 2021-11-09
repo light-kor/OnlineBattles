@@ -11,19 +11,22 @@ namespace Game2
         private List<Vector2> _points = new List<Vector2>();
         private List<Vector2> _bufferPoints = new List<Vector2>();
 
+        private const float _colliderEdgeRadius = 0.02f;
+
         private void Start()
         {
             _collider = GetComponent<EdgeCollider2D>();
-        }
+            _collider.edgeRadius = _colliderEdgeRadius;
+        }      
 
-        public void CreateTrailsCollider(Vector3 localPos)
+        public void CreateTrailsCollider(Vector3 pos)
         {
             _timer += Time.deltaTime;
             if (_timer >= 0.1f)
             {
-                _bufferPoints.Add(new Vector2(localPos.x, localPos.y));
+                _bufferPoints.Add(new Vector2(pos.x, pos.y));
 
-                if (_bufferPoints.Count >= 3) // Чтобы пропустить первые точки, во избежание стоолкновений линии и персонажа
+                if (_bufferPoints.Count >= 3) // Чтобы пропустить первые точки, во избежание столкновений со своей же линией.
                 {
                     _points.Add(_bufferPoints[0]);
                     _bufferPoints.RemoveAt(0);
@@ -45,6 +48,8 @@ namespace Game2
 
             _points.Clear();
             _bufferPoints.Clear();
+
+            _collider.edgeRadius = _colliderEdgeRadius;
         }
     }
 }
