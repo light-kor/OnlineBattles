@@ -14,7 +14,7 @@ namespace Game4
             BaseStart(ConnectTypes.UDP);
         }
 
-        protected override void SendFramesUDP()
+        protected override void CreateUDPFrame()
         {
             if (GR.GameOn)
             {

@@ -1,12 +1,11 @@
 using GameEnumerations;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public abstract class GameTemplate_WifiHost : MonoBehaviour
 {
     private ConnectTypes _connectType;
-    private Coroutine _udpSender = null;
+    private float counter = 0, targetCounter = 2;
 
     protected void BaseStart(ConnectTypes type)
     {
@@ -22,8 +21,6 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
             Network.UDPMessagesBig.Clear();
             Network.CreateUDP();
             Network.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
-
-            _udpSender = StartCoroutine(SendGameFrameEverySecondFrame());
         }
     }
 
@@ -77,41 +74,22 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
     {
         if (_connectType == ConnectTypes.UDP)
         {
-            if (_udpSender != null)
-            {
-                StopCoroutine(_udpSender);
-                _udpSender = null;
-            }
-
             Network.CloseUdpConnection();
         }
     }
 
-    /// <summary>
-    /// Отправка снимков игры 30 раз в секунду, отталкиваясь от частоты кадров.
-    /// </summary>
-    /// <returns></returns>
-    private IEnumerator SendGameFrameEverySecondFrame()
+    protected void TrySendFrameUDP()
     {
-        int targetCounter = Application.targetFrameRate / 30;
-        int counter = 0;
-
-        while (true)
+        counter++;
+        if (counter == targetCounter)
         {
-            counter++;
-
-            if (counter == targetCounter)
-            {
-                counter = 0;
-                SendFramesUDP();              
-            }
-
-            yield return null;
+            counter = 0;
+            CreateUDPFrame();
+            // Так как вызывается в FixedUpdate, получается отправка UDP сообщений 25 раз в секунду.
         }
-        //TODO: Если у хоста просядет фпс, то и частота отправки сообщений сильно просядет.     
     }
 
-    protected virtual void SendFramesUDP()
+    protected virtual void CreateUDPFrame()
     {
 
     }

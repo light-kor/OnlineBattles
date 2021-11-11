@@ -15,16 +15,18 @@ namespace Game2
             BaseStart(ConnectTypes.UDP);
         }
 
-        protected override void SendFramesUDP()
+        private void FixedUpdate()
         {
-            if (GR.GameOn)
+            if (GR.GameOn && Network.ClientUDP != null)
             {
-                if (Network.ClientUDP != null)
-                {
-                    FrameInfo data = new FrameInfo(GR.Blue, GR.Red);
-                    Serializer<FrameInfo>.SendMessage(data, ConnectTypes.UDP);
-                }
+                TrySendFrameUDP();
             }
+        }
+
+        protected override void CreateUDPFrame()
+        {
+            FrameInfo data = new FrameInfo(GR.Blue, GR.Red);
+            Serializer<FrameInfo>.SendMessage(data, ConnectTypes.UDP);
         }
 
         private void ProcessingTCPMessages(string[] mes)

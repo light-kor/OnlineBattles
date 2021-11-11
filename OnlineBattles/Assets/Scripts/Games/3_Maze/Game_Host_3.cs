@@ -39,6 +39,7 @@ namespace Game3
 
         private void FixedUpdate()
         {
+            TrySendFrameUDP(); //TODO: Оно сейчас не используется
             GR._myRB.MovePosition(GR._myRB.position + GR._myVelocity * Time.fixedDeltaTime * GR.PlayersSpeed);
             GR._enemyRB.MovePosition(GR._enemyRB.position + GR._enemyVelocity * Time.fixedDeltaTime * GR.PlayersSpeed);
             SendAllChanges();

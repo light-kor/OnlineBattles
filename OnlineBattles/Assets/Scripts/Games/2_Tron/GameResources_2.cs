@@ -37,6 +37,11 @@ namespace Game2
             ResetTheGame += ResetLevel;
         }
 
+        protected override void Update()
+        {
+            base.Update();
+        }
+
         public void RoundResults()
         {
             if (StartCheckingResults() == true)

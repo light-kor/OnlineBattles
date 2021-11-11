@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using GameEnumerations;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -6,15 +6,139 @@ namespace Game1
 {
     public class GameResources_1 : GeneralController
     {
-        public Tile MainTile, MyTile, EnemyTile;
-        public Tilemap Map, PlayLayer;
+        [SerializeField] private Tile _mainSquare, _blueCircle, _redCross;
+        [SerializeField] private Tilemap _playLayer;
 
-        private readonly int FieldSize = 4;
-        private readonly int WinRow = 3;
+        public static GameResources_1 GameResources;
 
-        public string CheckWin()
+        private bool _firstPlayerTurn = true;
+        private const int FieldSize = 3;
+        private const int WinRow = 3;
+
+        private int[,] _field = new int[3, 3];
+
+        protected override void Awake()
         {
-            string winer = null;
+            base.Awake();
+            GameResources = this;
+            SetArrayStart();
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (DataHolder.GameType == GameTypes.Local)
+                LocalMove();
+        }
+
+        private void LocalMove()
+        {
+            if (GameOn && Input.GetMouseButtonDown(0))
+            {
+                Vector3 clickWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                PlayerTypes type;
+
+                if (_firstPlayerTurn)
+                    type = PlayerTypes.BluePlayer;
+                else
+                    type = PlayerTypes.RedPlayer;
+
+                if (TrySetTile(clickWorldPosition, type, out Vector3Int clickCellPosition))
+                    _firstPlayerTurn = !_firstPlayerTurn;
+            }
+        }
+
+        public bool TrySetTile(Vector3 clickWorldPosition, PlayerTypes playerType, out Vector3Int clickCellPosition)
+        {
+            clickCellPosition = _playLayer.WorldToCell(clickWorldPosition);
+
+            if (_playLayer.GetTile(clickCellPosition) == _mainSquare)
+            {
+                SetTile(clickCellPosition, playerType);
+                return true;
+            }
+            else return false;
+        }
+
+        public void SetTile(Vector3Int clickCellPosition, PlayerTypes playerType)
+        {
+            Tile tile = null;
+
+            if (playerType == PlayerTypes.BluePlayer)
+            {
+                tile = _blueCircle;
+                _field[clickCellPosition.x + 2, clickCellPosition.y + 1] = 2;
+            }
+            else if (playerType == PlayerTypes.RedPlayer)
+            {
+                tile = _redCross;
+                _field[clickCellPosition.x + 2, clickCellPosition.y + 1] = 3;
+            }
+
+            _playLayer.SetTile(clickCellPosition, tile);
+
+            if (DataHolder.GameType != GameTypes.WifiClient)
+                CheckEndGame3x3();
+        }
+
+        private void SetArrayStart()
+        {
+            for (int i = 0; i < FieldSize; i++)
+            {
+                for (int j = 0; j < FieldSize; j++)
+                {
+                    _field[i, j] = 1;
+                }
+            }
+        }
+
+        private void CheckEndGame3x3()
+        {
+            bool blueWin = false, redWin = false;
+            int row = 1, column = 1, diag = 1, backDiag = 1;
+            int emptyCount = 0;
+
+            for (int i = 0; i < FieldSize; i++)
+            {
+                for (int j = 0; j < FieldSize; j++)
+                {
+                    row *= _field[i, j];
+                    column *= _field[j, i];
+
+                    if (_field[i, j] == 1)
+                        emptyCount++;
+                }
+
+                if (row == 8 || column == 8)
+                    blueWin = true;
+                if (row == 27 || column == 27)
+                    redWin = true;
+
+                row = 1;
+                column = 1;
+
+                diag *= _field[i, i];
+                backDiag *= _field[i, FieldSize - i - 1];
+            }
+
+            if (diag == 8 || backDiag == 8)
+                blueWin = true;
+            if (diag == 27 || backDiag == 27)
+                redWin = true;
+
+            if (blueWin == true && redWin == false)
+                UpdateScoreAndCheckGameState(PlayerTypes.BluePlayer, GameResults.Win, 1, false);
+            else if (blueWin == false && redWin == true)
+                UpdateScoreAndCheckGameState(PlayerTypes.RedPlayer, GameResults.Win, 1, false);
+            else if (blueWin == true && redWin == true)
+                UpdateScoreAndCheckGameState(PlayerTypes.Both, GameResults.Draw, 1, false);
+            else if (emptyCount == 0)
+                UpdateScoreAndCheckGameState(PlayerTypes.Both, GameResults.Draw, 1, false);
+        }
+
+        public void CheckEndGame4x4()
+        {
             int startX = -FieldSize / 2;
             int startY = startX;
             bool firstGetRow = false, secondGetRow = false;
@@ -24,25 +148,22 @@ namespace Game1
             {
                 for (int j = startY; j < startY + FieldSize - WinRow + 1; j++)
                 {
-                    if (CheckWinWithOffset(MyTile, WinRow, i, j))
+                    if (CheckWinWithOffset(_blueCircle, WinRow, i, j))
                         firstGetRow = true;
 
-                    if (CheckWinWithOffset(EnemyTile, WinRow, i, j))
+                    if (CheckWinWithOffset(_redCross, WinRow, i, j))
                         secondGetRow = true;
                 }
             }
 
             if (firstGetRow == true && secondGetRow == false)
-                winer = "first";
-            if (firstGetRow == false && secondGetRow == true)
-                winer = "second";
-            if (firstGetRow == true && secondGetRow == true)
-                winer = "draw";
-
-            // ѕроверка пол€ на полную заполненность
-            if (winer == null)
+                UpdateScoreAndCheckGameState(PlayerTypes.BluePlayer, GameResults.Win, 1, false);
+            else if (firstGetRow == false && secondGetRow == true)
+                UpdateScoreAndCheckGameState(PlayerTypes.RedPlayer, GameResults.Win, 1, false);
+            else if (firstGetRow == true && secondGetRow == true)
+                UpdateScoreAndCheckGameState(PlayerTypes.Both, GameResults.Draw, 1, false);
+            else
             {
-                List<Vector3Int> emptyCoor = new List<Vector3Int>();
                 int emptyPlace = 0;
                 for (int i = startX; i < startX + FieldSize + 1; i++)
                 {
@@ -50,17 +171,17 @@ namespace Game1
                     {
                         Vector3Int check = new Vector3Int(i, j, 0);
 
-                        if (Map.GetTile(check) == MainTile)
+                        if (_playLayer.GetTile(check) == _mainSquare)
                         {
-                            emptyPlace++;
-                            emptyCoor.Add(check);
-                            if (emptyPlace == 0)
-                                winer = "draw";
+                            emptyPlace++;                      
                         }
                     }
                 }
+
+                if (emptyPlace == 0)
+                    UpdateScoreAndCheckGameState(PlayerTypes.Both, GameResults.Draw, 1, false);
+                else return;
             }
-            return winer;
         }
 
         /// <summary>
@@ -83,7 +204,7 @@ namespace Game1
                 {
                     Vector3Int check = new Vector3Int(col, row, 0);
 
-                    if (Map.GetTile(check) != symb)
+                    if (_playLayer.GetTile(check) != symb)
                     {
                         result = false;
                         break;
@@ -97,7 +218,7 @@ namespace Game1
                 {
                     Vector3Int check = new Vector3Int(row, col, 0);
 
-                    if (Map.GetTile(check) != symb)
+                    if (_playLayer.GetTile(check) != symb)
                     {
                         result = false;
                         break;
@@ -111,7 +232,7 @@ namespace Game1
             for (int i = 0; i < count; i++)
             {
                 Vector3Int check = new Vector3Int(offsetX + i, offsetY + i, 0);
-                if (Map.GetTile(check) != symb)
+                if (_playLayer.GetTile(check) != symb)
                 {
                     result = false;
                     break;
@@ -124,7 +245,7 @@ namespace Game1
             for (int i = 0; i < count; i++)
             {
                 Vector3Int check = new Vector3Int(offsetX + count - i - 1, offsetY + i, 0);
-                if (Map.GetTile(check) != symb)
+                if (_playLayer.GetTile(check) != symb)
                 {
                     result = false;
                     break;
