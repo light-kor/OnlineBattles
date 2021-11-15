@@ -4,7 +4,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 
-public class Serializer<T>
+public static class Serializer<T>
 {
     public static void SendMessage(T data, ConnectTypes type)
     {

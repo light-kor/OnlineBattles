@@ -15,9 +15,9 @@ public abstract class GeneralController : MonoBehaviour
     public event UnityAction PauseTheGame;
     public event UnityAction ResumeTheGame;
     public event UnityAction ResetTheGame;
-    public event UnityAction<string[]> NewMessageReceived;  
-  
-    public bool GameOn { get; private set; } = false;
+    public event UnityAction<string[]> NewMessageReceived;
+
+    public static bool GameOn { get; private set; } = false;
     public NumberFormatInfo NumFormat = new CultureInfo("en-US").NumberFormat;
 
     private List<string[]> _gameControlMessages = new List<string[]>();
@@ -26,7 +26,7 @@ public abstract class GeneralController : MonoBehaviour
     private bool _checkingResults = false;
     protected GeneralUIResources _res { get; private set; }
 
-    protected virtual void Awake()
+    public void newAwake()
     {
         _res = GetComponent<GeneralUIResources>();
         _res.Timer.StartGame += StartGame;
@@ -40,9 +40,9 @@ public abstract class GeneralController : MonoBehaviour
             Network.NewGameControlMessage += NewGameControlMessage;
 
         _res.Timer.TryStartTimer();
-    }   
+    }
 
-    protected virtual void Update()
+    public void newUpdate()
     {
         MessageHandler();
         ProcessingTCPGameMessages();
@@ -199,7 +199,7 @@ public abstract class GeneralController : MonoBehaviour
         _gameControlMessages.Add(message);
     }  
 
-    private void OnDestroy()
+    public void newOnDestroy()
     {
         _res = GetComponent<GeneralUIResources>();
         _res.Timer.StartGame -= StartGame;

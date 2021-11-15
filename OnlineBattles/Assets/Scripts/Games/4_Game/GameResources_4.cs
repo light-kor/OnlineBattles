@@ -18,9 +18,8 @@ namespace Game4
         private const float TimeForReload = 2f;
         private const int WinScore = 5;
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
             GameResources = this;
             SetGameButtons();
         }

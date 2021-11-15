@@ -12,12 +12,11 @@ namespace Game4
         {
             GR = GameResources_4.GameResources;
             GR.NewMessageReceived += ProcessingTCPMessages;
-            BaseStart(ConnectTypes.UDP);
         }
 
         private void Update()
         {
-            if (GR.GameOn)
+            if (GeneralController.GameOn)
             {
                 UpdateThread();
                 //MoveToPosition();

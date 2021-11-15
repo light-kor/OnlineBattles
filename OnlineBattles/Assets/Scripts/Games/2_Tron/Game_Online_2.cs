@@ -20,26 +20,25 @@ namespace Game2
             GR.NewMessageReceived += ProcessingTCPMessages;
             GR.ResetTheGame += ResetLevel;
             _cameraShaker = Camera.main.GetComponent<CameraShaker>();
-            BaseStart(ConnectTypes.UDP);
         }
        
         private void FixedUpdate()
         {
-            if (GR.GameOn)
+            if (GeneralController.GameOn)
                 SendJoystick();            
         }
 
         private void Update()
         {
-            if (GR.GameOn)
+            if (GeneralController.GameOn)
             {
-                UpdateThread();
+                UDPFramesProccesing();
                 //LerpTransforms();
                 MoveToPosition();
             }
         }
 
-        private void UpdateThread()
+        private void UDPFramesProccesing()
         {
             if (Network.UDPMessagesBig.Count > 0)
             {
@@ -60,8 +59,8 @@ namespace Game2
                 Quaternion rot_blue = _frames[0].Blue.Rotation.GetQuaternion();
                 Quaternion rot_red = _frames[0].Red.Rotation.GetQuaternion();
 
-                GR.Blue.PlayerMover.SetBroadcastPositions(pos_blue, rot_blue);
-                GR.Red.PlayerMover.SetBroadcastPositions(pos_red, rot_red);
+                GR.Blue.PlayerMover.SetBroadcastTransforms(pos_blue, rot_blue);
+                GR.Red.PlayerMover.SetBroadcastTransforms(pos_red, rot_red);
 
                 _frames.RemoveAt(0);
             }
@@ -93,8 +92,8 @@ namespace Game2
                 Quaternion rot_blue = Quaternion.LerpUnclamped(_frames[0].Blue.Rotation.GetQuaternion(), _frames[1].Blue.Rotation.GetQuaternion(), delta);
                 Quaternion rot_red = Quaternion.LerpUnclamped(_frames[0].Red.Rotation.GetQuaternion(), _frames[1].Red.Rotation.GetQuaternion(), delta);
 
-                GR.Blue.PlayerMover.SetBroadcastPositions(pos_blue, rot_blue);
-                GR.Red.PlayerMover.SetBroadcastPositions(pos_red, rot_red);
+                GR.Blue.PlayerMover.SetBroadcastTransforms(pos_blue, rot_blue);
+                GR.Red.PlayerMover.SetBroadcastTransforms(pos_red, rot_red);
             }
         }
 
@@ -143,15 +142,12 @@ namespace Game2
 
         private void SendJoystick()
         {
-            if (GR.GameOn)
+            Vector2 move = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
+            if (move != _lastMove)
             {
-                Vector2 move = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
-                if (move != _lastMove)
-                {
-                    Network.ClientTCP.SendMessage($"move {move.x} {move.y}");
-                    _lastMove = move;
-                }
-            }           
+                Network.ClientTCP.SendMessage($"move {move.x} {move.y}");
+                _lastMove = move;
+            }
         }
 
         private void ProcessingTCPMessages(string[] mes)

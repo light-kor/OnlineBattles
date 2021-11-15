@@ -10,18 +10,12 @@ namespace Game4
         private float _speed = NormalSpeed;
         private Vector3 _direction = Vector3.zero;
         private bool _hitFirstObject = false;
-        private GameResources_4 GR;
 
         private const float NormalSpeed = 5.5f;
 
-        private void Start()
-        {
-            GR = GameResources_4.GameResources;
-        }
-           
         private void Update()
         {
-            if (GR.GameOn)
+            if (GeneralController.GameOn)
                 transform.Translate(_direction * _speed * Time.deltaTime);
         }
 

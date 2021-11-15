@@ -17,17 +17,14 @@ namespace Game1
 
         private int[,] _field = new int[3, 3];
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
             GameResources = this;
             SetArrayStart();
         }
 
-        protected override void Update()
+        private void Update()
         {
-            base.Update();
-
             if (DataHolder.GameType == GameTypes.Local)
                 LocalMove();
         }

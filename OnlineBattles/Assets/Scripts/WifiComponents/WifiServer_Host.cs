@@ -8,13 +8,11 @@ using UnityEngine.Events;
 
 public static class WifiServer_Host
 {
-    public const float UpdateRate = 0.0335f; // Отправка UDP инфы каждые UpdateRate мс 
-
     public static event UnityAction AcceptOpponent;    
     public static event UnityAction<string[]> NewGameControlMessage;
 
     public static string OpponentStatus = null;
-    public static bool OpponentIsReady { get; private set; } = false; //TODO: При дисконнеекте делать false. Переделать бы на подтверждение выбора карты.
+    public static bool OpponentIsReady = false;
     public static WifiOpponent Opponent { get; private set; } = null;
        
     private static TcpListener _listener = null;    
@@ -81,7 +79,6 @@ public static class WifiServer_Host
                 else if (_opponentCancelConnect == true)
                     continue;
 
-                OpponentIsReady = true;
                 AcceptOpponent?.Invoke();
                 StopListening();
                 break;
@@ -124,6 +121,10 @@ public static class WifiServer_Host
                     case "Cancel":
                         _opponentCancelConnect = true;
                         new Notification("Игрок отменил запрос", Notification.NotifTypes.WifiRequest, Notification.ButtonTypes.SimpleClose);                       
+                        break;
+
+                    case "ReadyPlay":
+                        OpponentIsReady = bool.Parse(mes[1]);
                         break;
 
                     case "Check":

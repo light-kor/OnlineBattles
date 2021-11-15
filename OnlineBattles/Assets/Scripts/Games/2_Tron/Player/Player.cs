@@ -33,7 +33,7 @@ namespace Game2
 
         private void Update()
         {
-            if (GR.GameOn)
+            if (GeneralController.GameOn)
             {
                 if (DataHolder.GameType != GameTypes.WifiClient)
                     _trailCollider.CreateTrailsCollider(transform.position);

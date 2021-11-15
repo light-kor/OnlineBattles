@@ -29,17 +29,11 @@ namespace Game2
         //TODO: ћб переделать вычисление угла на кастомный lookAt
 
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
             GameResources = this;
             _cameraShaker = Camera.main.GetComponent<CameraShaker>();
             ResetTheGame += ResetLevel;
-        }
-
-        protected override void Update()
-        {
-            base.Update();
         }
 
         public void RoundResults()

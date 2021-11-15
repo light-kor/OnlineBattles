@@ -7,20 +7,18 @@ namespace Game2
     {
         [SerializeField] private Joystick _joystick;
         public Vector2 LastJoystick => _lastJoystick;
-        private GameResources_2 GR;
         private Vector2 _lastJoystick = Vector2.zero;
         private Player _player;
 
         private void Start()
         {
             _player = GetComponent<Player>();
-            GR = GameResources_2.GameResources;
             SetControlType();
         }
 
         private void Update()
         {
-            if (GR.GameOn)
+            if (GeneralController.GameOn)
             {
                 if (DataHolder.GameType == GameTypes.Local || (DataHolder.GameType == GameTypes.WifiHost && _player.PlayerType == PlayerTypes.BluePlayer))
                 {

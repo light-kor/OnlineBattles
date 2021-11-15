@@ -4,18 +4,17 @@ using UnityEngine.SceneManagement;
 
 public abstract class GameTemplate_Online : MonoBehaviour
 {
-    protected const float _delay = 0.035f; // 35 ms для интерполяции, если кадры идут каждые 33 ms
-    protected string[] _frame = null, _frame2 = null; //TODO: Это надо будет удалить нафиг
     private ConnectTypes _connectType;
+    protected const float _delay = 0.035f; // 35 ms для интерполяции, если кадры идут каждые 33 ms
 
-    protected void BaseStart(ConnectTypes type)
+    public void newStart(ConnectTypes connectType)
     {
+        _connectType = connectType;
         GeneralController.OpponentLeftTheGame += OpponentLeftTheGame;
         GeneralController.EndOfGame += FinishTheGame;
         GeneralController.RemotePause += SendPauseRequest;
         GeneralController.RemoteResume += SendResumeRequest;
         PauseMenu.LeaveTheGame += LeaveTheGame;
-        _connectType = type;
 
         if (_connectType == ConnectTypes.UDP)
         {
@@ -28,7 +27,7 @@ public abstract class GameTemplate_Online : MonoBehaviour
             Network.ClientTCP.SendMessage("start");    
     }
 
-    //protected virtual void Update()
+    //public void Update()
     //{
     //    Network.ConnectionLifeSupport();  
     //}
@@ -42,8 +41,8 @@ public abstract class GameTemplate_Online : MonoBehaviour
     /// <summary>
     /// Завершение игры. Вывод уведомления.
     /// </summary>
-    private void EndOfGame(string status)
-    {
+    private void EndOfGame(string status) //TODO: Надо как-то подвязаться на систему с счётом
+    { //TODO: Лучше это тут и оставить, но проверить, чтоб было красиво, как в Score
         string notifText = null;
         if (status == "Draw")
             notifText = "Ничья";
@@ -85,8 +84,8 @@ public abstract class GameTemplate_Online : MonoBehaviour
             Network.CloseUdpConnection();
         }
     }
-   
-    private void OnDestroy()
+
+    public void newOnDestroy()
     {
         GeneralController.OpponentLeftTheGame -= OpponentLeftTheGame;
         GeneralController.EndOfGame -= FinishTheGame;

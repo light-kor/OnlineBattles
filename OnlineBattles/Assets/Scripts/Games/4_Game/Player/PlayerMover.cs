@@ -9,15 +9,12 @@ namespace Game4
     {
         private Vector3 _targetPosition = Vector3.zero;
         private float _speed = 2f;
-        private GameResources_4 GR;
 
         private const float X_Pos = 1.9f, Y_Pos = 4f;
         private const float StoppingRatio = 3.5f;
 
         private void Start()
         {
-            GR = GameResources_4.GameResources;
-
             PlayerTypes type = GetComponent<Player>().PlayerType;
             if (type == PlayerTypes.BluePlayer)
                 _targetPosition = new Vector3(-X_Pos, -Y_Pos);
@@ -27,7 +24,7 @@ namespace Game4
 
         private void Update()
         {
-            if (GR.GameOn)
+            if (GeneralController.GameOn)
                 MoveToPosition();
         }
 

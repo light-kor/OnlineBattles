@@ -11,12 +11,11 @@ namespace Game4
         {
             GR = GameResources_4.GameResources;
             GR.NewMessageReceived += ProcessingTCPMessages;
-            BaseStart(ConnectTypes.UDP);
         }
 
         protected override void CreateUDPFrame()
         {
-            if (GR.GameOn)
+            if (GeneralController.GameOn)
             {
                 if (Network.ClientUDP != null)
                 {

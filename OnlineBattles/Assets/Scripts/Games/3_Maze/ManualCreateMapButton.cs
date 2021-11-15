@@ -2,33 +2,23 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Game3
 {
-    public class ManualCreateMapButton : MonoBehaviour, IPointerClickHandler
+    public class ManualCreateMapButton : MonoBehaviour
     {
         public static event UnityAction Click;
-        private float _timer;
-        private TMP_Text _time;
-        private bool _waiting = false;
 
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            if (!_waiting)
-            {
-                Click?.Invoke();
-                _waiting = true;
-                GetComponent<Button>().interactable = false;
-                _timer = 9f;
-                _time.gameObject.SetActive(true);
-            }
-        }
+        [SerializeField] private Button _button;
+        [SerializeField] private TMP_Text _time;
+
+        private float _timer;
+        private bool _waiting = false;       
 
         private void Start()
         {
-            _time = GetComponentInChildren<TMP_Text>();
+            _button.onClick.AddListener(ButtonClick);
             _time.gameObject.SetActive(false);
         }
 
@@ -38,7 +28,7 @@ namespace Game3
             {
                 if (_timer < 0)
                 {
-                    GetComponent<Button>().interactable = true;
+                    _button.interactable = true;
                     _waiting = false;
                     _time.gameObject.SetActive(false);
                 }
@@ -46,6 +36,21 @@ namespace Game3
                 _timer -= Time.deltaTime;
                 _time.text = Math.Round(_timer).ToString();
             }
+        }
+
+        private void ButtonClick()
+        {
+            if (GeneralController.GameOn)
+            {
+                if (!_waiting)
+                {
+                    Click?.Invoke();
+                    _waiting = true;
+                    _button.interactable = false;
+                    _timer = 9f;
+                    _time.gameObject.SetActive(true);
+                }
+            }          
         }
     }
 }

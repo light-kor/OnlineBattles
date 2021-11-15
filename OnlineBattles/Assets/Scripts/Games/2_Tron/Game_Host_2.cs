@@ -12,15 +12,6 @@ namespace Game2
             GR = GameResources_2.GameResources;
             Score.RoundWinner += SendPlayerExplosion;
             GR.NewMessageReceived += ProcessingTCPMessages;
-            BaseStart(ConnectTypes.UDP);
-        }
-
-        private void FixedUpdate()
-        {
-            if (GR.GameOn && Network.ClientUDP != null)
-            {
-                TrySendFrameUDP();
-            }
         }
 
         protected override void CreateUDPFrame()

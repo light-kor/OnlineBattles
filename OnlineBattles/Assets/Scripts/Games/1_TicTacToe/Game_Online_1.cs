@@ -12,12 +12,11 @@ namespace Game1
         {
             GR = GameResources_1.GameResources;
             GR.NewMessageReceived += ProcessingTCPMessages;
-            BaseStart(ConnectTypes.TCP);
         }
 
         private void Update()
         {
-            if (GR.GameOn)
+            if (GeneralController.GameOn)
             {
                 if (_redTurn && Input.GetMouseButtonDown(0))
                 {

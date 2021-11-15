@@ -5,7 +5,6 @@ namespace Game2
 {
     public class PlayerMover : MonoBehaviour
     {      
-        private GameResources_2 GR;
         private Rigidbody2D _rb;       
         private PlayerInput _playerInput;
         private float _currentAngle = 0f;       
@@ -17,18 +16,17 @@ namespace Game2
         {
             _rb = GetComponent<Rigidbody2D>();
             _playerInput = GetComponent<PlayerInput>();
-            GR = GameResources_2.GameResources;
         }
 
         private void Update()
         {
-            if (GR.GameOn)
+            if (GeneralController.GameOn)
                 RotatePlayer();
         }
 
         private void FixedUpdate()
         {
-            if (GR.GameOn && DataHolder.GameType != GameTypes.WifiClient)
+            if (DataHolder.GameType != GameTypes.WifiClient && GeneralController.GameOn)
                 _rb.MovePosition(transform.position + gameObject.transform.up * Time.fixedDeltaTime * MoveSpeed);
         }
 
@@ -61,7 +59,7 @@ namespace Game2
             }
         }
       
-        public void SetBroadcastPositions(Vector3 position, Quaternion rotation)
+        public void SetBroadcastTransforms(Vector3 position, Quaternion rotation)
         {
             _rb.MovePosition(position);
             _rb.MoveRotation(rotation);

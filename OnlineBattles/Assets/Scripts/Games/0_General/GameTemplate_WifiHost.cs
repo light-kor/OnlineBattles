@@ -7,14 +7,14 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
     private ConnectTypes _connectType;
     private float counter = 0, targetCounter = 2;
 
-    protected void BaseStart(ConnectTypes type)
+    public void newStart(ConnectTypes connectType)
     {
+        _connectType = connectType;
+        WifiServer_Host.OpponentIsReady = false;
         GeneralController.OpponentLeftTheGame += OpponentLeftTheGame;
         GeneralController.RemotePause += SendPauseRequest;
         GeneralController.RemoteResume += SendResumeRequest;
         PauseMenu.LeaveTheGame += LeaveTheGame;
-
-        _connectType = type;
 
         if (_connectType == ConnectTypes.UDP)
         {
@@ -24,23 +24,13 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Завершение игры. Вывод уведомления и отправка инфы противнику.
-    /// </summary>
-    /// <param name="opponentStatus">Статус противника.</param>
-    protected static void EndOfGame(string opponentStatus)
+    public void newFixedUpdate()
     {
-        WifiServer_Host.Opponent.SendTcpMessage(opponentStatus);
-        string notifText = null;
-        if (opponentStatus == "drawn")
-            notifText = "Ничья";
-        else if (opponentStatus == "lose")
-            notifText = "Вы победили";
-        else if (opponentStatus == "win")
-            notifText = "Вы проиграли";
-
-        new Notification(notifText, Notification.ButtonTypes.MenuButton);
-    } //TODO: Удалить это и перевести все игры на новую систему
+        if (GeneralController.GameOn && Network.ClientUDP != null)
+        {
+            TrySendFrameUDP();
+        }
+    }
 
     private void LeaveTheGame()
     {
@@ -70,7 +60,7 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
         WifiServer_Host.Opponent.SendTcpMessage($"UpdateScore {player} {result}");
     }
 
-    protected void CloseAll()
+    private void CloseAll()
     {
         if (_connectType == ConnectTypes.UDP)
         {
@@ -78,7 +68,7 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
         }
     }
 
-    protected void TrySendFrameUDP()
+    private void TrySendFrameUDP()
     {
         counter++;
         if (counter == targetCounter)
@@ -94,7 +84,7 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
 
     }
 
-    private void OnDestroy()
+    public void newOnDestroy()
     {
         GeneralController.OpponentLeftTheGame -= OpponentLeftTheGame;
         GeneralController.RemotePause -= SendPauseRequest;
