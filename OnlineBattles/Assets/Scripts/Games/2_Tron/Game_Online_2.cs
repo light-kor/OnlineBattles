@@ -40,12 +40,22 @@ namespace Game2
 
         private void UDPFramesProccesing()
         {
-            if (Network.UDPMessagesBig.Count > 0)
+            if (Network.MessagesUDP.Count > 0)
             {
-                FrameInfo frame = Serializer<FrameInfo>.GetMessage(Network.UDPMessagesBig[0]);
-                Network.UDPMessagesBig.RemoveAt(0);
+                FrameInfo frame = null;
+                try
+                {
+                    frame = Serializer<FrameInfo>.GetMessage(Network.MessagesUDP[0]);
+                }
+                catch
+                {
+                    frame = null;
+                }
 
-                _frames.Add(frame);                
+                if (frame != null)
+                    _frames.Add(frame);
+
+                Network.MessagesUDP.RemoveAt(0);
             }
         }
 
@@ -114,7 +124,6 @@ namespace Game2
         //        if (vrem >= time2)
         //        {
         //            _frames.RemoveAt(0);
-        //            //TODO: Мб надо что-то всё равно показать. Наверное надо вернуть в начало функции
         //        }
         //        else if (time <= vrem && vrem < time2)
         //        {
@@ -126,8 +135,6 @@ namespace Game2
 
         //            Quaternion rot_blue = Quaternion.Lerp(_frames[0].Blue.GetQuaternion(), _frames[1].Blue.GetQuaternion(), delta);
         //            Quaternion rot_red = Quaternion.Lerp(_frames[0].Red.GetQuaternion(), _frames[1].Red.GetQuaternion(), delta);
-
-        //            //TODO: Quaternion.LerpUnclamped
 
         //            GR.Blue.PlayerMover.SetBroadcastPositions(pos_blue, rot_blue);
         //            GR.Red.PlayerMover.SetBroadcastPositions(pos_red, rot_red);
@@ -142,11 +149,13 @@ namespace Game2
 
         private void SendJoystick()
         {
-            Vector2 move = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
+            Vector2 move = new Vector2(-_joystick.Horizontal, -_joystick.Vertical).normalized;
             if (move != _lastMove)
             {
-                Network.ClientTCP.SendMessage($"move {move.x} {move.y}");
                 _lastMove = move;
+                myVector2 joy = new myVector2(move);
+                string json = JsonUtility.ToJson(joy);
+                Network.ClientTCP.SendMessage($"move {json}");
             }
         }
 

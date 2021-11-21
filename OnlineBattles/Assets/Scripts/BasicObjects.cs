@@ -4,10 +4,10 @@ using UnityEngine;
 [Serializable]
 public class ModifiedQuaternion
 {
-    public readonly float X;
-    public readonly float Y;
-    public readonly float Z;
-    public readonly float W;
+    public float X;
+    public float Y;
+    public float Z;
+    public float W;
 
     public ModifiedQuaternion(Quaternion quaternion)
     {
@@ -26,9 +26,9 @@ public class ModifiedQuaternion
 [Serializable]
 public class ModifiedVector3
 {
-    public readonly float X;
-    public readonly float Y;
-    public readonly float Z;
+    public float X;
+    public float Y;
+    public float Z;
 
     public ModifiedVector3(Vector3 vector)
     {
@@ -40,5 +40,23 @@ public class ModifiedVector3
     public Vector3 GetVector3()
     {
         return new Vector3(X, Y, Z);
+    }
+}
+
+[Serializable]
+public class myVector2
+{
+    public float X;
+    public float Y;
+
+    public myVector2(Vector2 vector)
+    {
+        X = vector.x;
+        Y = vector.y;
+    }
+
+    public Vector2 GetVector2()
+    {
+        return new Vector2(X, Y);
     }
 }

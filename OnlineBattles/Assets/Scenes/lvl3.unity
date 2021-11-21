@@ -1666,6 +1666,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _joystick: {fileID: 22608060}
+  _points: {fileID: 1368874310}
 --- !u!1001 &1994445169
 PrefabInstance:
   m_ObjectHideFlags: 0

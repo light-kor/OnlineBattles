@@ -46,7 +46,7 @@ public class a_ShowMovingPanel : MonoBehaviour
             Destroy(gameObject);
         else
             gameObject.SetActive(false);
-    } //TODO: А если вызовут заново, когда она ещё не закрылось
+    }
 
     private IEnumerator BlurProgress(int dir)
     {

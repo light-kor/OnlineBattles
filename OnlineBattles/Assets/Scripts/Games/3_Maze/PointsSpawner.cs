@@ -16,7 +16,15 @@ namespace Game3
         private void Start()
         {
             CreatePoints();
-            StartCoroutine(SpawnPointsWithDelay());
+
+            if (DataHolder.GameType != GameEnumerations.GameTypes.WifiClient)
+                StartCoroutine(SpawnPointsWithDelay());
+        }
+
+        public void SetPointPositionRemote(int pointNum, Vector2 position)
+        {
+            _pool[pointNum].gameObject.SetActive(true);
+            _pool[pointNum].transform.position = position;
         }
 
         private IEnumerator SpawnPointsWithDelay()
@@ -49,6 +57,7 @@ namespace Game3
             for (int i = 0; i < PointsMaxCount; i++)
             {
                 PointEnterHandler spawned = Instantiate(_pointPref, transform);
+                spawned.Init(i);
                 spawned.gameObject.SetActive(false);
                 _pool.Add(spawned);
             }

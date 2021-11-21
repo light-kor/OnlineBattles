@@ -18,7 +18,8 @@ namespace Game3
 
         private void Start()
         {
-            ManualCreateMapButton.Click += CreateMaze;
+            if (DataHolder.GameType != GameTypes.WifiClient)
+                ManualCreateMapButton.Click += CreateMaze;
         }
 
         private void Update()
@@ -41,7 +42,7 @@ namespace Game3
             MazeGeneratorCell[,] maze = generator.GenerateMaze();
 
             if (DataHolder.GameType == GameTypes.WifiHost)
-                Serializer<MazeGeneratorCell[,]>.SendMessage(maze, ConnectTypes.TCP);
+                Serializer<MazeGeneratorCell[,]>.SendMessage(maze, ConnectTypes.TCP);                
 
             if (_mazeBuilt == false)
                 BuildMaze(maze);
@@ -53,12 +54,16 @@ namespace Game3
 
         public void CreateMazeRemote()
         {
-            MazeGeneratorCell[,] maze = Serializer<MazeGeneratorCell[,]>.GetMessage();
+            if (Network.BigMessagesTCP.Count > 0)
+            {
+                MazeGeneratorCell[,] maze = Serializer<MazeGeneratorCell[,]>.GetMessage(Network.BigMessagesTCP[0]);
+                Network.BigMessagesTCP.RemoveAt(0);
 
-            if (_mazeBuilt == false)
-                BuildMaze(maze);
-            else
-                RefreshMaze(maze);
+                if (_mazeBuilt == false)
+                    BuildMaze(maze);
+                else
+                    RefreshMaze(maze);
+            }          
         }
 
         public void MazeColliderSwitch(bool enabled)
@@ -84,7 +89,6 @@ namespace Game3
                 }
             }
             _mazeBuilt = true;
-            Debug.Log("Built");
         }
 
         private void RefreshMaze(MazeGeneratorCell[,] maze)
@@ -97,12 +101,12 @@ namespace Game3
                     _field[x, y].WallBottom.SetActive(maze[x, y].WallBottom);
                 }
             }
-            Debug.Log("Refresh");
         }       
 
         private void OnDestroy()
         {
-            ManualCreateMapButton.Click -= CreateMaze;
+            if (DataHolder.GameType != GameTypes.WifiClient)
+                ManualCreateMapButton.Click -= CreateMaze;
         }
     }
 }

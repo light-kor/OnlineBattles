@@ -52,5 +52,10 @@ namespace Game3
                 }
             }          
         }
+
+        private void OnDestroy()
+        {
+            _button.onClick.RemoveListener(ButtonClick);
+        }
     }
 }

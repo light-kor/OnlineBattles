@@ -12,7 +12,6 @@ public class TCPConnect
 
     public bool ConnectionIsReady = false;
     public DateTime LastSend = DateTime.UtcNow;
-    public List<byte> BigArray = new List<byte>();
 
     private const int ConnectionTimedOut = 3000;
     private const int MessageLengthLimit = 500;
@@ -76,7 +75,7 @@ public class TCPConnect
     /// Сериализация и отправка TCP сообщения. Сначала отправляется размер сообщения в байтах, а потом уже сам текст.
     /// </summary>
     /// <param name="message">Текст сообщения.</param>
-    public void SendMessage(string message) //TODO: На выделенном сервере ничего подобного ещё нет
+    public void SendMessage(string message)
     {
         try
         {
@@ -123,7 +122,7 @@ public class TCPConnect
             }
             else
             {
-                BigArray = buffer;
+                Network.BigMessagesTCP.Add(buffer.ToArray());
                 BigMessageReceived?.Invoke();
             }
         }
@@ -150,7 +149,6 @@ public class TCPConnect
     private void TryStartReconnect()
     {
         //TODO: Пока отключил возможность реконнкта.
-        //TODO: Получается, если реально будет ошибка сети, то она не обработается, но да ладно
 
         //if (ConnectionIsReady)
         //{
@@ -158,7 +156,8 @@ public class TCPConnect
         //    CloseClient();
         //    Network.StartReconnect();
         //}
-        ////TODO: Наверное надо и else добавить?
+
+        //TODO: Наверное надо и else добавить?
     }
 
 

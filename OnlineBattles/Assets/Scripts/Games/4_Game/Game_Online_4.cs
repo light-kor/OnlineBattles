@@ -25,10 +25,10 @@ namespace Game4
 
         private void UpdateThread()
         {
-            if (Network.UDPMessagesBig.Count > 0)
+            if (Network.MessagesUDP.Count > 0)
             {
-                FrameInfo frame = Serializer<FrameInfo>.GetMessage(Network.UDPMessagesBig[0]);
-                Network.UDPMessagesBig.RemoveAt(0);
+                FrameInfo frame = Serializer<FrameInfo>.GetMessage(Network.MessagesUDP[0]);
+                Network.MessagesUDP.RemoveAt(0);
 
                 _frames.Add(frame);
             }

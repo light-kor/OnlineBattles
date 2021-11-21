@@ -11,7 +11,7 @@ public abstract class GameTemplate_Online : MonoBehaviour
     {
         _connectType = connectType;
         GeneralController.OpponentLeftTheGame += OpponentLeftTheGame;
-        GeneralController.EndOfGame += FinishTheGame;
+        GeneralController.EndOfGame += CloseAll;
         GeneralController.RemotePause += SendPauseRequest;
         GeneralController.RemoteResume += SendResumeRequest;
         PauseMenu.LeaveTheGame += LeaveTheGame;
@@ -19,7 +19,7 @@ public abstract class GameTemplate_Online : MonoBehaviour
         if (_connectType == ConnectTypes.UDP)
         {
             Network.CreateUDP();
-            Network.UDPMessagesBig.Clear();
+            Network.MessagesUDP.Clear();
             Network.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
         }
 
@@ -31,28 +31,6 @@ public abstract class GameTemplate_Online : MonoBehaviour
     //{
     //    Network.ConnectionLifeSupport();  
     //}
-
-    private void FinishTheGame(string status)
-    {
-        CloseAll();
-        EndOfGame(status);
-    }
-
-    /// <summary>
-    /// Завершение игры. Вывод уведомления.
-    /// </summary>
-    private void EndOfGame(string status) //TODO: Надо как-то подвязаться на систему с счётом
-    { //TODO: Лучше это тут и оставить, но проверить, чтоб было красиво, как в Score
-        string notifText = null;
-        if (status == "Draw")
-            notifText = "Ничья";
-        else if (status == "Win")
-            notifText = "Вы победили";
-        else if (status == "Lose")
-            notifText = "Вы проиграли";
-
-        new Notification(notifText, Notification.ButtonTypes.MenuButton);
-    }    
 
     private void LeaveTheGame()
     {
@@ -88,7 +66,7 @@ public abstract class GameTemplate_Online : MonoBehaviour
     public void newOnDestroy()
     {
         GeneralController.OpponentLeftTheGame -= OpponentLeftTheGame;
-        GeneralController.EndOfGame -= FinishTheGame;
+        GeneralController.EndOfGame -= CloseAll;
         GeneralController.RemotePause -= SendPauseRequest;
         GeneralController.RemoteResume -= SendResumeRequest;
         PauseMenu.LeaveTheGame -= LeaveTheGame;

@@ -9,6 +9,8 @@ namespace Game1
         [SerializeField] private Tile _mainSquare, _blueCircle, _redCross;
         [SerializeField] private Tilemap _playLayer;
 
+        //TODO: Добавить выбор стороны на рандом, либо как-то по-очереди
+
         public static GameResources_1 GameResources;
 
         private bool _firstPlayerTurn = true;

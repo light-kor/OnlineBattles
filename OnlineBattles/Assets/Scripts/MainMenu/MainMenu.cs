@@ -26,7 +26,7 @@ public class MainMenu : MonoBehaviour
    
     private void Update()
     {
-        Network.ConnectionLifeSupport(); //TODO: Может вынести как-то поудобнее
+        Network.ConnectionLifeSupport();
 
         if (_tcpControlMessages.Count > 0)
         {

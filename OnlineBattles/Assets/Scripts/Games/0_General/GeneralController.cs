@@ -1,12 +1,11 @@
 using GameEnumerations;
 using System.Collections.Generic;
-using System.Globalization;
 using UnityEngine;
 using UnityEngine.Events;
 
 public abstract class GeneralController : MonoBehaviour
 {
-    public static event UnityAction<string> EndOfGame;
+    public static event UnityAction EndOfGame;
     public static event UnityAction OpponentLeftTheGame;
     public static event UnityAction RemotePause;
     public static event UnityAction RemoteResume;
@@ -18,13 +17,12 @@ public abstract class GeneralController : MonoBehaviour
     public event UnityAction<string[]> NewMessageReceived;
 
     public static bool GameOn { get; private set; } = false;
-    public NumberFormatInfo NumFormat = new CultureInfo("en-US").NumberFormat;
 
     private List<string[]> _gameControlMessages = new List<string[]>();
     private List<string[]> _gameMessages = new List<string[]>();
     private bool _timerIsDone = false;
     private bool _checkingResults = false;
-    protected GeneralUIResources _res { get; private set; }
+    private GeneralUIResources _res;
 
     public void newAwake()
     {
@@ -62,7 +60,8 @@ public abstract class GeneralController : MonoBehaviour
 
                 case "EndGame":
                     PauseGame(PauseTypes.BackgroundPause);
-                    EndOfGame?.Invoke(mes[1]);
+                    _res.EndGame.OnlineEndGame(mes[1]);                  
+                    EndOfGame?.Invoke();
                     break;
 
                 case "EndRound":
@@ -184,13 +183,10 @@ public abstract class GeneralController : MonoBehaviour
 
     private void ProcessingTCPGameMessages()
     {
-        if (GameOn)
+        if (_gameMessages.Count > 0) //TODO: Или while будет лучше?
         {
-            if (_gameMessages.Count > 0) //TODO: Или while будет лучше?
-            {
-                string[] mes = DataHolder.UseAndDeleteFirstListMessage(_gameMessages);
-                NewMessageReceived?.Invoke(mes);
-            }
+            string[] mes = DataHolder.UseAndDeleteFirstListMessage(_gameMessages);
+            NewMessageReceived?.Invoke(mes);
         }
     }
 

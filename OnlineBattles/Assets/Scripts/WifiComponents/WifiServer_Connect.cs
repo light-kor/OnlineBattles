@@ -8,7 +8,7 @@ public static class WifiServer_Connect
 
     public static void StartSearching()
     {
-        WifiServer_Searcher.GetWifiServer += AddServerToList;
+        WifiServer_Searcher.GetMessage += AddServerToList;
         _wifiServers.Clear();
         Network.CreateWifiServerSearcher("receiving");
     }
@@ -16,24 +16,20 @@ public static class WifiServer_Connect
     public static void ConnectToWifiServer()
     {
         Network.CloseWifiServerSearcher();
-        WifiServer_Searcher.GetWifiServer -= AddServerToList;
+        WifiServer_Searcher.GetMessage -= AddServerToList;
         Network.CreateTCP();
     }
 
-    private static void AddServerToList()
+    private static void AddServerToList(string message)
     {
-        while (Network.UDPMessages.Count > 0)
+        string[] mes = message.Split(' ');
+        if (mes[0] == "server")
         {
-            string[] mes = Network.UDPMessages[0].Split(' ');
-            if (mes[0] == "server")
-            {                
-                if (_wifiServers.Find(x => x == mes[2]) == null)
-                {
-                    _wifiServers.Add(mes[2]);
-                    AddWifiServerToScreen?.Invoke($"{mes[1]} {mes[2]}");                    
-                }
+            if (_wifiServers.Find(x => x == mes[2]) == null)
+            {
+                _wifiServers.Add(mes[2]);
+                AddWifiServerToScreen?.Invoke($"{mes[1]} {mes[2]}");
             }
-            Network.UDPMessages.RemoveAt(0);
         }
     }
 }

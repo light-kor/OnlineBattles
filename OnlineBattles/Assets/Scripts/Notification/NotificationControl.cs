@@ -31,8 +31,7 @@ public class NotificationControl : MonoBehaviour
 
             case Notification.ButtonTypes.StopReconnect: // StopReconnect                
                 Network.StopReconnecting();
-                SceneManager.LoadScene("mainMenu"); // Ну если не хочешь reconnect во время игры, то не играй))
-                //TODO: Ну тогда надо ещё корректно завершить игру и закрыть UDP соединение.
+                SceneManager.LoadScene("mainMenu"); 
                 break;
 
             case Notification.ButtonTypes.StopConnecting:             
@@ -48,7 +47,7 @@ public class NotificationControl : MonoBehaviour
                 break;
 
             case Notification.ButtonTypes.RestartLevel: // Начать игру заново
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name); //TODO: Работает только для оффлайн игры. Да и вообще надо бы загрузки сцены сделать.
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                 break;
 
             case Notification.ButtonTypes.CancelWifiOpponent: // Искать другого противника по wifi

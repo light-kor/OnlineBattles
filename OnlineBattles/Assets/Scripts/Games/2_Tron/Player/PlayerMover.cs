@@ -58,12 +58,16 @@ namespace Game2
                 }
             }
         }
-      
+
         public void SetBroadcastTransforms(Vector3 position, Quaternion rotation)
         {
             _rb.MovePosition(position);
-            _rb.MoveRotation(rotation);
-            //transform.rotation = rotation;
-        }        
+            transform.rotation = rotation;
+        }
+
+        public void ClearCurrentAngle()
+        {
+            _currentAngle = 0f;
+        }
     }
 }

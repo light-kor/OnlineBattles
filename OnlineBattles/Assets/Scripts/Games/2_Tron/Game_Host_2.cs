@@ -24,8 +24,8 @@ namespace Game2
         {
             if (mes[0] == "move")
             {
-                Vector2 normalizedJoystick = new Vector2(-float.Parse(mes[1], GR.NumFormat), -float.Parse(mes[2], GR.NumFormat));
-                GR.Red.PlayerInput.ChangeDirectionRemote(normalizedJoystick);
+                myVector2 joy = JsonUtility.FromJson<myVector2>(mes[1]);
+                GR.Red.PlayerInput.ChangeDirectionRemote(joy.GetVector2());
             }
         }
 

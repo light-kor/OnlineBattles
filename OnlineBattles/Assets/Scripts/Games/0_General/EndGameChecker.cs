@@ -16,7 +16,7 @@ public class EndGameChecker : MonoBehaviour
             }
             else if (gameType == GameTypes.WifiHost)
             {
-                OnlineEndGame(blueScore, redScore);
+                HostEndGame(blueScore, redScore);
                 return true;
             }
         }
@@ -37,7 +37,7 @@ public class EndGameChecker : MonoBehaviour
         new Notification(notifText, Notification.NotifTypes.EndGame);
     }
 
-    private void OnlineEndGame(int blueScore, int redScore)
+    private void HostEndGame(int blueScore, int redScore)
     {
         string notifText = null, opponentStatus = null;
 
@@ -58,6 +58,19 @@ public class EndGameChecker : MonoBehaviour
         }
 
         WifiServer_Host.Opponent.SendTcpMessage("EndGame " + opponentStatus);
+        new Notification(notifText, Notification.ButtonTypes.MenuButton);
+    }
+
+    public void OnlineEndGame(string status)
+    {
+        string notifText = null;
+        if (status == "Draw")
+            notifText = "Ничья";
+        else if (status == "Win")
+            notifText = "Вы победили";
+        else if (status == "Lose")
+            notifText = "Вы проиграли";
+
         new Notification(notifText, Notification.ButtonTypes.MenuButton);
     }
 }

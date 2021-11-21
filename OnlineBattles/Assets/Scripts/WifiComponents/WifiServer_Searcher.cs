@@ -7,7 +7,7 @@ using UnityEngine.Events;
 
 public class WifiServer_Searcher
 {
-    public static event UnityAction GetWifiServer;
+    public static event UnityAction<string> GetMessage;
     private int _port = DataHolder.WifiPort;
     private IPEndPoint _remoteIp = null;
     private UdpClient _client = null;
@@ -86,9 +86,8 @@ public class WifiServer_Searcher
             try
             {
                 byte[] data = _client.Receive(ref _remoteIp);
-                string messList = Encoding.UTF8.GetString(data);               
-                Network.UDPMessages.Add($"{messList} {_remoteIp.Address}");
-                GetWifiServer?.Invoke();
+                string messList = Encoding.UTF8.GetString(data);                           
+                GetMessage?.Invoke($"{messList} {_remoteIp.Address}");
             }
             catch { TryReconnect(); }
         }
@@ -96,11 +95,6 @@ public class WifiServer_Searcher
 
     private void SpammingSeverIp(object obj)
     {
-        if (IpPiece == null)
-        {
-            //TODO: Как-то вывести предупреждение
-        }
-
         int count = 0;
         while (count <= 255)
         {
@@ -117,7 +111,7 @@ public class WifiServer_Searcher
             CloseAll();
             CreateClass();
         }
-        else CloseAll(); // На всякий случай
+        else CloseAll();
     }
 
     public void CloseAll()

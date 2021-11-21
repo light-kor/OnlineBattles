@@ -20,6 +20,7 @@ namespace Game3
 
         //TODO: Добавит звук или какую-то анимацию после Collect point.
         //TODO: Добавить проверку времени на нажатие кнопки клиентом. Чтоб не взломали и не нажимали слишком часто на смену лабиринта
+        //TODO: Добавить интерполяцию
 
         private void Awake()
         {
@@ -35,15 +36,9 @@ namespace Game3
         public void UpdateScore(PlayerTypes playerType)
         {
             UpdateScoreAndCheckGameState(playerType, GameResults.Win, WinScore, false);
-        }
-      
-        public void StartOnHost()
-        {
-            StartOnLocal();
-            WifiServer_Host.Opponent.SendTcpMessage($"position {_red.transform.position.x} {_red.transform.position.y} {_blue.transform.position.x} {_blue.transform.position.y}");
-        }       
+        }                
 
-        private void StartOnLocal()
+        public void StartOnLocal()
         {
             _spawner.MazeColliderSwitch(true);
             _blue.transform.position = RandomPositionOnMap();

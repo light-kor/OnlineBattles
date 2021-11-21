@@ -58,6 +58,7 @@ namespace Game2
             _trailCollider.ClearCollider();
             _explosion.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             PlayerInput.ClearJoystick();
+            PlayerMover.ClearCurrentAngle();
 
             transform.position = _startPosition;
             transform.rotation = _startRotation;

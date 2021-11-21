@@ -33,15 +33,6 @@ public static class Serializer<T>
         else return;       
     }
 
-    public static T GetMessage()
-    {
-        var formatter = new BinaryFormatter();
-        using (var ms = new MemoryStream(Network.ClientTCP.BigArray.ToArray()))
-        {
-            return (T)formatter.Deserialize(ms);
-        }
-    }
-
     public static T GetMessage(byte[] data)
     {
         var formatter = new BinaryFormatter();

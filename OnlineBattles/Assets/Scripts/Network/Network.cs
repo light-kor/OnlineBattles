@@ -18,8 +18,8 @@ public static class Network
     public static UDPConnect ClientUDP { get; private set; } = null;
     public static long TimeDifferenceWithServer { get; private set; } = 0;
 
-    public static List<string> UDPMessages = new List<string>(); //TODO: Надо бы выпилить или перенсти в WifiServer_Searcher
-    public static List<byte[]> UDPMessagesBig = new List<byte[]>();
+    public static List<byte[]> BigMessagesTCP = new List<byte[]>();
+    public static List<byte[]> MessagesUDP = new List<byte[]>();
     private static List<string[]> _messagesTCP = new List<string[]>();
     private static WifiServer_Searcher _serverSearcher = null;
    
@@ -82,7 +82,6 @@ public static class Network
         }       
     }
 
-    //TODO: Теперь это костыль тк надо привязать к открытым сценам юнити и + тепрь надо самому вставлять во все сцены. те пока пусть будет в NotificationPanels
     public static void ConnectionLifeSupport()
     {
         // Поддержание жизни соединения с сервером.

@@ -18,7 +18,7 @@ public abstract class GameTemplate_WifiHost : MonoBehaviour
 
         if (_connectType == ConnectTypes.UDP)
         {
-            Network.UDPMessagesBig.Clear();
+            Network.MessagesUDP.Clear();
             Network.CreateUDP();
             Network.ClientUDP.SendMessage("sss"); // Именно UDP сообщение, чтоб сервер получил удалённый адрес
         }

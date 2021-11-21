@@ -6,6 +6,8 @@ namespace Game3
     public class Game_Online_3 : GameTemplate_Online
     {
         [SerializeField] private Joystick _joystick;
+        [SerializeField] private PointsSpawner _points;
+
         private bool _getBigMessage = false;
         private Vector2 _lastMove = Vector2.zero;
         private List<FrameInfo> _frames = new List<FrameInfo>();
@@ -58,12 +60,22 @@ namespace Game3
 
         private void UDPFramesProccesing()
         {
-            if (Network.UDPMessagesBig.Count > 0)
+            if (Network.MessagesUDP.Count > 0)
             {
-                FrameInfo frame = Serializer<FrameInfo>.GetMessage(Network.UDPMessagesBig[0]);
-                Network.UDPMessagesBig.RemoveAt(0);
+                FrameInfo frame = null;
+                try
+                {
+                    frame = Serializer<FrameInfo>.GetMessage(Network.MessagesUDP[0]);
+                }
+                catch
+                {
+                    frame = null;
+                }
 
-                _frames.Add(frame);
+                if (frame != null)
+                    _frames.Add(frame);
+
+                Network.MessagesUDP.RemoveAt(0);              
             }
         }
 
@@ -71,16 +83,20 @@ namespace Game3
         {
             if (mes[0] == "point")
             {
-                Vector2 position = new Vector2(float.Parse(mes[1], GR.NumFormat), float.Parse(mes[2], GR.NumFormat));
-               // Instantiate(GR._pointPref, position, Quaternion.identity, GR._points.transform);
+                int number = int.Parse(mes[1]);
+                myVector2 position = JsonUtility.FromJson<myVector2>(mes[2]);
+
+                _points.SetPointPositionRemote(number, position.GetVector2());
             }
             else if (mes[0] == "position")
             {
-                Vector2 redPosition = new Vector2(float.Parse(mes[1], GR.NumFormat), float.Parse(mes[2], GR.NumFormat));
-                Vector2 bluePosition = new Vector2(float.Parse(mes[3], GR.NumFormat), float.Parse(mes[4], GR.NumFormat));
+                FrameInfo frame = JsonUtility.FromJson<FrameInfo>(mes[1]);
 
-                GR.Blue.SetBroadcastPositions(bluePosition);
-                GR.Red.SetBroadcastPositions(redPosition);
+                Vector3 pos_blue = frame.Blue.GetVector3();
+                Vector3 pos_red = frame.Red.GetVector3();
+
+                GR.Blue.SetBroadcastPositions(pos_blue);
+                GR.Red.SetBroadcastPositions(pos_red);
             }
         }
 
@@ -89,8 +105,10 @@ namespace Game3
             Vector2 move = new Vector2(_joystick.Horizontal, _joystick.Vertical).normalized;
             if (move != _lastMove)
             {
-                Network.ClientTCP.SendMessage($"move {move.x} {move.y}");
                 _lastMove = move;
+                myVector2 joy = new myVector2(move);
+                string json = JsonUtility.ToJson(joy);
+                Network.ClientTCP.SendMessage($"move {json}");
             }
         }
 
@@ -106,7 +124,9 @@ namespace Game3
 
         private void OnDestroy()
         {
-            Network.ClientTCP.BigMessageReceived -= GetBigMessage;
+            if (Network.ClientTCP != null)
+                Network.ClientTCP.BigMessageReceived -= GetBigMessage;
+
             ManualCreateMapButton.Click -= SendChangeMazeRequest;
             GR.NewMessageReceived -= ProcessingTCPMessages;
         }

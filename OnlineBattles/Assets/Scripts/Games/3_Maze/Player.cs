@@ -24,7 +24,7 @@ namespace Game3
         {
             if (GeneralController.GameOn)
             {
-                if (DataHolder.GameType != GameTypes.WifiClient)
+                if (DataHolder.GameType == GameTypes.Local || (DataHolder.GameType == GameTypes.WifiHost && _playerType == PlayerTypes.BluePlayer))
                 {
                     ChangeDirectionLocal();
                 }

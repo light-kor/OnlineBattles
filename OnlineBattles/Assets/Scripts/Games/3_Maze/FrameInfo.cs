@@ -5,8 +5,8 @@ namespace Game3
     [Serializable]
     public class FrameInfo
     {
-        public readonly ModifiedVector3 Blue;
-        public readonly ModifiedVector3 Red;
+        public ModifiedVector3 Blue;
+        public ModifiedVector3 Red;
 
         public FrameInfo(Player blue, Player red)
         {

@@ -17,17 +17,17 @@ namespace Game3
 
     public class MazeGenerator
     {
-        private int width, height;
+        private int _width, _height;
 
         public MazeGenerator(int width, int height)
         {
-            this.width = width;
-            this.height = height;
+            _width = width;
+            _height = height;
         }
 
         public MazeGeneratorCell[,] GenerateMaze()
         {
-            MazeGeneratorCell[,] maze = new MazeGeneratorCell[width, height];
+            MazeGeneratorCell[,] maze = new MazeGeneratorCell[_width, _height];
 
             for (int x = 0; x < maze.GetLength(0); x++)
             {
@@ -39,12 +39,12 @@ namespace Game3
 
             for (int x = 0; x < maze.GetLength(0); x++)
             {
-                maze[x, height - 1].WallLeft = false;
+                maze[x, _height - 1].WallLeft = false;
             }
 
             for (int y = 0; y < maze.GetLength(1); y++)
             {
-                maze[width - 1, y].WallBottom = false;
+                maze[_width - 1, y].WallBottom = false;
             }
 
             RemoveWallsWithBacktracker(maze);
@@ -70,9 +70,9 @@ namespace Game3
                     unvisitedNeighbours.Add(maze[x - 1, y]);
                 if (y > 0 && !maze[x, y - 1].Visited)
                     unvisitedNeighbours.Add(maze[x, y - 1]);
-                if (x < width - 2 && !maze[x + 1, y].Visited)
+                if (x < _width - 2 && !maze[x + 1, y].Visited)
                     unvisitedNeighbours.Add(maze[x + 1, y]);
-                if (y < height - 2 && !maze[x, y + 1].Visited)
+                if (y < _height - 2 && !maze[x, y + 1].Visited)
                     unvisitedNeighbours.Add(maze[x, y + 1]);
 
                 if (unvisitedNeighbours.Count > 0)
@@ -117,16 +117,16 @@ namespace Game3
 
             for (int x = 0; x < maze.GetLength(0); x++)
             {
-                if (maze[x, height - 2].DistanceFromStart > furthest.DistanceFromStart)
-                    furthest = maze[x, height - 2];
+                if (maze[x, _height - 2].DistanceFromStart > furthest.DistanceFromStart)
+                    furthest = maze[x, _height - 2];
                 if (maze[x, 0].DistanceFromStart > furthest.DistanceFromStart)
                     furthest = maze[x, 0];
             }
 
             for (int y = 0; y < maze.GetLength(1); y++)
             {
-                if (maze[width - 2, y].DistanceFromStart > furthest.DistanceFromStart)
-                    furthest = maze[width - 2, y];
+                if (maze[_width - 2, y].DistanceFromStart > furthest.DistanceFromStart)
+                    furthest = maze[_width - 2, y];
                 if (maze[0, y].DistanceFromStart > furthest.DistanceFromStart)
                     furthest = maze[0, y];
             }
@@ -135,9 +135,9 @@ namespace Game3
                 furthest.WallLeft = false;
             else if (furthest.Y == 0)
                 furthest.WallBottom = false;
-            else if (furthest.X == width - 2)
+            else if (furthest.X == _width - 2)
                 maze[furthest.X + 1, furthest.Y].WallLeft = false;
-            else if (furthest.Y == height - 2)
+            else if (furthest.Y == _height - 2)
                 maze[furthest.X, furthest.Y + 1].WallBottom = false;
         }
     }

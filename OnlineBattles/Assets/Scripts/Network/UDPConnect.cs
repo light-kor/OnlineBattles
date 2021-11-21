@@ -47,7 +47,7 @@ public class UDPConnect
     /// Отправка пользовательских UDP сообщений с добавлением "метаданных" для сервера.
     /// </summary>
     /// <param name="mes">Текст сообщения.</param>
-    public void SendMessage(string mes) //TODO: Может сделать что-то типо переопределения, чтоб только один раз выбрать, а не делать проверку GameType каждый раз.
+    public void SendMessage(string mes)
     {
         byte[] data = null;
         try
@@ -62,7 +62,7 @@ public class UDPConnect
         catch { TryReconnect(); }
     }
 
-    public void SendMessage(byte[] data) //TODO: Может сделать что-то типо переопределения, чтоб только один раз выбрать, а не делать проверку GameType каждый раз.
+    public void SendMessage(byte[] data)
     {
         try
         {
@@ -83,8 +83,8 @@ public class UDPConnect
                 byte[] data = _client.Receive(ref _remoteIp);
                 //string messList = Encoding.UTF8.GetString(data);
                 //Network.UDPMessages.Add(messList);
-
-                Network.UDPMessagesBig.Add(data);
+             
+                Network.MessagesUDP.Add(data);
             }
             catch { TryReconnect(); }
         }
@@ -100,10 +100,7 @@ public class UDPConnect
             CloseAll();
             CreateClass();
         }
-        else CloseAll(); // На всякий случай
-
-        //TODO: Игрок может отменить реконнект и игру, тогда надо будет обнулить и удалить все UDP соединения
-        //TODO: Сделать отдельную функцию выхода в меню, если ты потерял связь во время игры и не хочешь реконнкта
+        else CloseAll();
     }
 
     /// <summary>
